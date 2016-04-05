@@ -133,6 +133,7 @@ private static function json_to_array(&$array)
 		foreach ($array as $key => &$value) {
 
 			if($key=='dashboard_count' || $key=='dashboard_date'){
+				if(is_string($value))
 				$value = explode(',', $value);
 			}else{
 				if(is_string($value)){
