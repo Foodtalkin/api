@@ -126,15 +126,35 @@ class Controller extends BaseController {
 	}
 	
 	
+	
+	private static function json_to_array(&$array)
+	{
+		if(is_array($array)){
+			foreach ($array as $key => &$value) {
+				if($key=='response' || $key=='metadata' || $key=='custom_fields'){
+					$value = json_decode($value,true);
+					
+					if(is_array($value))
+						self::json_to_array($value);
+				}
+				if($key=='dashboard_count' || $key=='dashboard_date'){
+					$value = explode(',', $value);
+				}
+			}
+		}
+		else{
+			$array = json_decode($array,true);
+			if(is_array($array))
+				self::json_to_array($array);
+		}	
+	}
+	
 	public static final function sendResponse($responseData, $status = self::SUCCESS_OK, $message = null) {
 		
 		$responseData = response ()->json ( $responseData )->getData ( true );
 		
-		
-		if(is_array($responseData))
-		array_walk_recursive($responseData,'toJson');
-		
-		
+		self::json_to_array($responseData);
+// 		array_walk_recursive($responseData,'toJson');		
 		$response = array ();
 		
 		if (! empty ( $responseData ) && $status == self::SUCCESS_OK) {
