@@ -154,7 +154,7 @@ class Controller extends BaseController {
 		$responseData = response ()->json ( $responseData )->getData ( true );
 		
 // 		self::json_to_array($responseData);
-// 		array_walk_recursive($responseData,'toJson');		
+		array_walk_recursive($responseData,'toJson');		
 		$response = array ();
 		
 		if (! empty ( $responseData ) && $status == self::SUCCESS_OK) {
