@@ -21,9 +21,16 @@ class User extends BaseModel
 	{
 		
 // 		$this->belongsToMany($related)
-		return $this->belongsToMany('App\Models\Events', 'event_participant')
+		$result= $this->belongsToMany('App\Models\Events', 'event_participant')
 // 		->wherePivot('email', '=', 'email@email.com')
 		->withPivot('email', 'contact', 'payment', 'quantity', 'response', 'created_at');
+		
+		if(isset($order['created_at'])){
+			$result->orderBy('pivot_created_at', 'asc');
+		}else
+			$result->orderBy('pivot_created_at', 'desc');
+		
+		return $result;
 	}
 	
 	
