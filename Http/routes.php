@@ -42,11 +42,14 @@ $app->get('/', function() use ($app) {
 	// list all users
 	$app->get('user','UserController@listAll');
 	
+	$app->post('contact','ContactController@create');
+	
 	// get user's info
 	$app->get('user/{id}','UserController@get');
 	
 	// get events of user's and its info
 	$app->get('user/{id}/{with:events}','UserController@get');
+	
 	
 	// creates a new user
 	$app->post('user','UserController@create');
@@ -88,6 +91,9 @@ $app->get('/', function() use ($app) {
 					'namespace' => 'App\Http\Controllers'
 				], function($app)
 				{
+					$app->get('contact','ContactController@listAll');
+					$app->get('contact/{id}','ContactController@get');
+					
 					$app->get('search/user/tags/{tags}','UserController@tag');
 					$app->get('search/user/{text}/tags/{tags}','UserController@search');
 					$app->get('search/user/{text}','UserController@search');
