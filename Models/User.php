@@ -55,7 +55,7 @@ u.facebookId as facefook_id,
 (SELECT MAX(createDate) FROM `foodtalk`.bookmark b2 WHERE b2.userId = u.id AND b2.isDisabled = 0 ) as last_bookmark,
 a.updateDate as last_activity
 FROM `foodtalk`.`user` u 
-LEFT JOIN `foodtalk`.activityScore a on u.facebookId = a.facefookId
+LEFT JOIN `foodtalk`.activityScore a on u.facebookId = a.facebookId
 where u.facebookId = "'.$this->facebook_id.'"';
 		$result = DB::select(DB::raw($sql));
 		if(empty($result))
