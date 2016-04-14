@@ -38,7 +38,7 @@ class User extends BaseModel
 	{
 		$sql = 'select
 u.userName as user_name, u.createDate as joing_date, 
-u.facebookId as facefook_id,
+u.facebookId as facebook_id,
 (SELECT COUNT(1) FROM `foodtalk`.post p WHERE p.userId = u.id AND p.isDisabled = 0 ) as post_count,
 (SELECT COUNT(1) FROM `foodtalk`.checkins ck WHERE ck.userId = u.id ) as checkin_count,
 (SELECT COUNT(1) FROM `foodtalk`.comment c WHERE c.userId = u.id AND c.isDisabled = 0 ) as comment_count,
