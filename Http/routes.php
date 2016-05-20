@@ -43,6 +43,8 @@ $app->get('/', function() use ($app) {
 	$app->get('user','UserController@listAll');
 	
 	$app->post('contact','ContactController@create');
+	$app->put('contact/{id}','ContactController@update');
+	
 	
 	// get user's info
 	$app->get('user/{id}','UserController@get');
