@@ -41,7 +41,10 @@ $app->get('/', function() use ($app) {
 	
 	// list all users
 	$app->get('user','UserController@listAll');
-	$app->get('user/city/{city}','UserController@listAll');
+	
+	$app->get('user/city/{city}','UserController@listAllWithCity');
+	$app->get('user/city','UserController@listAllWithCity');
+	
 	
 	$app->get('city','CityController@listAll');
 	
