@@ -14,9 +14,13 @@ use Illuminate\Http\JsonResponse;
 class UserController extends Controller {
 	
 	// list all user
-	public function listAll() {
+	public function listAll($city = null) {
 		
-		$User = User::where ( 'is_disabled', '0' )->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		
+		if($city)
+			$User = User::where ( 'is_disabled', '0' )->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		else 
+			$User = User::where ( 'is_disabled', '0' )->orderBy('id', 'desc')->paginate ( $this->pageSize );
 		
 		return $this->sendResponse ( $User );
 // 		return $this->sendResponse ( response ()->json ( $User )->getData ( true ) );

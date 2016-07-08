@@ -41,6 +41,11 @@ $app->get('/', function() use ($app) {
 	
 	// list all users
 	$app->get('user','UserController@listAll');
+	$app->get('user/city/{city}','UserController@listAll');
+	
+	$app->get('city','CityController@listAll');
+	
+	
 	
 	$app->post('contact','ContactController@create');
 	$app->put('contact/{id}','ContactController@update');
