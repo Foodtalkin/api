@@ -16,7 +16,14 @@ class UserController extends Controller {
 	// list all user
 	public function listAll() {
 		
-		$User = User::where ( 'is_disabled', '0' )->orderBy('id', 'desc')->paginate ( $this->pageSize );	
+// 		$User = User::where ( 'is_disabled', '0' )
+		
+		
+		$User = User::select('activity_score.avilablePoints', 'user.*')-> where ('user.is_disabled','0')
+		->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
+		->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		
+		
 		return $this->sendResponse ( $User );
 	}
 	
