@@ -16,11 +16,11 @@ class UserController extends Controller {
 	// list all user
 	public function listAll() {
 		
-// 		$User = User::where ( 'is_disabled', '0' )
+		$User = User::where ( 'is_disabled', '0' )->with('score')
 		
 		
-		$User = User::select('activity_score.avilablePoints', 'user.*')-> where ('user.is_disabled','0')
-		->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
+// 		$User = User::select('activity_score.avilablePoints', 'user.*')-> where ('user.is_disabled','0')
+// 		->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
 		
 		
@@ -30,7 +30,7 @@ class UserController extends Controller {
 	
 	public function listAllWithCity($city = null) {
 		
-		$User = User::where ( 'is_disabled', '0' )->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
+		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
 		return $this->sendResponse ( $User );
 	}
 	
@@ -42,7 +42,7 @@ class UserController extends Controller {
 			$tags = urldecode($tags);
 			$tags = explode(',', $tags);
 			
-			$User = User::select('user.*')-> where ('user.is_disabled','0')
+			$User = User::select('user.*')->with('score')-> where ('user.is_disabled','0')
 			->join('event_participant', 'user.id', '=', 'event_participant.user_id')
 			->join('events', 'events.id', '=', 'event_participant.events_id')
 			->join('tags', 'events.id', '=', 'tags.events_id')
@@ -75,7 +75,7 @@ class UserController extends Controller {
 			$tags = urldecode($tags);
 			$tags = explode(',', $tags);
 			
-			$User = User::select('user.*')-> where ('user.is_disabled','0')
+			$User = User::select('user.*')->with('score')-> where ('user.is_disabled','0')
 			->where(
 				function($query) use ($text){
 					$query->where ( 'user.email', 'LIKE' , "%$text%") 
@@ -104,7 +104,7 @@ class UserController extends Controller {
 			->orderBy('user.id', 'desc')->paginate ( $this->pageSize );
 		}
 		else {
-			$User = User::select('user.*')-> where ('user.is_disabled','0')
+			$User = User::select('user.*')->with('score')-> where ('user.is_disabled','0')
 			->where(
 					function($query) use ($text){
 						$query->where ( 'user.email', 'LIKE' , "%$text%")
@@ -123,6 +123,7 @@ class UserController extends Controller {
 		
 		$user ['app'] = $user->appInfo();
 		
+			$user ['score'] = $user->score;		
 // 		if ($user && $with == 'events') {
 			$user ['events'] = $user->events;
 // 		}

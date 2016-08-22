@@ -17,6 +17,13 @@ class User extends BaseModel
 // 		return $this->hasMany('App\Models\EventParticipant');
 // 	}
 	
+	
+	public function score($order=array())
+	{
+		$result = $this->hasOne('App\Models\ActivityScore', 'facebookId','facebook_id');	
+		return $result;
+	}
+	
 	public function events()
 	{
 		
