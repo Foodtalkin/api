@@ -18,7 +18,7 @@ class Events extends BaseModel
 	{
 		
 		
-		$result = $this->belongsToMany('App\Models\User', 'event_participant')->withPivot('email', 'response','contact', 'payment', 'quantity', 'source', 'created_at')->score;
+		$result = $this->belongsToMany('App\Models\User', 'event_participant')->withPivot('email', 'response','contact', 'payment', 'quantity', 'source', 'created_at');
 		
 		
 		if(isset($order['created_at'])){
