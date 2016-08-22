@@ -14,14 +14,34 @@ use Illuminate\Http\JsonResponse;
 class UserController extends Controller {
 	
 	// list all user
-	public function listAll() {
+	public function listAll($for = 'all') {
+
 		
-		$User = User::where ( 'is_disabled', '0' )->with('score')
+		if($for=='nonapp'){
+			
+			$User = User::where ( 'is_disabled', '0' )->with('score')
+			->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
+			->where ( 'activity_score.facebookId', null )
+			->orderBy('id', 'desc')->paginate ( $this->pageSize );
+			
+		}
 		
+			
+		if($for=='onapp'){
+
+			$User = User::where ( 'is_disabled', '0' )->with('score')
+			->join('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
+			->orderBy('id', 'desc')->paginate ( $this->pageSize );
+				
+		}
 		
-// 		$User = User::select('activity_score.avilablePoints', 'user.*')-> where ('user.is_disabled','0')
-// 		->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
-		->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		if($for=='all'){
+			$User = User::where ( 'is_disabled', '0' )->with('score')
+			->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		}
+			
+// 		$User = User::where ( 'is_disabled', '0' )->with('score')		
+// 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
 		
 		
 		return $this->sendResponse ( $User );
