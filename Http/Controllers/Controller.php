@@ -157,6 +157,7 @@ private static function json_to_array(&$array)
 		$responseData = response ()->json ( $responseData )->getData ( true );
 		
 // 		self::json_to_array($responseData);
+		if(is_array($responseData))
 		array_walk_recursive($responseData,'toJson');		
 		$response = array ();
 		
