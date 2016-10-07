@@ -9,7 +9,7 @@ class Vendors extends BaseModel
 // 	protected $primaryKey = 'eid';
 	protected $fillable = [
 			'name', 'orgnaization', 'loaction',  'address', 'email', 'phone' , 'publication'
-			, 'designation', 'website', 'blog' ,'url' ,'vendors_category_id', 'capicity', 'type', 'is_disabled', 'created_by'
+			, 'designation', 'website', 'blog' ,'url', 'instagram', 'twitter', 'facebook', 'facebook_page' ,'vendors_category_id', 'capicity', 'type', 'is_disabled', 'created_by'
 			];
 // 	protected $dates = ['start_date', 'end_date'];
 // 	protected $hidden = [ 'password' ];
