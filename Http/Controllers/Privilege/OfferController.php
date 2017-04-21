@@ -45,12 +45,12 @@ class OfferController extends Controller {
 	// list all user
 	public function listAll(Request $request) {
 		
-		$result = Offer::getAllOffers();
+		$result = Offer::getAllOffers();	
 // 		$User = User::where ( 'is_disabled', '0' )->with('score')		
 // 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
-		
-		$data['data'] = $result; 
-		return $this->sendResponse ( $data );
+// 		$result = Offer::where ( 'is_disabled', '0' )->with('outlet')->paginate ( $this->pageSize );
+// 		$data['data'] = $result; 
+		return $this->sendResponse ( $result );
 	}
 	
 	
