@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Privilege;
 
-use DB;
+// use DB;
+
+use App\Models\Privilege\Outlet;
 use App\Models\User;
 use App\Models\Events;
 use App\Models\Contest;
@@ -10,41 +12,45 @@ use App\Models\EventParticipant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\Privilege\Offer;
 
-class UserController extends Controller {
+class OfferController extends Controller {
+
+	
+	// gets a user with id
+	public function get(Request $request, $id, $with = false) {
+		$user = Outlet::find ( $id );
+// 		SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image from offer INNER JOIN outlet_offer on outlet_offer.offer_id = offer.id INNER JOIN outlet on outlet.id = outlet_offer.outlet_id INNER JOIN restaurant WHERE restaurant.id = outlet.resturant_id GROUP BY restaurant.id
+		
+		
+// 		$user ['app'] = $user->appInfo();
+	
+// 		$user ['score'] = $user->score;
+// 		// 		if ($user && $with == 'events') {
+// 		$user ['events'] = $user->events;
+		// 		}
+		
+		
+//  		$res = $user->resturant()->attributes;
+		
+		
+//  		var_dump($res);
+ 		
+// 		var_dump($user->offer);
+		
+		return $this->sendResponse ( $user->offer );
+	}
+	
 	
 	// list all user
-	public function listAll($for = 'all') {
-
+	public function listAll(Request $request) {
 		
-		if($for=='nonapp'){
-			
-			$User = User::where ( 'is_disabled', '0' )->with('score')
-			->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
-			->where ( 'activity_score.facebookId', null )
-			->orderBy('id', 'desc')->paginate ( $this->pageSize );
-			
-		}
-		
-			
-		if($for=='onapp'){
-
-			$User = User::where ( 'is_disabled', '0' )->with('score')
-			->join('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
-			->orderBy('id', 'desc')->paginate ( $this->pageSize );
-				
-		}
-		
-		if($for=='all'){
-			$User = User::where ( 'is_disabled', '0' )->with('score')
-			->orderBy('id', 'desc')->paginate ( $this->pageSize );
-		}
-
+		$result = Offer::getAllOffers();
 // 		$User = User::where ( 'is_disabled', '0' )->with('score')		
 // 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
 		
-		
-		return $this->sendResponse ( $User );
+		$data['data'] = $result; 
+		return $this->sendResponse ( $data );
 	}
 	
 	
@@ -136,19 +142,6 @@ class UserController extends Controller {
 		return $this->sendResponse ( $User );
 	}
 	
-	
-	// gets a user with id
-	public function get(Request $request, $id, $with = false) {
-		$user = User::find ( $id );
-		
-		$user ['app'] = $user->appInfo();
-		
-			$user ['score'] = $user->score;		
-// 		if ($user && $with == 'events') {
-			$user ['events'] = $user->events;
-// 		}
-		return $this->sendResponse ( $user );
-	}
 	
 	public function checkEmail(Request $request) {
 		$attributes = $this->getResponseArr ( $request );

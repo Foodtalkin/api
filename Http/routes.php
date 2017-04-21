@@ -31,6 +31,18 @@ $app->get('/', function() use ($app) {
 // 		$app->delete('book/{id}','BookController@deleteBook');
 // 	});
 
+
+	$app->group(['namespace' => 'App\Http\Controllers\Privilege'], function($app)
+	{
+		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		$app->get('offers', [ 'uses' =>'OfferController@listAll']);
+	});
+	
+
+	
+	
+// 	App\Http\Controllers\Privilege
+	
 	
 	$app->group(['prefix' => '/' ,'namespace' => 'App\Http\Controllers'], function($app)
 	{
@@ -98,7 +110,7 @@ $app->get('/', function() use ($app) {
 	
 	
 	$app->group([
-					'middleware' => 'auth', 
+// 					'middleware' => 'auth', 
 					'prefix' => 'api',
 					'namespace' => 'App\Http\Controllers'
 				], function($app)
