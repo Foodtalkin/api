@@ -18,27 +18,9 @@ class OfferController extends Controller {
 
 	
 	// gets a user with id
-	public function get(Request $request, $id, $with = false) {
-		$user = Outlet::find ( $id );
-// 		SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image from offer INNER JOIN outlet_offer on outlet_offer.offer_id = offer.id INNER JOIN outlet on outlet.id = outlet_offer.outlet_id INNER JOIN restaurant WHERE restaurant.id = outlet.resturant_id GROUP BY restaurant.id
-		
-		
-// 		$user ['app'] = $user->appInfo();
-	
-// 		$user ['score'] = $user->score;
-// 		// 		if ($user && $with == 'events') {
-// 		$user ['events'] = $user->events;
-		// 		}
-		
-		
-//  		$res = $user->resturant()->attributes;
-		
-		
-//  		var_dump($res);
- 		
-// 		var_dump($user->offer);
-		
-		return $this->sendResponse ( $user->offer );
+	public function get(Request $request, $id) {
+		$result = Offer::find ( $id );
+		return $this->sendResponse ( $result );
 	}
 	
 	
@@ -46,18 +28,19 @@ class OfferController extends Controller {
 	public function listAll(Request $request) {
 		
 		$result = Offer::getAllOffers();	
-// 		$User = User::where ( 'is_disabled', '0' )->with('score')		
-// 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
-// 		$result = Offer::where ( 'is_disabled', '0' )->with('outlet')->paginate ( $this->pageSize );
-// 		$data['data'] = $result; 
+
 		return $this->sendResponse ( $result );
 	}
 	
 	
-	public function listAllWithCity($city = null) {
+	public function outletOffer($outlet_id) {
 		
-		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
-		return $this->sendResponse ( $User );
+		$result = Offer::where('offer.is_disabled', '0' )->where('is_active', '1')
+		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
+		->where('outlet_offer.outlet_id',  $outlet_id)->paginate(10);
+		
+// 		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
+		return $this->sendResponse ( $result );
 	}
 	
 	

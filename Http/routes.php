@@ -35,7 +35,10 @@ $app->get('/', function() use ($app) {
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege'], function($app)
 	{
 		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		$app->get('outletoffer/{outlet_id}', [ 'uses' =>'OfferController@outletOffer']);
 		$app->get('offers', [ 'uses' =>'OfferController@listAll']);
+		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
+		
 	});
 	
 

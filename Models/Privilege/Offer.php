@@ -35,11 +35,11 @@ class Offer extends BaseModel
 		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')->groupBy('restaurant.id')
 		->paginate(10);
 		
-	$sql=	'SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
-			restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image 
-			from offer INNER JOIN outlet_offer on outlet_offer.offer_id = offer.id 
-			INNER JOIN outlet on outlet.id = outlet_offer.outlet_id 
-			INNER JOIN restaurant WHERE restaurant.id = outlet.resturant_id GROUP BY restaurant.id ';
+// 	$sql=	'SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
+// 			restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image 
+// 			from offer INNER JOIN outlet_offer on outlet_offer.offer_id = offer.id 
+// 			INNER JOIN outlet on outlet.id = outlet_offer.outlet_id 
+// 			INNER JOIN restaurant WHERE restaurant.id = outlet.resturant_id GROUP BY restaurant.id ';
 	
 // 	$result = DB::connection('ft_privilege')->select(DB::raw($sql))->paginate(10);
 	
