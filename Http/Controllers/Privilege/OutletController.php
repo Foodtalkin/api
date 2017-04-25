@@ -37,7 +37,7 @@ class OutletController extends Controller {
  		
 // 		var_dump($user->offer);
 		
-		return $this->sendResponse ( $user->offer );
+		return $this->sendResponse ( $user );
 	}
 	
 	
