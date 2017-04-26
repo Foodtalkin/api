@@ -9,6 +9,10 @@ class BaseModel extends Model
 	protected $connection = 'ft_privilege';
 	
 	
+	const PAGE_SIZE = 10;
+	const MAX_PAGE_SIZE = 50;
+	
+	
 	public static function create(array $attributes = [])
 	{
 	

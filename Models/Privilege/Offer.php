@@ -19,7 +19,7 @@ class Offer extends BaseModel
 		return $this->belongsToMany('App\Models\Privilege\Outlet', 'outlet_offer');
 	}
 	
-	public static function getAllOffers(){
+	public static function getAllOffers($options=[]){
 		
 		
 		
@@ -33,7 +33,7 @@ class Offer extends BaseModel
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
 		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')->groupBy('restaurant.id')
-		->paginate(10);
+		->paginate(self::PAGE_SIZE);
 		
 // 	$sql=	'SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
 // 			restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image 
