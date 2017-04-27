@@ -32,6 +32,88 @@ class OfferController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function search($searchText , $entity = 'restaurant', $options=array()){
+	
+		
+		$searchText =urldecode($searchText);
+// 		echo $searchText;
+		
+		$searchText = trim($searchText);
+		$searchText = trim($searchText, ',');
+		$searchText = strtolower($searchText);
+	
+		@$searchArr = split(',', $searchText, 2);
+		$search = array();
+	
+		switch ($entity){
+			case 'restaurant':
+	
+				$indexType = '/restaurant';
+	
+				if(isset($searchArr[1])){
+	
+					$search['query']['bool']['must'][] = array( 'match'=> [ 'name'=>$searchArr[0] ] );
+	
+					$searchWords = explode(' ', $searchArr[1]);
+	
+					$search['query']['bool']['should'][] = array('wildcard'=> [ 'address'=> end($searchWords).'*' ] );
+					$search['query']['bool']['should'][] = array('match'=> [ 'address'=> $searchArr[1] ] );
+	
+				}else{
+	
+					$searchWords = explode(' ', $searchArr[0]);
+	
+					if(trim(end($searchWords)) == trim($searchArr[0]))
+						$search['query']['bool']['must'][] = array('wildcard'=> [ 'name'=> end($searchWords).'*' ] );
+					else{
+						$search['query']['bool']['should'][] = array('wildcard'=> [ 'name'=> end($searchWords).'*' ] );
+						$search['query']['bool']['must'][] = array('match'=> [ 'name'=> $searchArr[0] ] );
+					}
+				}
+	
+// 				if(isset($options['isactivated']) and $options['isactivated'])
+// 					$search['query']['bool']['must'][] = array('match'=> [ 'isactivated'=> true ] );
+	
+				break;
+					
+			default:
+				$indexType = '';
+				$searchWords = explode(' ', $searchText);
+				$query = '{ "query": { "query_string": { "query": "'.
+						end($searchWords).'* '.
+						$searchText.
+						'", "analyze_wildcard": true } } }';
+	
+				$search = json_decode($query, true);
+					
+		}
+	
+		$search["track_scores"] = true;
+	
+		$search['sort'][] = array( "_score" => "desc" );
+	
+		if(isset($options['location']) and !empty($options['location'])){
+				
+			$search['sort'][] = array("_geo_distance" => array(
+					"location" => $options['location']['lat']. ', '.$options['location']['lon'] ,
+					"order" => "asc",
+					"unit" => "km"
+			
+			));
+		}
+	
+		$searchurl = '/ft_privilege'.$indexType.'/_search';
+			
+// 	echo	
+		$query = json_encode($search);
+			
+		$result = self::es($query, $searchurl);
+		
+		return $this->sendResponse ( $result->hits);
+	}
+	
+	
+	
 	
 	public function outletOffer($outlet_id) {
 		
@@ -77,7 +159,7 @@ class OfferController extends Controller {
 		
 	}
 	
-	public function search($text, $tags = null) {
+	public function search1($text, $tags = null) {
 		$text = urldecode($text);
 		
 		if(!is_null($tags)){
