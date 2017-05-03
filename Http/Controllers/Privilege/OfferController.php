@@ -21,7 +21,7 @@ class OfferController extends Controller {
 	public function get(Request $request, $id) {
 		$offer = Offer::find ( $id );
 		
-		$result['offer'] = $offer;
+// 		$result['offer'] = $offer;
 // 		$result['offer']['outlet'] = $offer->outlet;
 		
 		return $this->sendResponse ( $result );
