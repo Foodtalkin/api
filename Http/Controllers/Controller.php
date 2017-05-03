@@ -142,16 +142,35 @@ class Controller extends BaseController {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $query."\n");
 	
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/text','cache-control: no-cache'));
-	
+// 		curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		
 		$response = curl_exec ($ch);
+		
+		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+		$header = substr($response, 0, $header_size);
+		$body = substr($response, $header_size);
+		
+		$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		
 		$err = curl_error($ch);
 		curl_close ($ch);
 	
-	
+		$result = json_decode($body);
+		
+		if($http_code!='200')
+		{
+			if($http_code>0)
+				abort($http_code, isset($result->Message)?$result->Message:' Elastic Node not responding!' );
+			else
+				abort('500',' Elastic Node not responding!' );
+		}
+		
+		
 		if ($err) {
 			return "cURL Error #:" . $err;
 		} else {
-			return json_decode($response);
+			return $result;
 		}
 	}
 	

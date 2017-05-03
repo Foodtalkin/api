@@ -4,139 +4,121 @@ namespace App\Http\Controllers\Privilege;
 
 // use DB;
 
-use App\Models\Privilege\Outlet;
-use App\Models\User;
-use App\Models\Events;
-use App\Models\Contest;
-use App\Models\EventParticipant;
+use App\Models\Privilege\User;
+use App\Models\Privilege\Otp;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Models\Privilege\Offer;
 
-class OfferController extends Controller {
+class UserController extends Controller {
 
 	
 	// gets a user with id
-	public function get(Request $request, $id) {
-		$offer = Offer::find ( $id );
+	public function login(Request $request) {
+
+		$otpMatched = false;
+		$arr =	$request->getRawPost();
 		
-		$result['offer'] = $offer;
-// 		$result['offer']['outlet'] = $offer->outlet;
+		$otp = Otp::find($arr->phone);
 		
-		return $this->sendResponse ( $result );
+		if($otp && $otp->otp == $arr->otp ){
+			$otpMatched = true;
+		}
+		
+		
+		
+		
+		return $this->sendResponse ( $user );
+	}
+	
+	
+	public function checkUser($phone){
+		
+	 	$user = User::where('phone', 'like' , $phone);
+	 	if(!$user){
+	 		$user = 'No such user';
+	 	}
+		
+	 	return $this->sendResponse ( $user );
+	 	
 	}
 	
 	
 	
-	public function offerWithOutlet($outlet_id, $offer_id) {
+	public function getOTP(Request $request) {
 		
-		$result = Offer::getOfferWithOutlet($outlet_id, $offer_id);
+		$OTP = rand(1000, 9999);
+		$arr =	$request->getRawPost();
+		
+		$otp = Otp::findOrNew($arr->phone);
+		
+		$otp->otp = $OTP;
+		$otp->phone = $arr->phone;
+		$otp->save();
+		
+		
+		if(isset($arr->name)){
+			
+			$user = new User();
+			$user->name = $arr->name;
+			if(isset($arr->email))
+				$user->email = $arr->email;
+			$user->phone = $arr->phone;
+			$user->save();
+		
+		}
 		
 		
 		
-		return $this->sendResponse ( $result );
+		
+		return $this->sendResponse('OTP '.$OTP.' is sent to : '.$arr->phone);
+		
 	}
+	
+	
 	
 	// list all user
-	public function listAll(Request $request) {
-		
-		$result = Offer::getAllOffers();	
+	public function subscription(Request $request) {
 
-		return $this->sendResponse ( $result );
-	}
-	
-	public function search($searchText , $entity = 'restaurant', $options=array()){
-	
 		
-		$searchText =urldecode($searchText);
-// 		echo $searchText;
-		
-		$searchText = trim($searchText);
-		$searchText = trim($searchText, ',');
-		$searchText = strtolower($searchText);
-	
-		@$searchArr = split(',', $searchText, 2);
-		$search = array();
-	
-		switch ($entity){
-			case 'restaurant':
-	
-				$indexType = '/restaurant';
-	
-				if(isset($searchArr[1])){
-	
-					$search['query']['bool']['must'][] = array( 'match'=> [ 'name'=>$searchArr[0] ] );
-	
-					$searchWords = explode(' ', $searchArr[1]);
-	
-					$search['query']['bool']['should'][] = array('wildcard'=> [ 'address'=> end($searchWords).'*' ] );
-					$search['query']['bool']['should'][] = array('match'=> [ 'address'=> $searchArr[1] ] );
-	
-				}else{
-	
-					$searchWords = explode(' ', $searchArr[0]);
-	
-					if(trim(end($searchWords)) == trim($searchArr[0]))
-						$search['query']['bool']['must'][] = array('wildcard'=> [ 'name'=> end($searchWords).'*' ] );
-					else{
-						$search['query']['bool']['should'][] = array('wildcard'=> [ 'name'=> end($searchWords).'*' ] );
-						$search['query']['bool']['must'][] = array('match'=> [ 'name'=> $searchArr[0] ] );
-					}
-				}
-	
-// 				if(isset($options['isactivated']) and $options['isactivated'])
-// 					$search['query']['bool']['must'][] = array('match'=> [ 'isactivated'=> true ] );
-	
-				break;
-					
-			default:
-				$indexType = '';
-				$searchWords = explode(' ', $searchText);
-				$query = '{ "query": { "query_string": { "query": "'.
-						end($searchWords).'* '.
-						$searchText.
-						'", "analyze_wildcard": true } } }';
-	
-				$search = json_decode($query, true);
-					
+		if($for=='nonapp'){
+			
+			$User = User::where ( 'is_disabled', '0' )->with('score')
+			->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
+			->where ( 'activity_score.facebookId', null )
+			->orderBy('id', 'desc')->paginate ( $this->pageSize );
+			
 		}
-	
-		$search["track_scores"] = true;
-	
-		$search['sort'][] = array( "_score" => "desc" );
-	
-		if(isset($options['location']) and !empty($options['location'])){
+		
+			
+		if($for=='onapp'){
+
+			$User = User::where ( 'is_disabled', '0' )->with('score')
+			->join('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
+			->orderBy('id', 'desc')->paginate ( $this->pageSize );
 				
-			$search['sort'][] = array("_geo_distance" => array(
-					"location" => $options['location']['lat']. ', '.$options['location']['lon'] ,
-					"order" => "asc",
-					"unit" => "km"
-			
-			));
 		}
-	
-		$searchurl = '/ft_privilege'.$indexType.'/_search';
-			
-// 	echo	
-		$query = json_encode($search);
-			
-		$result = self::es($query, $searchurl);
 		
-		return $this->sendResponse ( $result->hits);
+		if($for=='all'){
+			$User = User::where ( 'is_disabled', '0' )->with('score')
+			->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		}
+
+		
+		
+		
+// 		$User = User::where ( 'is_disabled', '0' )->with('score')		
+// 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
+		
+		
+		return $this->sendResponse ( $User );
 	}
 	
 	
-	
-	
-	public function outletOffer($outlet_id) {
+	public function listAllWithCity($city = null) {
 		
-		$result = Offer::where('offer.is_disabled', '0' )->where('is_active', '1')
-		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
-		->where('outlet_offer.outlet_id',  $outlet_id)->paginate(10);
-		
-// 		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
-		return $this->sendResponse ( $result );
+		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
+		return $this->sendResponse ( $User );
 	}
 	
 	
@@ -173,7 +155,7 @@ class OfferController extends Controller {
 		
 	}
 	
-	public function search1($text, $tags = null) {
+	public function search($text, $tags = null) {
 		$text = urldecode($text);
 		
 		if(!is_null($tags)){

@@ -35,6 +35,8 @@ $app->get('/', function() use ($app) {
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege'], function($app)
 	{
 
+		$app->get('outlet/{outlet_id}/offer/{offer_id}', [ 'uses' =>'OfferController@offerWithOutlet']);
+		$app->get('checkuser/{phone}', [ 'uses' =>'UserController@checkUser']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
 		$app->get('restaurant/outlets/{id}', [ 'uses' =>'RestaurantController@outlets']);
 		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);
@@ -42,6 +44,9 @@ $app->get('/', function() use ($app) {
 		$app->get('offers', [ 'uses' =>'OfferController@listAll']);
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
+		
+		
+		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);
 		
 	});
 	
