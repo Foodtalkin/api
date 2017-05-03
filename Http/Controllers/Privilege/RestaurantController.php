@@ -38,7 +38,7 @@ class RestaurantController extends Controller {
 	
 	public function outlets($restaurant_id) {
 		
-		$result = Outlet::select(DB::raw('count(1) as offer_count,  outlet.id,outlet.name,outlet.city_id, city_zone_id, address, postcode, outlet.description, outlet.work_hours'))
+		$result = Outlet::select(DB::raw('count(1) as offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids,  outlet.id,outlet.name,outlet.city_id, city_zone_id, address, postcode, outlet.description, outlet.work_hours'))
 		->join('outlet_offer', 'outlet.id', '=', 'outlet_offer.outlet_id')
 		->join('offer', 'offer.id','=','outlet_offer.offer_id')
 		->where( 'offer.is_disabled', '0' )
