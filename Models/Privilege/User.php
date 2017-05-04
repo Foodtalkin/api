@@ -9,5 +9,14 @@ class User extends BaseModel
 // 	protected $primaryKey = 'id';
 	protected $fillable = ['name', 'email','phone', 'gender', 'dob', 'is_verified', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
+
+	public function session()
+	{
+		return $this->hasOne('App\Models\Privilege\Session');
+	}
 	
+	public function subscription()
+	{
+		return $this->hasMany('App\Models\Privilege\Subscription');
+	}
 }

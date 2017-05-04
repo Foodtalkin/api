@@ -45,8 +45,10 @@ $app->get('/', function() use ($app) {
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		
-		
+		$app->post('subscription', [ 'uses' =>'UserController@subscription']);
+		$app->post('refreshsession', [ 'uses' =>'UserController@refreshSession']);
 		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);
+		$app->post('userlogin', [ 'uses' =>'UserController@login']);
 		
 	});
 	

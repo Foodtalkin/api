@@ -6,6 +6,9 @@ namespace App\Http\Controllers\Privilege;
 
 use App\Models\Privilege\User;
 use App\Models\Privilege\Otp;
+use App\Models\Privilege\Session;
+use App\Models\Privilege\Subscription;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -21,20 +24,84 @@ class UserController extends Controller {
 		
 		$otp = Otp::find($arr->phone);
 		
+		$user = User::where('phone', 'like' , $arr->phone)->first();
+		
 		if($otp && $otp->otp == $arr->otp ){
 			$otpMatched = true;
+			
+			$session = Session::firstOrNew( array('user_id'=>$user->id));
+			$session_id = sha1(microtime());
+			$session->session_id = $session_id;
+			$session->refresh_token = sha1(microtime());
+			$session->user_id = $user->id;
+			$session->save();
+
+			$user->is_verified = 1;
+			$user->save();
 		}
 		
+		$user->subscription;
+		$user->session;
 		
+		if(!$otpMatched){
+			return $this->sendResponse ( 'ERROR! : Invalid / Expired OTP',  self::NOT_ACCEPTABLE, 'Invalid / Expired OTP!');
+		}
+		return $this->sendResponse ( $user, self::SUCCESS_OK, 'OTP Accepted' );
+	}
+
+	
+	public function subscription(Request $request) {
 		
+		$arr =	$request->getRawPost();
 		
-		return $this->sendResponse ( $user );
+		$session = Session::find( $arr->session_id);
+		
+		if($session){
+			$subscription = new Subscription();
+			
+			if(isset($arr->email))
+				$subscription->user_id = $session->user_id;
+			$subscription->email = $arr->email;
+			$subscription->subscription_type_id = $arr->subscription_type_id;
+			$subscription->city_id = $subscription->subscriptionType->city_id;
+			$subscription->save();
+// 			$subscription->subscriptionType;
+			
+			return $this->sendResponse ( $subscription );
+			
+		}else{
+			
+		}
+		
+// 		var_dump($session);
+		die('jim is dead');
+		
+	}
+	
+	
+	
+	public function refreshSession(Request $request) {
+
+		$arr =	$request->getRawPost();
+		$session = Session::where( 'refresh_token','like',$arr->refresh_token)->first();
+		
+		if($session){
+			
+	// 		$session->refresh_token = sha1(microtime());
+	// 		$session->user_id = $user->id;
+			$session->session_id = sha1(microtime());
+			$session->save();
+			return $this->sendResponse ( $session );
+// 			NOT_ACCEPTABLE
+		}
+		
+		return $this->sendResponse ( $session, self::NO_ENTITY, 'Error! :  Invalid / expired refresh_token' );
 	}
 	
 	
 	public function checkUser($phone){
 		
-	 	$user = User::where('phone', 'like' , $phone);
+	 	$user = User::where('phone', 'like' , $phone)->get();
 	 	if(!$user){
 	 		$user = 'No such user';
 	 	}
@@ -59,17 +126,21 @@ class UserController extends Controller {
 		
 		if(isset($arr->name)){
 			
-			$user = new User();
+			$user = User::firstOrNew( array('phone'=>$arr->phone));
 			$user->name = $arr->name;
+
 			if(isset($arr->email))
 				$user->email = $arr->email;
+			if(isset($arr->dob))
+				$user->dob = $arr->dob;
+			
+			if(isset($arr->gender))
+				$user->gender = $arr->gender;
+			
 			$user->phone = $arr->phone;
 			$user->save();
 		
 		}
-		
-		
-		
 		
 		return $this->sendResponse('OTP '.$OTP.' is sent to : '.$arr->phone);
 		
@@ -78,7 +149,7 @@ class UserController extends Controller {
 	
 	
 	// list all user
-	public function subscription(Request $request) {
+	public function subscription1(Request $request) {
 
 		
 		if($for=='nonapp'){
