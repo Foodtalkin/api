@@ -3,7 +3,7 @@
 // use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\Base\BaseModel;
 
-class Offer extends BaseModel
+class OutletOffer extends BaseModel
 {
 	protected $table = 'outlet_offer';
 // 	protected $primaryKey = 'id';

@@ -7,6 +7,9 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 
 class Controller extends BaseController {
 	
+	
+	protected $privilageUser;
+	
 	public $pageSize;
 	
 	public function __construct() {

@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Privilege;
 // use DB;
 
 use App\Models\Privilege\Outlet;
+use App\Models\Privilege\OfferRedeemed;
+use App\Models\Privilege\Image;
+use App\Models\Privilege\RestaurantCuisine;
+use App\Models\Privilege\Cuisine;
+
 use App\Models\User;
 use App\Models\Events;
 use App\Models\Contest;
@@ -13,6 +18,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Privilege\Offer;
+use Illuminate\Database\Eloquent\Model;
 
 class OfferController extends Controller {
 
@@ -27,12 +33,37 @@ class OfferController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function redeem(Request $request) {
+		
+		$post =	$request->getRawPost();
+		
+			$offerRedeem = new  OfferRedeemed();
+			$offerRedeem->outlet_id = $post->outlet_id;
+			$offerRedeem->offer_id = $post->offer_id;
+			$offerRedeem->offers_redeemed = $post->offers_redeemed;
+			$offerRedeem->user_id = $_SESSION['user_id'];
+			$offerRedeem->save();
 	
+		return $this->sendResponse ( $offerRedeem );
+	}
 	
 	public function offerWithOutlet($outlet_id, $offer_id) {
 		
 		$result = Offer::getOfferWithOutlet($outlet_id, $offer_id);
 		
+		
+		if($result){
+			$result['images'] = Image::select('url', 'title', 'type')->where(array(
+					'entity'=>'outlet',
+					'entity_id'=>$outlet_id,
+					'is_disabled'=>'0',
+			))->get();
+			
+			$result['cuisine'] = Cuisine::select('title')
+			->join('restaurant_cuisine', 'cuisine.id', '=', 'restaurant_cuisine.cuisine_id')
+			->where('restaurant_cuisine.restaurant_id',$result->restaurant_id)
+			->get();
+		}
 		
 		
 		return $this->sendResponse ( $result );

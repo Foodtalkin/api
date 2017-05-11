@@ -32,7 +32,7 @@ $app->get('/', function() use ($app) {
 // 	});
 
 
-	$app->group(['namespace' => 'App\Http\Controllers\Privilege'], function($app)
+	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'privilegeuser' ], function($app)
 	{
 
 		$app->get('outlet/{outlet_id}/offer/{offer_id}', [ 'uses' =>'OfferController@offerWithOutlet']);
@@ -45,10 +45,21 @@ $app->get('/', function() use ($app) {
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		
-		$app->post('subscription', [ 'uses' =>'UserController@subscription']);
+		
 		$app->post('refreshsession', [ 'uses' =>'UserController@refreshSession']);
 		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
+		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
+
+		
+// 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
+			
+			
+			$app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
+			$app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
+				
+			
+// 		});
 		
 	});
 	

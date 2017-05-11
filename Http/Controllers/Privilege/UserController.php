@@ -8,6 +8,9 @@ use App\Models\Privilege\User;
 use App\Models\Privilege\Otp;
 use App\Models\Privilege\Session;
 use App\Models\Privilege\Subscription;
+use App\Models\Privilege\SubscriptionType;
+use DB;
+
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -54,30 +57,42 @@ class UserController extends Controller {
 		
 		$arr =	$request->getRawPost();
 		
-		$session = Session::find( $arr->session_id);
-		
-		if($session){
-			$subscription = new Subscription();
-			
-			if(isset($arr->email))
-				$subscription->user_id = $session->user_id;
-			$subscription->email = $arr->email;
-			$subscription->subscription_type_id = $arr->subscription_type_id;
-			$subscription->city_id = $subscription->subscriptionType->city_id;
-			$subscription->save();
-// 			$subscription->subscriptionType;
-			
-			return $this->sendResponse ( $subscription );
-			
-		}else{
-			
+		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$_SESSION['user_id'], 'subscription_type_id'=>$arr->subscription_type_id ))->first();
+	
+		if($subscription){
+			return $this->sendResponse ( 'ERROR! : already subscribed',  self::NOT_ACCEPTABLE, 'ERROR! : similar subscription is already active!');
 		}
 		
-// 		var_dump($session);
-		die('jim is dead');
+		$subscription = new Subscription();
 		
+		if(isset($arr->email))
+			$subscription->user_id = $_SESSION['user_id'];
+		$subscription->email = $arr->email;
+		$subscription->subscription_type_id = $arr->subscription_type_id;
+		$subscription->city_id = $subscription->subscriptionType->city_id;
+		$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+		$subscription->expiry = $NewDate;
+		$subscription->save();
+		
+		return $this->sendResponse ( $subscription );
 	}
 	
+	
+	public function activeSubscription() {
+	
+		
+		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$session->user_id, 'subscription_type_id'=>$arr->subscription_type_id ))->get();
+		$result = SubscriptionType::where('is_disabled', '=', '0')->with('city')->get();
+		return $this->sendResponse ( $result );
+	
+	}
+	
+	public function avilableSubscription() {
+		
+		$result = SubscriptionType::where('is_disabled', '=', '0')->with('city')->get();
+		return $this->sendResponse ( $result );
+		
+	}
 	
 	
 	public function refreshSession(Request $request) {
