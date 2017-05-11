@@ -24,16 +24,42 @@ class Offer extends BaseModel
 		
 		
 // 		$User = User::select(DB::raw('count(1) as cnt'))->where ( 'is_disabled', '0' )->with('score')->groupBy('id')
+		$where = array('offer.is_disabled'=> '0');
 		
+		if(isset($options['city_zone_id']))
+			$where['outlet.city_zone_id']=$options['city_zone_id'];
+		
+		
+			
 // 		$result = self::where('1')->;
 
-		$result = self::select(DB::raw(' count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
+		$query = self::select(DB::raw(' count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
 			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image '))
-		->where ( 'offer.is_disabled', '0' )
+		->where ( $where )
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
-		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')->groupBy('restaurant.id')
-		->paginate(self::PAGE_SIZE);
+		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')->groupBy('restaurant.id');
+		
+		
+		if(isset($options['cuisine'] )) {
+			
+			$query->join('restaurant_cuisine', 'restaurant_cuisine.restaurant_id', '=','restaurant.id')
+			->whereIn('restaurant_cuisine.cuisine_id', explode(',', $options['cuisine']))
+			;
+		}
+		
+		if(isset($options['cost'] )) {
+			
+			if($options['cost']=='budget')
+				$query->where('restaurant.cost', '<=', '500');
+			elseif ($options['cost']=='mid')
+				$query->whereBetween('restaurant.cost', ['500', '1500']);
+			else
+				$query->where('restaurant.cost', '>=', '1599');
+			
+		}
+		
+		$result = $query->paginate(self::PAGE_SIZE);
 		
 // 	$sql=	'SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
 // 			restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image 

@@ -30,7 +30,7 @@ class OfferController extends Controller {
 // 		$result['offer'] = $offer;
 // 		$result['offer']['outlet'] = $offer->outlet;
 		
-		return $this->sendResponse ( $result );
+		return $this->sendResponse ( $offer );
 	}
 	
 	public function redeem(Request $request) {
@@ -72,7 +72,7 @@ class OfferController extends Controller {
 	// list all user
 	public function listAll(Request $request) {
 		
-		$result = Offer::getAllOffers();	
+		$result = Offer::getAllOffers($_GET);	
 
 		return $this->sendResponse ( $result );
 	}
