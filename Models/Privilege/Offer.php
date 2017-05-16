@@ -44,8 +44,7 @@ class Offer extends BaseModel
 		if(isset($options['cuisine'] )) {
 			
 			$query->join('restaurant_cuisine', 'restaurant_cuisine.restaurant_id', '=','restaurant.id')
-			->whereIn('restaurant_cuisine.cuisine_id', explode(',', $options['cuisine']))
-			;
+			->whereIn('restaurant_cuisine.cuisine_id', explode(',', $options['cuisine']));
 		}
 		
 		if(isset($options['cost'] )) {

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Privilege;
 
-// use DB;
+use DB;
 
 use App\Models\Privilege\Outlet;
 use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\Image;
 use App\Models\Privilege\RestaurantCuisine;
 use App\Models\Privilege\Cuisine;
+use App\Models\Privilege\Offer;
 
 use App\Models\User;
 use App\Models\Events;
@@ -17,8 +18,8 @@ use App\Models\EventParticipant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Models\Privilege\Offer;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Privilege\OutletOffer;
 
 class OfferController extends Controller {
 
@@ -37,15 +38,53 @@ class OfferController extends Controller {
 		
 		$post =	$request->getRawPost();
 		
-			$offerRedeem = new  OfferRedeemed();
-			$offerRedeem->outlet_id = $post->outlet_id;
-			$offerRedeem->offer_id = $post->offer_id;
-			$offerRedeem->offers_redeemed = $post->offers_redeemed;
-			$offerRedeem->user_id = $_SESSION['user_id'];
-			$offerRedeem->save();
+		$outletOffer = OutletOffer::where(array(
+					'outlet_id' => $post->outlet_id,
+					'offer_id' => $post->offer_id,
+			))
+			->where('start_date','<', DB::raw('now()'))
+			->where('end_date','>', DB::raw('now()'))
+			->first();
+			
+			$redeemedHistory = OfferRedeemed::select(DB::raw('SUM(offers_redeemed) as total_offers_redeemed'))
+			->where(array(
+					'outlet_id' => $post->outlet_id,
+					'offer_id' => $post->offer_id,
+					'user_id' => $_SESSION['user_id']
+			))->first();
+			
+			if($outletOffer->limit_per_purchase > 0){
+// 				echo 'limit_per_purchase : +ve ';
+				$couponLeft =  $outletOffer->limit_per_purchase - $redeemedHistory->total_offers_redeemed;
+			}else{
+// 				echo 'limit_per_purchase : -ve ';
+				$couponLeft =  $outletOffer->purchase_limit - $redeemedHistory->total_offers_redeemed;
+			}
+				
+			if($outletOffer){
+				
+				if($couponLeft < $post->offers_redeemed){
+					return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'ERROR! : no / insufficient coupons left for you.');
+				}
+				
+				$offerRedeem = new  OfferRedeemed();
+				$offerRedeem->outlet_id = $post->outlet_id;
+				$offerRedeem->offer_id = $post->offer_id;
+				$offerRedeem->offers_redeemed = $post->offers_redeemed;
+				$offerRedeem->user_id = $_SESSION['user_id'];
+				$offerRedeem->save();
+			}else {
+				return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'ERROR! : no such offer');
+			}
 	
 		return $this->sendResponse ( $offerRedeem );
 	}
+
+	public function redeemHistory(Request $request) {
+		
+		
+	}
+	
 	
 	public function offerWithOutlet($outlet_id, $offer_id) {
 		
