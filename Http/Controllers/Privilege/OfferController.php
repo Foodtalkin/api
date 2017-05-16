@@ -82,7 +82,9 @@ class OfferController extends Controller {
 
 	public function redeemHistory(Request $request) {
 		
+		$user = User::find($_SESSION['user_id']);
 		
+		return $this->sendResponse ( $offerRedeem );
 	}
 	
 	

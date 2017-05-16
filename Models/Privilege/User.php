@@ -19,4 +19,9 @@ class User extends BaseModel
 	{
 		return $this->hasMany('App\Models\Privilege\Subscription');
 	}
+	
+	public function offerRedeemed(){
+		return $this->hasMany('App\Models\Privilege\OfferRedeemed');
+	}
+	
 }

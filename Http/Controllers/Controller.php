@@ -234,6 +234,7 @@ private static function json_to_array(&$array)
 			$response ['result'] = $responseData;
 		}
 		
+		$response['api'] = $_SERVER['REQUEST_URI'];
 		return response ()->json ( $response )
 // 		->headers->add(array('Access-Control-Allow-Origin', '*'))
 		;
