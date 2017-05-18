@@ -16,6 +16,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
+use Illuminate\Database\QueryException;
+
 class UserController extends Controller {
 
 	
@@ -137,31 +139,47 @@ class UserController extends Controller {
 		
 		$otp->otp = $OTP;
 		$otp->phone = $phone;
-		$otp->save();
-		
 		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
-		
-// 		echo $url;
-		
-		file_get_contents($url);
+
 		
 		if(isset($arr->name)){
 			
-			$user = User::firstOrNew( array('phone'=>$arr->phone));
-			$user->name = $arr->name;
+			
+			try{
+				
+				
+			$user = User::where('phone', '=', $arr->phone)->first();
+				
+			if(isset($arr->signup) && $arr->signup == '1'){
+				
+			if($user)
+				return $this->sendResponse(false,self::NOT_ACCEPTABLE, 'phone already registered');
+			else
+				$user = new User();
+			
+				$user->phone=$arr->phone;
 
-			if(isset($arr->email))
+				$user->name = $arr->name;
+// 				if(isset($arr->email))
 				$user->email = $arr->email;
-			if(isset($arr->dob))
-				$user->dob = $arr->dob;
+				
+				if(isset($arr->dob))
+					$user->dob = $arr->dob;
+				
+				if(isset($arr->gender))
+					$user->gender = $arr->gender;
+				
+				$user->save();
+			}			
 			
-			if(isset($arr->gender))
-				$user->gender = $arr->gender;
-			
-			$user->phone = $arr->phone;
-			$user->save();
-		
+			}
+			catch (QueryException $e){
+					return $this->sendResponse(false,self::NOT_ACCEPTABLE, $e->errorInfo[2]);
+			}
 		}
+		
+		$otp->save();
+		file_get_contents($url);
 		
 		return $this->sendResponse('OTP '.$OTP.' is sent to : '.$arr->phone);
 		

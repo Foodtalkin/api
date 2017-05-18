@@ -99,6 +99,7 @@ class Offer extends BaseModel
 				'term_conditions_link', 
 				'offer.title as offer_title',
 				'action_button_text', 
+				'outlet.metadata',
 // 				'card_action_button_text',
 				'thankyou_text', 'start_date', 'end_date', 'purchase_limit', 'limit_per_purchase'
 // 				, 'type'
