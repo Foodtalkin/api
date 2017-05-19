@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\OutletOffer;
+use App\Models\Privilege\Bookmark;
 
 class OfferController extends Controller {
 
@@ -110,6 +111,39 @@ class OfferController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function bookmark(Request $request, $id) {
+		
+		$result = Bookmark::firstOrNew( array('outlet_offer_id'=>$id, 'user_id'=>$_SESSION['user_id']) );
+		$result->save();
+		return $this->sendResponse ( $result );
+	}
+	
+	public function removeBookmark(Request $request, $id) {
+		
+		$result = Bookmark::where(array('outlet_offer_id'=>$id, 'user_id'=>$_SESSION['user_id']))->first();
+		if($result)
+			$result->delete();
+		
+		return $this->sendResponse ( true );
+		
+	}
+	
+	
+	public function listBookmark(Request $request) {
+		
+		$result = Bookmark::select('outlet.name', 'outlet.area', 'bookmark.created_at', 'outlet_id', 'offer_id', 'outlet_offer_id' )
+		->where(array('user_id'=> $_SESSION['user_id']))
+		->join('outlet_offer', 'bookmark.outlet_offer_id', '=','outlet_offer.id' )
+		->join('outlet', 'bookmark.outlet_offer_id', '=','outlet_offer.id' )
+		
+		->get();
+		
+		if(!$result)
+			$result = [];
+		return $this->sendResponse ( $result );
+		
+		
+	}
 	// list all user
 	public function listAll(Request $request) {
 		

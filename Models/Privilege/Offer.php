@@ -34,7 +34,7 @@ class Offer extends BaseModel
 // 		$result = self::where('1')->;
 
 		$query = self::select(DB::raw(' count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
-			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image '))
+			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, restaurant.card_image '))
 		->where ( $where )
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
@@ -81,7 +81,7 @@ class Offer extends BaseModel
 		
 		$result = self::select(
 				DB::raw( isset($_SESSION['user_id']) ? '(select count(1) from bookmark b where outlet_offer.id = b.outlet_offer_id and b.user_id = '.$_SESSION['user_id'].' ) as is_bookmarked': '0 as is_bookmarked' ),
-				'outlet_offer.id',
+				'outlet_offer.id as outlet_offer_id',
 				'offer.id as offer_id', 
 				'outlet.id as outlet_id',
 				'restaurant.id as restaurant_id',
@@ -98,10 +98,8 @@ class Offer extends BaseModel
 				'outlet.suggested_dishes',
 				'term_conditions_link', 
 				'offer.title as offer_title',
-				'action_button_text', 
 				'outlet.metadata',
-// 				'card_action_button_text',
-				'thankyou_text', 'start_date', 'end_date', 'purchase_limit', 'limit_per_purchase'
+				'start_date', 'end_date', 'purchase_limit', 'limit_per_purchase'
 // 				, 'type'
 				)
 		->where ( 'offer.is_disabled', '0' )
