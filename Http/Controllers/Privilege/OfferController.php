@@ -134,8 +134,8 @@ class OfferController extends Controller {
 		$result = Bookmark::select('outlet.name', 'outlet.area', 'bookmark.created_at', 'outlet_id', 'offer_id', 'outlet_offer_id' )
 		->where(array('user_id'=> $_SESSION['user_id']))
 		->join('outlet_offer', 'bookmark.outlet_offer_id', '=','outlet_offer.id' )
-		->join('outlet', 'bookmark.outlet_offer_id', '=','outlet_offer.id' )
-		
+		->join('outlet', 'outlet.id', '=','outlet_offer.outlet_id' )
+// 		->toSql();
 		->get();
 		
 		if(!$result)
