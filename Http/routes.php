@@ -50,6 +50,8 @@ $app->get('/', function() use ($app) {
 		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
 		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
+		
+		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
 		
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){

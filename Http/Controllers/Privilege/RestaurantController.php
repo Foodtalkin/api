@@ -16,6 +16,7 @@ use DB;
 use App\Models\Privilege\Restaurant;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\Outlet;
+use App\Models\Privilege\Cuisine;
 
 class RestaurantController extends Controller {
 
@@ -32,6 +33,17 @@ class RestaurantController extends Controller {
 		
 		$result = Offer::getAllOffers();	
 
+		return $this->sendResponse ( $result );
+	}
+	
+	public function cuisine(Request $request){
+		
+		$result = Cuisine::select(DB::raw('distinct  cuisine.id, cuisine.title'))
+		->join('restaurant_cuisine', 'cuisine.id','=','restaurant_cuisine.cuisine_id')
+		->join('restaurant', 'restaurant.id','=','restaurant_cuisine.restaurant_id')
+		->where('restaurant.is_disabled', '=', '0')
+		->get();
+		
 		return $this->sendResponse ( $result );
 	}
 	
