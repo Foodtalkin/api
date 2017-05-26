@@ -26,8 +26,6 @@ class Offer extends BaseModel
 // 		$User = User::select(DB::raw('count(1) as cnt'))->where ( 'is_disabled', '0' )->with('score')->groupBy('id')
 		$where = array('offer.is_disabled'=> '0');
 		
-		if(isset($options['city_zone_id']))
-			$where['outlet.city_zone_id']=$options['city_zone_id'];
 		
 		
 			
@@ -39,7 +37,13 @@ class Offer extends BaseModel
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
 		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')->groupBy('restaurant.id');
+
 		
+		if(isset($options['city_zone_id'])){
+			$query->whereIn('outlet.city_zone_id', explode(',', $options['city_zone_id']));
+		}
+// 			$where['outlet.city_zone_id']=$options['city_zone_id'];
+			
 		
 		if(isset($options['cuisine'] )) {
 			
@@ -49,14 +53,50 @@ class Offer extends BaseModel
 		
 		if(isset($options['cost'] )) {
 			
-			if($options['cost']=='budget')
+
+			$b=false;$m=false;$s=false;
+			
+			$cost = explode(',', $options['cost']);
+			
+			if(in_array('budget', $cost))
+				$b = true;
+
+			if(in_array('mid', $cost))
+				$m = true;
+			
+			if(in_array('splurge', $cost))
+				$s = true;
+					
+			if ($b and $m and $s){
+			}
+			elseif ($b and $m){
+				$query->where('restaurant.cost', '<=', '1500');
+			}elseif ($m and $s){
+				$query->where('restaurant.cost', '>=', '500');
+			}elseif($b and $s){
+				$query->where(function ($query) {
+					$query->where('restaurant.cost', '<=', '500')
+					->orWhere('restaurant.cost', '>=', '1599');
+				});
+				
+			}elseif ($b){
 				$query->where('restaurant.cost', '<=', '500');
-			elseif ($options['cost']=='mid')
+			}elseif ($m){
 				$query->whereBetween('restaurant.cost', ['500', '1500']);
-			else
+			}elseif ($s){
 				$query->where('restaurant.cost', '>=', '1599');
+			}
+			
+// 			if($options['cost']=='budget')
+// 				$query->where('restaurant.cost', '<=', '500');
+// 			elseif ($options['cost']=='mid')
+// 				$query->whereBetween('restaurant.cost', ['500', '1500']);
+// 			else
+// 				$query->where('restaurant.cost', '>=', '1599');
 			
 		}
+		
+// 		echo $query->toSql();
 		
 		$result = $query->paginate(self::PAGE_SIZE);
 		

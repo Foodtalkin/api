@@ -57,6 +57,7 @@ $app->get('/', function() use ($app) {
 			
 			$app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
 			$app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
+			$app->get('redeemhistory', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeemHistory']);
 			
 			$app->post('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@bookmark']);
 			$app->delete('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@removeBookmark']);

@@ -34,6 +34,15 @@ class OfferController extends Controller {
 		
 		return $this->sendResponse ( $offer );
 	}
+
+	public function redeemHistory(Request $request){
+		$result = OfferRedeemed::select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+		->where(array(
+				'user_id' => $_SESSION['user_id']
+		))->get();
+		return $this->sendResponse ( $result );
+	}
 	
 	public function redeem(Request $request) {
 		
@@ -81,12 +90,12 @@ class OfferController extends Controller {
 		return $this->sendResponse ( $offerRedeem );
 	}
 
-	public function redeemHistory(Request $request) {
+// 	public function redeemHistory(Request $request) {
 		
-		$user = User::find($_SESSION['user_id']);
+// 		$user = User::find($_SESSION['user_id']);
 		
-		return $this->sendResponse ( $offerRedeem );
-	}
+// 		return $this->sendResponse ( $offerRedeem );
+// 	}
 	
 	
 	public function offerWithOutlet($outlet_id, $offer_id) {
