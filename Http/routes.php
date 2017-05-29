@@ -101,7 +101,7 @@ $app->get('/', function() use ($app) {
 		$app->get('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@get']);
 		$app->post('outlet-offer', [ 'uses' =>'OutletOfferController@saveOutletOffer']);
 		$app->put('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@saveOutletOffer']);
-		$app->delete('outlet-offer/{id}', [ 'uses' =>'OutletController@get']);
+		$app->delete('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@disable']);
 		
 		
 	});

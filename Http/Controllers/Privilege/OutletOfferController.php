@@ -36,22 +36,23 @@ class OutletOfferController extends Controller {
 		
 		$post =	$request->getRawPost();
 		
-		
 		try{
 		
-		
-		if($id >0)
-			$result = OutletOffer::find ( $id );
-		else 
-			$result = new OutletOffer();
-		
-// 			var_dump($result);
-// 			echo $post->outlet_id;
-			
-// 		die('dead');
-			
-			$result->outlet_id = $post->outlet_id;
-			$result->offer_id = $post->offer_id;
+			if($id >0){
+				$result = OutletOffer::find ( $id );
+				if(isset($post->outlet_id))
+				$result->outlet_id = $post->outlet_id;
+				if(isset($post->offer_id))
+				$result->offer_id = $post->offer_id;
+			}
+			else {
+				$result = new OutletOffer();
+				
+				$result->outlet_id = $post->outlet_id;
+				$result->offer_id = $post->offer_id;
+			}
+				
+
 			
 			if(isset($post->cover_image))
 			$result->cover_image= $post->cover_image;
@@ -72,6 +73,10 @@ class OutletOfferController extends Controller {
 			if(isset($post->limit_per_purchase))
 			$result->limit_per_purchase = $post->limit_per_purchase;
 
+			if(isset($post->is_disabled))
+				$result->is_disabled = $post->is_disabled;
+			
+			
 			$result->save();
 
 		} catch(\Illuminate\Database\QueryException $ex){
@@ -92,19 +97,18 @@ class OutletOfferController extends Controller {
 			
 		}
 // 			$result-> = $post->;
-		
-		// 		$result['offer'] = $result->offer();
-		// 		$result->outlet();
-		
 		return $this->sendResponse ( $result);
 	}
 	
-	
-	
-	public function listAllWithCity($city = null) {
+	public function disable($id) {
 		
-		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
-		return $this->sendResponse ( $User );
+		$result = OutletOffer::find ( $id );
+		if($result){
+			$result->is_disabled = 1;
+			$result->save();
+		}else 
+			return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'no such outletoffer');
+		return $this->sendResponse ( true );
 	}
 	
 	
