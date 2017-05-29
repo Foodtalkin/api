@@ -14,6 +14,11 @@ class Offer extends BaseModel
 	protected $dates = ['start_date', 'end_date'];
 	
 	
+	public function outletOffer()
+	{
+		return $this->hasMany('App\Models\Privilege\OutletOffer');
+	}
+	
 	public function outlet()
 	{
 		return $this->belongsToMany('App\Models\Privilege\Outlet', 'outlet_offer');
@@ -24,7 +29,12 @@ class Offer extends BaseModel
 		
 		
 // 		$User = User::select(DB::raw('count(1) as cnt'))->where ( 'is_disabled', '0' )->with('score')->groupBy('id')
-		$where = array('offer.is_disabled'=> '0');
+		$where = array(
+				'offer.is_disabled'=> '0',
+				'outlet.is_disabled'=> '0',
+				'outlet_offer.is_disabled'=> '0',
+				'restaurant.is_disabled'=> '0',
+		);
 		
 		
 		

@@ -6,11 +6,11 @@ namespace App\Http\Controllers\Privilege;
 
 use App\Models\User;
 use App\Models\Events;
-use App\Models\Contest;
+// use App\Models\Contest;
 use App\Models\EventParticipant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+// use Illuminate\Http\JsonResponse;
 
 use DB;
 use App\Models\Privilege\Restaurant;

@@ -70,7 +70,41 @@ $app->get('/', function() use ($app) {
 		
 	});
 	
-
+	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 
+// 			'middleware' => 'privilegeuser'
+// 						'middleware' => 'auth', 
+			'prefix' => 'privilege' 
+	], function($app)
+	{
+		$app->get('user', [ 'uses' =>'OutletController@get']);
+		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
+		
+		$app->get('restaurant', [ 'uses' =>'RestaurantController@get']);
+		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
+		$app->post('restaurant', [ 'uses' =>'RestaurantController@get']);
+		$app->put('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
+		$app->delete('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
+		
+		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
+		$app->get('offer', [ 'uses' =>'OfferController@get']);
+		$app->post('offer', [ 'uses' =>'OfferController@get']);
+		$app->put('offer/{id}', [ 'uses' =>'OfferController@get']);
+		$app->delete('offer/{id}', [ 'uses' =>'OfferController@get']);
+		
+		$app->get('outlet', [ 'uses' =>'OutletController@get']);
+		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		$app->post('outlet', [ 'uses' =>'OutletController@get']);
+		$app->put('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		$app->delete('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		
+		$app->get('outlet-offer', [ 'uses' =>'OutletOfferController@listAll']);
+		$app->get('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@get']);
+		$app->post('outlet-offer', [ 'uses' =>'OutletOfferController@saveOutletOffer']);
+		$app->put('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@saveOutletOffer']);
+		$app->delete('outlet-offer/{id}', [ 'uses' =>'OutletController@get']);
+		
+		
+	});
 	
 	
 // 	App\Http\Controllers\Privilege

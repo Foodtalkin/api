@@ -48,6 +48,16 @@ class OfferController extends Controller {
 		
 		$post =	$request->getRawPost();
 		
+		$outlet = Outlet::where(array(
+				'id' => $post->outlet_id,
+				'pin' => $post->pin,
+				'is_disabled' => 0
+		))->first();
+		
+		if(!$outlet){
+			return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'ERROR! : invalid PIN');
+		}
+		
 		$outletOffer = OutletOffer::where(array(
 					'outlet_id' => $post->outlet_id,
 					'offer_id' => $post->offer_id,
