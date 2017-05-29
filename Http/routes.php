@@ -79,7 +79,7 @@ $app->get('/', function() use ($app) {
 		$app->get('user', [ 'uses' =>'OutletController@get']);
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 		
-		$app->get('restaurant', [ 'uses' =>'RestaurantController@get']);
+		$app->get('restaurant', [ 'uses' =>'RestaurantController@listresto']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
 		$app->post('restaurant', [ 'uses' =>'RestaurantController@get']);
 		$app->put('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
@@ -96,6 +96,8 @@ $app->get('/', function() use ($app) {
 		$app->post('outlet', [ 'uses' =>'OutletController@get']);
 		$app->put('outlet/{id}', [ 'uses' =>'OutletController@get']);
 		$app->delete('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		
+		
 		
 		$app->get('outlet-offer', [ 'uses' =>'OutletOfferController@listAll']);
 		$app->get('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@get']);

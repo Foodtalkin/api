@@ -21,11 +21,20 @@ use App\Models\Privilege\Cuisine;
 class RestaurantController extends Controller {
 
 	
+	public function listresto (Request $request) {
+		$result = Restaurant::all();
+// 		paginate(Restaurant::PAGE_SIZE);
+		return $this->sendResponse ( $result );
+	}
+	
+	
 	// gets a user with id
 	public function get(Request $request, $id) {
 		$result = Restaurant::where('is_disabled', 0)->find ( $id );
 		return $this->sendResponse ( $result );
 	}
+	
+	
 	
 	
 	// list all user
