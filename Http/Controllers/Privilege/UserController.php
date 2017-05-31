@@ -40,6 +40,7 @@ class UserController extends Controller {
 			$user->dob = new \DateTime($arr->dob);
 		
 		$user->save();
+		$user = User::find($_SESSION['user_id']);
 		
 		return $this->sendResponse ( $user, self::SUCCESS_OK, 'Update Success' );
 	}

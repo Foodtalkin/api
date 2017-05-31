@@ -88,9 +88,9 @@ $app->get('/', function() use ($app) {
 		$app->delete('restaurant/{id}', [ 'uses' =>'RestaurantController@delete']);
 		
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
-		$app->get('offer', [ 'uses' =>'OfferController@get']);
-		$app->post('offer', [ 'uses' =>'OfferController@get']);
-		$app->put('offer/{id}', [ 'uses' =>'OfferController@get']);
+		$app->get('offer', [ 'uses' =>'OfferController@getAll']);
+		$app->post('offer', [ 'uses' =>'OfferController@create']);
+		$app->put('offer/{id}', [ 'uses' =>'OfferController@update']);
 		$app->delete('offer/{id}', [ 'uses' =>'OfferController@get']);
 		
 		$app->get('outlet', [ 'uses' =>'OutletController@get']);

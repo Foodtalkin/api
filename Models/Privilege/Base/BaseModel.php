@@ -8,7 +8,7 @@ class BaseModel extends Model
 	
 	protected $connection = 'ft_privilege';
 // 	protected $hidden = [];
-	protected $hidden = array('is_disabled', 'disable_reason', 'updated_at', 'created_by', 'pivot');
+	protected $hidden = array( 'disable_reason', 'updated_at', 'created_by', 'pivot');
 	
 	
 	const PAGE_SIZE = 10;
