@@ -51,13 +51,13 @@ $app->get('/', function() use ($app) {
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
 		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
 		
-		$app->put('user', [ 'uses' =>'UserController@update']);
 		
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
 		
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
 			
+			$app->put('user', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@update']);
 			
 			$app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
 			$app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
@@ -83,9 +83,9 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('restaurant', [ 'uses' =>'RestaurantController@listresto']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
-		$app->post('restaurant', [ 'uses' =>'RestaurantController@get']);
-		$app->put('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
-		$app->delete('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
+		$app->post('restaurant', [ 'uses' =>'RestaurantController@create']);
+		$app->put('restaurant/{id}', [ 'uses' =>'RestaurantController@update']);
+		$app->delete('restaurant/{id}', [ 'uses' =>'RestaurantController@delete']);
 		
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		$app->get('offer', [ 'uses' =>'OfferController@get']);
@@ -98,7 +98,6 @@ $app->get('/', function() use ($app) {
 		$app->post('outlet', [ 'uses' =>'OutletController@get']);
 		$app->put('outlet/{id}', [ 'uses' =>'OutletController@get']);
 		$app->delete('outlet/{id}', [ 'uses' =>'OutletController@get']);
-		
 		
 		
 		$app->get('outlet-offer', [ 'uses' =>'OutletOfferController@listAll']);

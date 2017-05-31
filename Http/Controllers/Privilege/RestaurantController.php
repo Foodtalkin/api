@@ -36,6 +36,37 @@ class RestaurantController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function create(Request $request) {
+		
+		$attributes =	$request->getRawPost(true);
+		$restaurant = Restaurant::create ( $attributes );
+			
+		return $this->sendResponse ( $restaurant);
+	}
+	
+	public function update(Request $request, $id) {
+		
+		$attributes = $request->getRawPost(true);
+		
+		$restaurant= Restaurant::find ( $id );
+		$restaurant->update ( $attributes );
+		
+		return $this->sendResponse ( $restaurant);
+	}
+	
+	public function delete($id) {
+		$restaurant= Restaurant::find ( $id );
+		
+		if ($restaurant) {
+			$restaurant->is_disabled = 1;
+			$restaurant->save();
+			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Restaurant Disabled' );
+		} else {
+			return $this->sendResponse ( null );
+		}
+	}
+	
+	
 	
 	public function listAll(Request $request) {
 		
@@ -163,45 +194,7 @@ class RestaurantController extends Controller {
 		
 	}
 	
-	public function create(Request $request) {
-		
-		$attributes = $this->getResponseArr ( $request );
-		if(!isset($attributes['facebook_id'])){
-			return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'Invalid request, No facebook_id provided');
-		}
-		
-		$user = User::where ( 'facebook_id', $attributes['facebook_id'] )->first ();
-		if(!$user){
-			
-			if (isset($attributes['email'])){
-				$user = User::where ( 'email', $attributes['email'] )->first ();
-				if($user)
-					unset($attributes['email']);
-				}			
-			
-			$user = User::create ( $attributes );
-			$user['is_new'] = true;
-
-		}
-		return $this->sendResponse ( $user );
-	}
 	
-	public function update(Request $request, $id) {
-		$user = User::find ( $id );
-		$user->update ( $this->getResponseArr ( $request ) );
-		
-		return $this->sendResponse ( $user );
-	}
-	public function delete($id) {
-		$user = User::find ( $id );
-		
-		if ($user) {
-			$user->delete ();
-			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'entity deleted' );
-		} else {
-			return $this->sendResponse ( null );
-		}
-	}
 	public function participation(Request $request, $id, $ptype) {
 
 		$requestArr = $this->getResponseArr ( $request );
