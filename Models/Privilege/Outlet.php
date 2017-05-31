@@ -10,10 +10,9 @@ class Outlet extends BaseModel
 	protected $fillable = ['name', 'address', 'city_id', 'city_zone_id', 'area', 'postcode', 'description', 'resturant_id', 'work_hours', 'pin', 'latitude', 'longitude', 'ft_resturantId', 'disable_reason', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 
-	
 	public function offer()
 	{
-		return $this->belongsToMany('App\Models\Privilege\Offer', 'outlet_offer');
+		return $this->belongsToMany('App\Models\Privilege\Offer', 'outlet_offer')->withPivot('id');
 	}
 	
 	public function resturant()

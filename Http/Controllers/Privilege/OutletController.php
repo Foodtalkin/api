@@ -18,26 +18,49 @@ class OutletController extends Controller {
 	
 	// gets a user with id
 	public function get(Request $request, $id, $with = false) {
-		$user = Outlet::find ( $id );
-// 		SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image from offer INNER JOIN outlet_offer on outlet_offer.offer_id = offer.id INNER JOIN outlet on outlet.id = outlet_offer.outlet_id INNER JOIN restaurant WHERE restaurant.id = outlet.resturant_id GROUP BY restaurant.id
+		$Outlet = Outlet::find ( $id );
+		$Outlet->offer;
+		$Outlet->resturant;
 		
-		
-// 		$user ['app'] = $user->appInfo();
+		return $this->sendResponse ( $Outlet);
+	}
 	
-// 		$user ['score'] = $user->score;
-// 		// 		if ($user && $with == 'events') {
-// 		$user ['events'] = $user->events;
-		// 		}
+	public function getAll(Request $request) {
+		$Outlet= Outlet::all()
+		// 		->paginate(Offer::PAGE_SIZE)
+		;
 		
+		return $this->sendResponse ( $Outlet);
+	}
+	
+	public function create(Request $request) {
 		
-//  		$res = $user->resturant()->attributes;
+		$attributes =	$request->getRawPost(true);
+		$Outlet= Outlet::create ( $attributes );
 		
+		return $this->sendResponse ( $Outlet);
+	}
+	
+	public function update(Request $request, $id) {
 		
-//  		var_dump($res);
- 		
-// 		var_dump($user->offer);
+		$attributes = $request->getRawPost(true);
 		
-		return $this->sendResponse ( $user );
+		$Outlet = Outlet::find ( $id );
+		$Outlet->update ( $attributes );
+		
+		return $this->sendResponse ( $Outlet );
+	}
+	
+	public function delete($id) {
+		$Outlet= Outlet::find ( $id );
+		
+		if ($Outlet) {
+			$Outlet->is_disabled = 1;
+			$Outlet->save();
+			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Offer Disabled' );
+		} else {
+			return $this->sendResponse ( null );
+		}
 	}
 	
 	
@@ -178,116 +201,6 @@ class OutletController extends Controller {
 			
 		
 	}
-	
-	public function create(Request $request) {
-		
-		$attributes = $this->getResponseArr ( $request );
-		if(!isset($attributes['facebook_id'])){
-			return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'Invalid request, No facebook_id provided');
-		}
-		
-		$user = User::where ( 'facebook_id', $attributes['facebook_id'] )->first ();
-		if(!$user){
-			
-			if (isset($attributes['email'])){
-				$user = User::where ( 'email', $attributes['email'] )->first ();
-				if($user)
-					unset($attributes['email']);
-				}			
-			
-			$user = User::create ( $attributes );
-			$user['is_new'] = true;
 
-		}
-		return $this->sendResponse ( $user );
-	}
-	
-	public function update(Request $request, $id) {
-		$user = User::find ( $id );
-		$user->update ( $this->getResponseArr ( $request ) );
-		
-		return $this->sendResponse ( $user );
-	}
-	public function delete($id) {
-		$user = User::find ( $id );
-		
-		if ($user) {
-			$user->delete ();
-			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'entity deleted' );
-		} else {
-			return $this->sendResponse ( null );
-		}
-	}
-	public function participation(Request $request, $id, $ptype) {
-
-		$requestArr = $this->getResponseArr ( $request );
-		$participant = array ();
-		
-		
-		if ($ptype=='rsvp'){
-			$ep  = EventParticipant::where(array('events_id'=>$requestArr ['events_id'], 'user_id' => $id))->first();
-			
-			if(!empty($ep)){
-				return $this->sendResponse ( $ep, self::NOT_ACCEPTABLE, "You already participated" );
-			}
-		}else{
-			$transaction_id = md5(time().'_'.$requestArr ['events_id'].'_'.$id) ;
-			$participant ['transaction_id'] = $transaction_id;
-		}
-		
-		$event = Events::find ( $requestArr ['events_id'] );		
-		
-		
-		$participant ['subscribe'] = 0;
-		
-		if (isset ( $requestArr ['payment_id'] ))
-			$participant ['payment_id'] = $requestArr ['payment_id'];
-		
-		if (isset ( $requestArr ['payment_method'] ))
-			$participant ['payment_method'] = $requestArr ['payment_method'];
-		
-		if (isset ( $requestArr ['quantity'] ))
-			$participant ['quantity'] = $requestArr ['quantity'];
-		
-		if (isset ( $requestArr ['payment'] ))
-			$participant ['payment'] = $requestArr ['payment'];
-		
-		if (isset ( $requestArr ['email'] ))
-			$participant ['email'] = $requestArr ['email'];
-		
-		if (isset ( $requestArr ['subscribe'] ) && $requestArr ['subscribe'] =='1' && isset ( $requestArr ['email'] ) && strlen($requestArr ['email']) > 2 ) {			
-			$this->addToMailList(array('email'=>$requestArr ['email']), $event->location);
-			$participant ['subscribe'] = 1;
-		}
-		
-		if (isset ( $requestArr ['contact'] ))
-			$participant ['contact'] = $requestArr ['contact'];
-		
-		if (isset ( $requestArr ['metadata'] ))
-			$participant ['metadata'] = $requestArr ['metadata'];
-		
-		if (isset ( $requestArr ['response'] ))
-			$participant ['response'] = json_encode ( $requestArr ['response'] );
-		
-		if (isset ( $requestArr ['source'] ))
-			$participant ['source'] = json_encode ( $requestArr ['source'] );
-		
-// 		$result = User::find ( $id )->events ()->save ( $event, $participant );
-
-		$user = User::find ( $id );
-		if($user)
-			$result = $user->events ()->save ( $event, $participant );
-		else {
-			$participant['events_id'] = $requestArr ['events_id'];
-			$participant['user_id'] = $id;
-			$result = EventParticipant::create($participant);
-// 			$result = $user->events ()->save ( $event, $participant );
-		}
-		
-		if(isset($transaction_id))
-			$result['transaction_id'] = $transaction_id;
-		
-		return $this->sendResponse ( $result );
-	}
 }
 ?>

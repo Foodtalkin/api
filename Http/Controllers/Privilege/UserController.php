@@ -14,7 +14,7 @@ use DB;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+// use Illuminate\Http\JsonResponse;
 
 use Illuminate\Database\QueryException;
 

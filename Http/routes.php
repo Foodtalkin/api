@@ -91,13 +91,13 @@ $app->get('/', function() use ($app) {
 		$app->get('offer', [ 'uses' =>'OfferController@getAll']);
 		$app->post('offer', [ 'uses' =>'OfferController@create']);
 		$app->put('offer/{id}', [ 'uses' =>'OfferController@update']);
-		$app->delete('offer/{id}', [ 'uses' =>'OfferController@get']);
+		$app->delete('offer/{id}', [ 'uses' =>'OfferController@delete']);
 		
-		$app->get('outlet', [ 'uses' =>'OutletController@get']);
+		$app->get('outlet', [ 'uses' =>'OutletController@getAll']);
 		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);
-		$app->post('outlet', [ 'uses' =>'OutletController@get']);
-		$app->put('outlet/{id}', [ 'uses' =>'OutletController@get']);
-		$app->delete('outlet/{id}', [ 'uses' =>'OutletController@get']);
+		$app->post('outlet', [ 'uses' =>'OutletController@create']);
+		$app->put('outlet/{id}', [ 'uses' =>'OutletController@update']);
+		$app->delete('outlet/{id}', [ 'uses' =>'OutletController@delete']);
 		
 		
 		$app->get('outlet-offer', [ 'uses' =>'OutletOfferController@listAll']);

@@ -7,18 +7,18 @@ use DB;
 use App\Models\Privilege\Outlet;
 use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\Image;
-use App\Models\Privilege\RestaurantCuisine;
+// use App\Models\Privilege\RestaurantCuisine;
 use App\Models\Privilege\Cuisine;
 use App\Models\Privilege\Offer;
 
 use App\Models\User;
 use App\Models\Events;
-use App\Models\Contest;
+// use App\Models\Contest;
 use App\Models\EventParticipant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Http\JsonResponse;
+// use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\OutletOffer;
 use App\Models\Privilege\Bookmark;
 
@@ -27,6 +27,8 @@ class OfferController extends Controller {
 	
 	public function get(Request $request, $id) {
 		$offer = Offer::find ( $id );
+// 		$offer->
+		
 		
 		return $this->sendResponse ( $offer );
 	}
@@ -58,12 +60,12 @@ class OfferController extends Controller {
 	}
 	
 	public function delete($id) {
-		$restaurant= Restaurant::find ( $id );
+		$restaurant= Offer::find ( $id );
 		
 		if ($restaurant) {
 			$restaurant->is_disabled = 1;
 			$restaurant->save();
-			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Restaurant Disabled' );
+			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Offer Disabled' );
 		} else {
 			return $this->sendResponse ( null );
 		}
