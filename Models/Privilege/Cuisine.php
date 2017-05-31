@@ -10,4 +10,7 @@ class Cuisine extends BaseModel
 	protected $fillable = ['title','alt','description','parent', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 	
+	public function restaurant(){
+		return $this->belongsToMany('App\Models\Privilege\Restaurant','restaurant_cuisine');
+	}
 }

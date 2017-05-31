@@ -51,6 +51,8 @@ $app->get('/', function() use ($app) {
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
 		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
 		
+		$app->put('user', [ 'uses' =>'UserController@update']);
+		
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
 		

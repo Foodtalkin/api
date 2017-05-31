@@ -20,6 +20,30 @@ use Illuminate\Database\QueryException;
 
 class UserController extends Controller {
 
+
+	
+	public function update(Request $request) {
+		
+		$arr =	$request->getRawPost();
+		
+		$user = User::find($_SESSION['user_id']);
+		
+		if(isset($arr->name))
+			$user->name = $arr->name;
+		if(isset($arr->email))
+			$user->email = $arr->email;
+		if(isset($arr->gender))
+			$user->gender = $arr->gender;
+		if(isset($arr->preference))
+			$user->preference = $arr->preference;
+		if(isset($arr->dob))
+			$user->dob = new \DateTime($arr->dob);
+		
+		$user->save();
+		
+		return $this->sendResponse ( $user, self::SUCCESS_OK, 'Update Success' );
+	}
+	
 	
 	// gets a user with id
 	public function login(Request $request) {
@@ -348,12 +372,12 @@ class UserController extends Controller {
 		return $this->sendResponse ( $user );
 	}
 	
-	public function update(Request $request, $id) {
-		$user = User::find ( $id );
-		$user->update ( $this->getResponseArr ( $request ) );
+// 	public function update(Request $request, $id) {
+// 		$user = User::find ( $id );
+// 		$user->update ( $this->getResponseArr ( $request ) );
 		
-		return $this->sendResponse ( $user );
-	}
+// 		return $this->sendResponse ( $user );
+// 	}
 	public function delete($id) {
 		$user = User::find ( $id );
 		

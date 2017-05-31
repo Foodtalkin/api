@@ -28,16 +28,15 @@ class RestaurantController extends Controller {
 	}
 	
 	
-	// gets a user with id
 	public function get(Request $request, $id) {
-		$result = Restaurant::where('is_disabled', 0)->find ( $id );
+		$result = Restaurant::find ( $id );
+		$result->cuisine;
+		$result->outlet;
+		
 		return $this->sendResponse ( $result );
 	}
 	
 	
-	
-	
-	// list all user
 	public function listAll(Request $request) {
 		
 		$result = Offer::getAllOffers();	
@@ -51,6 +50,7 @@ class RestaurantController extends Controller {
 		->join('restaurant_cuisine', 'cuisine.id','=','restaurant_cuisine.cuisine_id')
 		->join('restaurant', 'restaurant.id','=','restaurant_cuisine.restaurant_id')
 		->where('restaurant.is_disabled', '=', '0')
+		->orderBy('cuisine.title', 'asc')
 		->get();
 		
 		return $this->sendResponse ( $result );
