@@ -79,7 +79,7 @@ $app->get('/', function() use ($app) {
 	], function($app)
 	{
 		$app->get('user', [ 'uses' =>'OutletController@get']);
-		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
+		$app->get('cuisine', [ 'uses' =>'RestaurantController@allCuisine']);
 		
 		$app->get('restaurant', [ 'uses' =>'RestaurantController@listresto']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);

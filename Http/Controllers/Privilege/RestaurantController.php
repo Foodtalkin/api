@@ -75,6 +75,13 @@ class RestaurantController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function allCuisine(Request $request){
+		
+		$result = Cuisine::
+		select('id', 'title')->where('is_disabled', '=', '0');
+		return $this->sendResponse ( $result );
+	}
+	
 	public function cuisine(Request $request){
 		
 		$result = Cuisine::select(DB::raw('distinct  cuisine.id, cuisine.title'))

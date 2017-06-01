@@ -8,7 +8,7 @@ class Restaurant extends BaseModel
 	
 	protected $table = 'restaurant';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['name', 'cost','description', 'cover_image', 'card_image', 'disable_reason', 'is_disabled', 'created_by'];
+	protected $fillable = ['name', 'cost','description', 'one_liner', 'cover_image', 'card_image', 'disable_reason', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 
 	

@@ -21,7 +21,7 @@ class Offer extends BaseModel
 	
 	public function outlet()
 	{
-		return $this->belongsToMany('App\Models\Privilege\Outlet', 'outlet_offer');
+		return $this->belongsToMany('App\Models\Privilege\Outlet', 'restaurant_cuisine');
 	}
 	
 	public static function getAllOffers($options=[]){
@@ -149,7 +149,12 @@ class Offer extends BaseModel
 				'term_conditions_link', 
 				'offer.title as offer_title',
 				'outlet.metadata',
-				'start_date', 'end_date', 'purchase_limit', 'limit_per_purchase'
+				'start_date', 'end_date',
+
+				DB::raw(
+						isset($_SESSION['user_id'])?
+						'purchase_limit - IFNULL((SELECT SUM(offers_redeemed) as total_offer_redeemed FROM `offer_redeemed` WHERE offer_redeemed.offer_id = outlet_offer.offer_id and offer_redeemed.outlet_id = outlet_offer.outlet_id and offer_redeemed.user_id = '.$_SESSION['user_id'].'), 0) as avilable_limit' : 'purchase_limit as avilable_limit' ),
+				'purchase_limit', 'limit_per_purchase'
 // 				, 'type'
 				)
 		->where ( 'offer.is_disabled', '0' )
@@ -160,6 +165,7 @@ class Offer extends BaseModel
 		->where ( 'outlet.id', $outlet_id )
 		->first()
 		;
+// 		echo $result->toSql();
 		
 		if(empty($result))
 			return null;
