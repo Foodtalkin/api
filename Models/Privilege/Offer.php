@@ -153,8 +153,8 @@ class Offer extends BaseModel
 
 				DB::raw(
 						isset($_SESSION['user_id'])?
-						'purchase_limit - IFNULL((SELECT SUM(offers_redeemed) as total_offer_redeemed FROM `offer_redeemed` WHERE offer_redeemed.offer_id = outlet_offer.offer_id and offer_redeemed.outlet_id = outlet_offer.outlet_id and offer_redeemed.user_id = '.$_SESSION['user_id'].'), 0) as avilable_limit' : 'purchase_limit as avilable_limit' ),
-				'purchase_limit', 'limit_per_purchase'
+						'purchase_limit - IFNULL((SELECT SUM(offers_redeemed) as total_offer_redeemed FROM `offer_redeemed` WHERE offer_redeemed.offer_id = outlet_offer.offer_id and offer_redeemed.outlet_id = outlet_offer.outlet_id and offer_redeemed.user_id = '.$_SESSION['user_id'].'), 0) as purchase_limit' : 'purchase_limit' )
+// 				'purchase_limit', 'limit_per_purchase'
 // 				, 'type'
 				)
 		->where ( 'offer.is_disabled', '0' )
