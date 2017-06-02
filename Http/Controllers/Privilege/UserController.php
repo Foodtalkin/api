@@ -80,6 +80,56 @@ class UserController extends Controller {
 	}
 
 	
+	public function subscriptionPayment(Request $request) {
+		$arr =	$request->getRawPost();
+		
+		$type = SubscriptionType::where('id', '=',$arr->subscription_type_id)->first();
+		
+		if(!$type){
+			return $this->sendResponse ( 'ERROR! : Invalid / subscription type',  self::NOT_ACCEPTABLE, 'ERROR! : Invalid / subscription type');
+		}
+		$user = User::find($_SESSION['user_id']);
+		
+		
+		$uri = '/oauth2/token/?'.
+		'client_id=FFNcaPNlSaKlf7kmONUBhYMAIeUmqw7owwkOvkBO'.
+		'&client_secret=3RaSSxYEtcnOyec8UdHsqIVHXtvOf3R14fH0ejxgsbNRpMWnVnFasK2ACAgIIRIddd27dQoQ4EHJwQyMQJVQ2cpbLIEh84oTtKW1kdgFDAAbwGD17EOkgI1QYIloNvDe'.
+		'&grant_type=client_credentials';
+		
+		$accessInfo = self::Instamojo('' ,$uri, 'POST');
+		$access = json_decode($accessInfo, true);
+		
+		
+		$uri = '/v2/payment_requests/';
+		$post = array(
+				"amount"=> $type->price,
+				"purpose"=> "testing",
+				"buyer_name"=> $user->name,
+				"email"=> $user->email,
+				"phone"=> $user->phone,
+				"webhook"=> "http://www.example.com/webhook",
+				"allow_repeated_payments"=> false,
+				"send_email"=> true,
+				"send_sms"=> true
+		);
+		
+		$transactionInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
+		$transaction = json_decode($transactionInfo, true);
+		
+		$uri = '/v2/gateway/orders/payment-request/';
+		$post = array( "id"=> $transaction['id']);
+		
+		$orderInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
+		$order = json_decode($orderInfo, true);
+		
+		$result['access_token'] = $access['access_token'];
+		$result['paymentid'] = $transaction['id'];
+		$result['order'] = $order;
+		
+		return $this->sendResponse ( $result );
+	}
+	
+	
 	public function subscription(Request $request) {
 		
 		$arr =	$request->getRawPost();

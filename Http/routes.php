@@ -60,6 +60,10 @@ $app->get('/', function() use ($app) {
 			$app->put('user', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@update']);
 			
 			$app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
+			
+			$app->post('subscriptionPayment', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscriptionPayment']);
+			
+			
 			$app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
 			$app->get('redeemhistory', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeemHistory']);
 			
