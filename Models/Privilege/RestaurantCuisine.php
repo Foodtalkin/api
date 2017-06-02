@@ -1,4 +1,4 @@
-<?php namespace App\Models;
+<?php namespace App\Models\Privilege;
   
 // use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\Base\BaseModel;

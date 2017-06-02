@@ -14,9 +14,13 @@ use Illuminate\Http\Request;
 
 use DB;
 use App\Models\Privilege\Restaurant;
+
+
+// use App\Models\Privilege\RestaurantCuisine;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\Outlet;
 use App\Models\Privilege\Cuisine;
+use App\Models\Privilege\RestaurantCuisine;
 
 class RestaurantController extends Controller {
 
@@ -66,8 +70,6 @@ class RestaurantController extends Controller {
 		}
 	}
 	
-	
-	
 	public function listAll(Request $request) {
 		
 		$result = Offer::getAllOffers();	
@@ -78,8 +80,28 @@ class RestaurantController extends Controller {
 	public function allCuisine(Request $request){
 		
 		$result = Cuisine::
-		select('id', 'title')->where('is_disabled', '=', '0');
+		select('id', 'title')->where('is_disabled', '=', '0')->get();
 		return $this->sendResponse ( $result );
+	}
+	
+	public function addCuisine(Request $request, $id){
+		
+		$attributes = $request->getRawPost(true);
+		foreach ($attributes['cuisines'] as $cuisine){
+			
+			$result = RestaurantCuisine::create(array('restaurant_id'=>$id, 'cuisine_id'=>$cuisine));
+		}
+		return $this->sendResponse ( true );
+	}
+	
+	public function removeCuisine(Request $request, $id, $cuisineId){
+		
+		$cuisine = RestaurantCuisine::where(array('restaurant_id'=>$id, 'cuisine_id'=>$cuisineId))->first();
+		
+		if($cuisine)
+			$cuisine->delete();
+
+		return $this->sendResponse ( true );
 	}
 	
 	public function cuisine(Request $request){

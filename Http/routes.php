@@ -87,6 +87,10 @@ $app->get('/', function() use ($app) {
 		$app->put('restaurant/{id}', [ 'uses' =>'RestaurantController@update']);
 		$app->delete('restaurant/{id}', [ 'uses' =>'RestaurantController@delete']);
 		
+		$app->post('restaurant/{id}/cuisine', [ 'uses' =>'RestaurantController@addCuisine']);
+		$app->delete('restaurant/{id}/cuisine/{cuisineId}', [ 'uses' =>'RestaurantController@removeCuisine']);
+		
+		
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		$app->get('offer', [ 'uses' =>'OfferController@getAll']);
 		$app->post('offer', [ 'uses' =>'OfferController@create']);
