@@ -5,16 +5,20 @@ namespace App\Http\Controllers\Privilege;
 // use DB;
 
 use App\Models\Privilege\Outlet;
+use App\Models\Privilege\Image;
 use App\Models\User;
 use App\Models\Events;
-use App\Models\Contest;
-use App\Models\EventParticipant;
+// use App\Models\Contest;
+// use App\Models\EventParticipant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+// use Illuminate\Http\JsonResponse;
 
 class OutletController extends Controller {
 
+	
+	
+	
 	
 	// gets a user with id
 	public function get(Request $request, $id, $with = false) {
@@ -63,83 +67,41 @@ class OutletController extends Controller {
 		}
 	}
 	
-	
-	// list all user
-	public function listAll($for = 'all') {
-
-		
-		if($for=='nonapp'){
-			
-			$User = User::where ( 'is_disabled', '0' )->with('score')
-			->leftjoin('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
-			->where ( 'activity_score.facebookId', null )
-			->orderBy('id', 'desc')->paginate ( $this->pageSize );
-			
-		}
-		
-			
-		if($for=='onapp'){
-
-			$User = User::where ( 'is_disabled', '0' )->with('score')
-			->join('activity_score', 'user.facebook_id', '=', 'activity_score.facebookId')
-			->orderBy('id', 'desc')->paginate ( $this->pageSize );
-				
-		}
-		
-		if($for=='all'){
-			$User = User::where ( 'is_disabled', '0' )->with('score')
-			->orderBy('id', 'desc')->paginate ( $this->pageSize );
-		}
-
-		
-		
-		
-// 		$User = User::where ( 'is_disabled', '0' )->with('score')		
-// 		->orderBy('id', 'desc')->paginate ( $this->pageSize );
-		
-		
-		return $this->sendResponse ( $User );
+	// list all iamges
+	public function getAllImages(Request $request, $id) {
+		$result = Image::where(['entity'=>'outlet', 'entity_id'=>$id])->get();
+		return $this->sendResponse ( $result );
 	}
 	
 	
-	public function listAllWithCity($city = null) {
+	public function addImages(Request $request, $id){
 		
-		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
-		return $this->sendResponse ( $User );
+		$attributes = $request->getRawPost(true);
+		foreach ($attributes['images'] as $image){
+			
+			$data = array();
+			$data['entity_id'] = $id;
+			$data['entity'] = 'outlet';
+			$data['url'] =  $image['url'];
+			$data['type'] = isset($image['type']) ? $image['type'] : 'menu';
+			
+			if(isset($data['title']))
+				$data['title'] = $image['title'];
+			
+			$result = Image::create(array());
+		}
+		return $this->sendResponse ( true );
 	}
 	
-	
-	
-	
-	public function tag($tags){
-
-			$tags = urldecode($tags);
-			$tags = explode(',', $tags);
-			
-			$User = User::select('user.*')->with('score')-> where ('user.is_disabled','0')
-			->join('event_participant', 'user.id', '=', 'event_participant.user_id')
-			->join('events', 'events.id', '=', 'event_participant.events_id')
-			->join('tags', 'events.id', '=', 'tags.events_id')
-			->where(
-					function($query) use ($tags){
-						$first = true;
-						foreach ($tags as $tag){
-							if($first){
-								$query->where ( 'tag_name', 'LIKE' , $tag);
-								$first = false;
-							}
-							else
-								$query->orwhere ( 'tag_name', 'LIKE' , $tag );
-						}
-					}
+	public function deleteImage($imageId) {
+		$result = Image::find ( $imageId);
 		
-			)
-			->groupBy('user.id')
-// 			->orderBy('user.id', 'desc')
-			->get();
-// 			->paginate ( $this->pageSize );
-			return $this->sendResponse ( $User );
-		
+		if ($result) {
+			$result->delete();
+			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Image deleted' );
+		} else {
+			return $this->sendResponse ( null );
+		}
 	}
 	
 	public function search($text, $tags = null) {

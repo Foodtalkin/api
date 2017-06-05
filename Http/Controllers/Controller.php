@@ -47,6 +47,7 @@ class Controller extends BaseController {
 	// 400 => 'Bad Request',
 	const UN_AUTHORIZED = 401;	// 401 => 'Unauthorized',
 	// 402 => 'Payment Required',
+	const PAYMENT_REQUIRED = 402;
 	const FORBIDDEN = 403; // 403 => 'Forbidden',
 	const NO_ENTITY = 404; // 404 => 'Not Found',
 	// 405 => 'Method Not Allowed',

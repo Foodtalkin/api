@@ -17,6 +17,8 @@ use Illuminate\Http\Request;
 // use Illuminate\Http\JsonResponse;
 
 use Illuminate\Database\QueryException;
+use App\Models\Privilege\InstamojoRequest;
+use App\Models\Privilege\InstamojoPayment;
 
 class UserController extends Controller {
 
@@ -99,6 +101,7 @@ class UserController extends Controller {
 		$accessInfo = self::Instamojo('' ,$uri, 'POST');
 		$access = json_decode($accessInfo, true);
 		
+		$_SESSION['instamojo_access_token'] = $access['access_token'];
 		
 		$uri = '/v2/payment_requests/';
 		$post = array(
@@ -115,6 +118,19 @@ class UserController extends Controller {
 		
 		$transactionInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
 		$transaction = json_decode($transactionInfo, true);
+
+		$paymentRequest = array(
+				'user_id'=>$_SESSION['user_id'],
+				'payment_id'=> $transaction['id'],
+				'subscription_type_id'=>$arr->subscription_type_id,
+				'amount'=>$transaction['amount'],
+				'status'=>$transaction['status'],
+				'payment_url'=>$transaction['longurl'],
+				'metadata'=>$transactionInfo
+		);
+		
+		InstamojoRequest::create($paymentRequest);
+		
 		
 		$uri = '/v2/gateway/orders/payment-request/';
 		$post = array( "id"=> $transaction['id']);
@@ -134,24 +150,64 @@ class UserController extends Controller {
 		
 		$arr =	$request->getRawPost();
 		
-		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$_SESSION['user_id'], 'subscription_type_id'=>$arr->subscription_type_id ))->first();
-	
-		if($subscription){
-			return $this->sendResponse ( 'ERROR! : already subscribed',  self::NOT_ACCEPTABLE, 'ERROR! : similar subscription is already active!');
+		$paymentRequest = InstamojoRequest::where('payment_id', '=', $arr->payment_id)->first();
+		
+		if(!$paymentRequest){
+			return $this->sendResponse ( 'ERROR! : Invalid payment_id',  self::PAYMENT_REQUIRED, 'ERROR! : Invalid payment_id');
 		}
 		
-		$subscription = new Subscription();
 		
-		if(isset($arr->email))
+// 		echo $_SESSION['instamojo_access_token'];
+		
+// 		https://test.instamojo.com/v2/payment_requests/0ec13fce37b947ef908033b1a073b64a
+// 		echo  
+		$uri =  '/v2/payment_requests/'.$paymentRequest->payment_id.'/';
+		$instamojo_payment_info = self::Instamojo('', $uri, 'GET', array('Authorization: Bearer '.$_SESSION['instamojo_access_token']));
+		
+		$instamojo_payment = json_decode($instamojo_payment_info, true);
+		
+		if($instamojo_payment['amount'] == $paymentRequest->amount && $instamojo_payment['status'] == 'Completed' ){
+
+			$paymentPayment= array(
+					'payment_id'=> $instamojo_payment['id'],
+					'amount'=>$instamojo_payment['amount'],
+					'status'=>$instamojo_payment['status'],
+					'phone'=>$instamojo_payment['phone'],
+					'metadata'=>$instamojo_payment_info
+			);
+			InstamojoPayment::updateOrCreate($paymentPayment);
+// 			InstamojoPayment::create($paymentPayment);
+			
+		}else{
+			return $this->sendResponse ( 'ERROR! : instamojo payment status '.$instamojo_payment['status'],  self::PAYMENT_REQUIRED, 'ERROR! : instamojo payment status '.$instamojo_payment['status'] );
+		}
+		
+		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$_SESSION['user_id'], 'subscription_type_id'=>$paymentRequest->subscription_type_id ))->first();
+	
+		if($subscription){
+// 			return $this->sendResponse ( 'ERROR! : already subscribed',  self::NOT_ACCEPTABLE, 'ERROR! : similar subscription is already active!');
+		}else{
+
+			$subscription = new Subscription();
+			
+			// 		if(isset($arr->email))
+				// 		$subscription->email = $arr->email;
 			$subscription->user_id = $_SESSION['user_id'];
-		$subscription->email = $arr->email;
-		$subscription->subscription_type_id = $arr->subscription_type_id;
-		$subscription->city_id = $subscription->subscriptionType->city_id;
-		$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
-		$subscription->expiry = $NewDate;
-		$subscription->save();
+			$subscription->subscription_type_id = $paymentRequest->subscription_type_id;
+			$subscription->city_id = $subscription->subscriptionType->city_id;
+			$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+			$subscription->expiry = $NewDate;
+			$subscription->save();
+			
+			$subscription= Subscription::find($subscription->id);
+			
+			
+		}
 		
-		return $this->sendResponse ( $subscription );
+		
+		
+		
+		return $this->sendResponse ( $subscription);
 	}
 	
 	

@@ -107,6 +107,12 @@ $app->get('/', function() use ($app) {
 		$app->put('outlet/{id}', [ 'uses' =>'OutletController@update']);
 		$app->delete('outlet/{id}', [ 'uses' =>'OutletController@delete']);
 		
+		$app->get('outlet/{id}/image', [ 'uses' =>'OutletController@getAllImages']);
+		$app->post('outlet/{id}/image', [ 'uses' =>'OutletController@addImages']);
+		$app->delete('outlet/{id}/image/{imageId}', [ 'uses' =>'OutletController@deleteImage']);
+
+		
+		
 		
 		$app->get('outlet-offer', [ 'uses' =>'OutletOfferController@listAll']);
 		$app->get('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@get']);
