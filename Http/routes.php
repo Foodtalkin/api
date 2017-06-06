@@ -71,6 +71,7 @@ $app->get('/', function() use ($app) {
 			$app->delete('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@removeBookmark']);
 			$app->get('bookmark', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@listBookmark']);
 				
+			$app->post('webhook/instamojo', [ 'uses' =>'UserController@webhookInstamojo']);
 			
 // 		});
 		

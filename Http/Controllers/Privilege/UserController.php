@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use App\Models\Privilege\InstamojoRequest;
 use App\Models\Privilege\InstamojoPayment;
+use App\Models\Privilege\InstamojoLog;
 
 class UserController extends Controller {
 
@@ -82,6 +83,17 @@ class UserController extends Controller {
 	}
 
 	
+	public function webhookInstamojo(Request $request) {
+		
+		$arr = array(
+				'metadata'=>json_encode($_POST)
+		);
+		
+		$log = InstamojoLog::create($arr);
+		return $this->sendResponse ( true );
+	}
+	
+	
 	public function subscriptionPayment(Request $request) {
 		$arr =	$request->getRawPost();
 		
@@ -91,7 +103,6 @@ class UserController extends Controller {
 			return $this->sendResponse ( 'ERROR! : Invalid / subscription type',  self::NOT_ACCEPTABLE, 'ERROR! : Invalid / subscription type');
 		}
 		$user = User::find($_SESSION['user_id']);
-		
 		
 		$uri = '/oauth2/token/?'.
 		'client_id=FFNcaPNlSaKlf7kmONUBhYMAIeUmqw7owwkOvkBO'.
@@ -110,7 +121,7 @@ class UserController extends Controller {
 				"buyer_name"=> $user->name,
 				"email"=> $user->email,
 				"phone"=> $user->phone,
-				"webhook"=> "http://www.example.com/webhook",
+				"webhook"=> "http://stg-api.foodtalk.in/webhook/instamojo",
 				"allow_repeated_payments"=> false,
 				"send_email"=> true,
 				"send_sms"=> true
@@ -153,14 +164,10 @@ class UserController extends Controller {
 		$paymentRequest = InstamojoRequest::where('payment_id', '=', $arr->payment_id)->first();
 		
 		if(!$paymentRequest){
-			return $this->sendResponse ( 'ERROR! : Invalid payment_id',  self::PAYMENT_REQUIRED, 'ERROR! : Invalid payment_id');
+			return $this->sendResponse ( 'ERROR! : Invalid payment_id',  self::NO_ENTITY, 'ERROR! : Invalid payment_id');
 		}
 		
 		
-// 		echo $_SESSION['instamojo_access_token'];
-		
-// 		https://test.instamojo.com/v2/payment_requests/0ec13fce37b947ef908033b1a073b64a
-// 		echo  
 		$uri =  '/v2/payment_requests/'.$paymentRequest->payment_id.'/';
 		$instamojo_payment_info = self::Instamojo('', $uri, 'GET', array('Authorization: Bearer '.$_SESSION['instamojo_access_token']));
 		
@@ -176,7 +183,6 @@ class UserController extends Controller {
 					'metadata'=>$instamojo_payment_info
 			);
 			InstamojoPayment::updateOrCreate($paymentPayment);
-// 			InstamojoPayment::create($paymentPayment);
 			
 		}else{
 			return $this->sendResponse ( 'ERROR! : instamojo payment status '.$instamojo_payment['status'],  self::PAYMENT_REQUIRED, 'ERROR! : instamojo payment status '.$instamojo_payment['status'] );
@@ -189,9 +195,6 @@ class UserController extends Controller {
 		}else{
 
 			$subscription = new Subscription();
-			
-			// 		if(isset($arr->email))
-				// 		$subscription->email = $arr->email;
 			$subscription->user_id = $_SESSION['user_id'];
 			$subscription->subscription_type_id = $paymentRequest->subscription_type_id;
 			$subscription->city_id = $subscription->subscriptionType->city_id;
@@ -203,10 +206,6 @@ class UserController extends Controller {
 			
 			
 		}
-		
-		
-		
-		
 		return $this->sendResponse ( $subscription);
 	}
 	
