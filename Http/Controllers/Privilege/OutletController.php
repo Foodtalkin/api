@@ -81,14 +81,14 @@ class OutletController extends Controller {
 			
 			$data = array();
 			$data['entity_id'] = $id;
-			$data['entity'] = 'outlet';
+// 			$data['entity'] = 'outlet';
 			$data['url'] =  $image['url'];
 			$data['type'] = isset($image['type']) ? $image['type'] : 'menu';
 			
 			if(isset($data['title']))
 				$data['title'] = $image['title'];
 			
-			$result = Image::create(array());
+				$result = Image::create($data);
 		}
 		return $this->sendResponse ( true );
 	}
