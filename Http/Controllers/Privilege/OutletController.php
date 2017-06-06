@@ -81,7 +81,7 @@ class OutletController extends Controller {
 			
 			$data = array();
 			$data['entity_id'] = $id;
-// 			$data['entity'] = 'outlet';
+			$data['entity'] = 'outlet';
 			$data['url'] =  $image['url'];
 			$data['type'] = isset($image['type']) ? $image['type'] : 'menu';
 			
