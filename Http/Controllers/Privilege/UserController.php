@@ -86,6 +86,12 @@ class UserController extends Controller {
 	public function webhookInstamojo(Request $request) {
 		
 		$arr = array(
+				'payment_id' => $_POST['payment_request_id'],
+				'instamojo_paymant_id' => $_POST['payment_id'],
+				'buyer_name'=>$_POST['buyer_name'],
+				'amount'=>$_POST['amount'],
+				'status'=>$_POST['status'],
+				'phone'=>$_POST['buyer_phone'],
 				'metadata'=>json_encode($_POST)
 		);
 		
