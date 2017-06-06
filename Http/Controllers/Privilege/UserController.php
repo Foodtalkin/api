@@ -149,15 +149,17 @@ class UserController extends Controller {
 		InstamojoRequest::create($paymentRequest);
 		
 		
-		$uri = '/v2/gateway/orders/payment-request/';
-		$post = array( "id"=> $transaction['id']);
+// 		$uri = '/v2/gateway/orders/payment-request/';
+// 		$post = array( "id"=> $transaction['id']);
 		
-		$orderInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
-		$order = json_decode($orderInfo, true);
+// 		$orderInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
+// 		$order = json_decode($orderInfo, true);
 		
 		$result['access_token'] = $access['access_token'];
 		$result['paymentid'] = $transaction['id'];
-		$result['order'] = $order;
+		$result['transaction'] = $transaction;
+		
+// 		$result['order'] = $order;
 		
 		return $this->sendResponse ( $result );
 	}
