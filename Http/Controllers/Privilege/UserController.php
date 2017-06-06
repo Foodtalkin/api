@@ -123,7 +123,7 @@ class UserController extends Controller {
 		$uri = '/v2/payment_requests/';
 		$post = array(
 				"amount"=> $type->price,
-				"purpose"=> "pay for FTI te",
+				"purpose"=> "pay for FTI ttt",
 				"buyer_name"=> $user->name,
 				"email"=> $user->email,
 				"phone"=> $user->phone,
