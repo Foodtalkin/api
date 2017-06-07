@@ -48,6 +48,8 @@ $app->get('/', function() use ($app) {
 		
 		$app->post('refreshsession', [ 'uses' =>'UserController@refreshSession']);
 		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);
+		$app->get('resendotp/{phone}', [ 'uses' =>'UserController@resendOTP']);
+		
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
 		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
 		

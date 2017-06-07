@@ -266,6 +266,17 @@ class UserController extends Controller {
 	}
 	
 	
+	public function resendOTP(Request $request, $phone) {
+
+		$result = Otp::find($phone);
+		if($result){
+			$OTP = $result->otp;
+			$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
+			file_get_contents($url);
+			return $this->sendResponse ( true );
+		}else 
+			$this->sendResponse ( false );
+	}
 	
 	public function getOTP(Request $request) {
 		
