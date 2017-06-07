@@ -98,6 +98,18 @@ class UserController extends Controller {
 		);
 		
 		$log = InstamojoLog::create($arr);
+		
+		
+// 		$paymentPayment= array(
+// 				'payment_id'=> $_POST['payment_request_id'],
+// 				'amount'=>$_POST['amount'],
+// 				'status'=>$instamojo_payment['status'],
+// 				'phone'=>$_POST['buyer_phone'],
+// // 				'metadata'=>$instamojo_payment_info
+// 		);
+// 		InstamojoPayment::updateOrCreate($paymentPayment);
+		
+		
 		return $this->sendResponse ( true );
 	}
 	
@@ -182,17 +194,18 @@ class UserController extends Controller {
 		$instamojo_payment_info = self::Instamojo('', $uri, 'GET', array('Authorization: Bearer '.$_SESSION['instamojo_access_token']));
 		
 		$instamojo_payment = json_decode($instamojo_payment_info, true);
+
+		$paymentPayment= array(
+				'payment_id'=> $instamojo_payment['id'],
+				'amount'=>$instamojo_payment['amount'],
+				'status'=>$instamojo_payment['status'],
+				'phone'=>$instamojo_payment['phone'],
+				'metadata'=>$instamojo_payment_info
+		);
+		InstamojoPayment::updateOrCreate($paymentPayment);
+		
 		
 		if($instamojo_payment['amount'] == $paymentRequest->amount && $instamojo_payment['status'] == 'Completed' ){
-
-			$paymentPayment= array(
-					'payment_id'=> $instamojo_payment['id'],
-					'amount'=>$instamojo_payment['amount'],
-					'status'=>$instamojo_payment['status'],
-					'phone'=>$instamojo_payment['phone'],
-					'metadata'=>$instamojo_payment_info
-			);
-			InstamojoPayment::updateOrCreate($paymentPayment);
 			
 		}else{
 			return $this->sendResponse ( 'ERROR! : instamojo payment status '.$instamojo_payment['status'],  self::PAYMENT_REQUIRED, 'ERROR! : instamojo payment status '.$instamojo_payment['status'] );

@@ -338,7 +338,6 @@ private static function json_to_array(&$array)
 			$response['result']['data'][]=$response['result']['data'][0];
 			$response['result']['data'][]=$response['result']['data'][0];
 			$response['result']['data'][]=$response['result']['data'][0];
-			$response['result']['data'][]=$response['result']['data'][0];
 			
 		}
 		
