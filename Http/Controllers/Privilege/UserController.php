@@ -290,8 +290,9 @@ class UserController extends Controller {
 				
 			if(isset($arr->signup) && $arr->signup == '1'){
 				
-			if($user)
-				return $this->sendResponse(false,self::NOT_ACCEPTABLE, 'phone already registered');
+			if($user){
+				return $this->sendResponse(array('error'=>'phone'),self::NOT_ACCEPTABLE, 'phone already registered');
+			}
 			else
 				$user = new User();
 			
@@ -312,7 +313,7 @@ class UserController extends Controller {
 			
 			}
 			catch (QueryException $e){
-					return $this->sendResponse(false,self::NOT_ACCEPTABLE, $e->errorInfo[2]);
+				return $this->sendResponse(array('error'=>'email'),self::NOT_ACCEPTABLE, $e->errorInfo[2]);
 			}
 		}
 		

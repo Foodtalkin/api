@@ -26,7 +26,7 @@ class Controller extends BaseController {
 	const PAGE_SIZE = 100;
 	const MAX_PAGE_SIZE = 150;
 	
-	//
+	
 	// 100 => 'Continue',
 	// 101 => 'Switching Protocols',
 	const SUCCESS_OK = 200; // 200 => 'OK',

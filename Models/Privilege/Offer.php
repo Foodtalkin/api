@@ -163,6 +163,7 @@ class Offer extends BaseModel
 		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')
 		->where ( 'offer.id', $offer_id )
 		->where ( 'outlet.id', $outlet_id )
+		->where ( 'outlet_offer.is_disabled', '0' )
 		->first()
 		;
 // 		echo $result->toSql();
