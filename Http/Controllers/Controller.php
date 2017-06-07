@@ -326,6 +326,22 @@ private static function json_to_array(&$array)
 		}
 		
 		$response['api'] = $_SERVER['REQUEST_URI'];
+		
+		if(isset($response['result']['next_page_url'])){
+
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			$response['result']['data'][]=$response['result']['data'][0];
+			
+		}
+		
 		return response ()->json ( $response )
 // 		->headers->add(array('Access-Control-Allow-Origin', '*'))
 		;
