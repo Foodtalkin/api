@@ -209,7 +209,7 @@ class UserController extends Controller {
 		if($instamojo_payment['amount'] == $paymentRequest->amount && $instamojo_payment['status'] == 'Completed' ){
 			
 		}else{
-			return $this->sendResponse ( false,  self::NO_ENTITY, 'ERROR! : instamojo payment status '.$instamojo_payment['status'] );
+			return $this->sendResponse ( false,  402, 'ERROR! : instamojo payment status '.$instamojo_payment['status'] );
 		}
 		
 		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$_SESSION['user_id'], 'subscription_type_id'=>$paymentRequest->subscription_type_id ))->first();
