@@ -118,6 +118,13 @@ class Controller extends BaseController {
 				$status ['status'] = $error;
 				$status ['code'] = '406';
 				break;
+
+			case self::PAYMENT_REQUIRED:
+				$status ['message'] = 'Payment Required';
+				$status ['status'] = $error;
+				$status ['code'] = '402';
+				break;
+				
 				
 			
 			default :
