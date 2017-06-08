@@ -142,7 +142,7 @@ class UserController extends Controller {
 				"email"=> $user->email,
 				"phone"=> $user->phone,
 				"webhook"=> "http://stg-api.foodtalk.in/webhook/instamojo",
-				"redirect_url"=>"http://foodtalk.in/home",
+// 				"redirect_url"=>"http://foodtalk.in/home",
 				"allow_repeated_payments"=> false,
 				"send_email"=> true,
 				"send_sms"=> true
