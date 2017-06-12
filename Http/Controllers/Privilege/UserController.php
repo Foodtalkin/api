@@ -132,6 +132,12 @@ class UserController extends Controller {
 		$accessInfo = self::Instamojo('' ,$uri, 'POST');
 		$access = json_decode($accessInfo, true);
 		
+		
+		if(isset($arr->source) and 'web' == strtolower($arr->source))
+			$redirect_url = "http://stg.foodtalk.in/new/success.html";
+		else 
+			$redirect_url = "https://test.instamojo.com/integrations/android/redirect/";
+		
 		$_SESSION['instamojo_access_token'] = $access['access_token'];
 		
 		$uri = '/v2/payment_requests/';
@@ -142,7 +148,7 @@ class UserController extends Controller {
 				"email"=> $user->email,
 				"phone"=> $user->phone,
 				"webhook"=> "http://stg-api.foodtalk.in/webhook/instamojo",
-				"redirect_url" => "https://test.instamojo.com/integrations/android/redirect/",
+				"redirect_url" => $redirect_url,
 				"allow_repeated_payments"=> false,
 				"send_email"=> true,
 				"send_sms"=> true
