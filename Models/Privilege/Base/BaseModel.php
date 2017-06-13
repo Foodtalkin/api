@@ -15,7 +15,7 @@ class BaseModel extends Model
 	);
 	
 	
-	const PAGE_SIZE = 1;
+	const PAGE_SIZE = 10;
 	const MAX_PAGE_SIZE = 50;
 	
 	
