@@ -299,11 +299,11 @@ class OfferController extends Controller {
 		;
 		
 // 		->paginate(10);
-		
-		$result['outlet'] = Outlet::find($outlet_id);
+		$res['offers'] = $result;
+		$res['outlet'] = Outlet::find($outlet_id);
 		
 // 		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
-		return $this->sendResponse ( $result );
+		return $this->sendResponse ( $res );
 	}
 	
 	
