@@ -297,11 +297,10 @@ class OfferController extends Controller {
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->where('outlet_offer.outlet_id',  $outlet_id)->paginate(10);
 		
-		$res['outlet'] = $result;
-		$res['outlet'] = Outlet::find($outlet_id);
+// 		$result['outlet'] = Outlet::find($outlet_id);
 		
 // 		$User = User::where ( 'is_disabled', '0' )->with('score')->where( 'city_id', $city )->orderBy('id', 'desc')->paginate ( $this->pageSize );		
-		return $this->sendResponse ( $res );
+		return $this->sendResponse ( $result );
 	}
 	
 	
