@@ -149,7 +149,7 @@ class Offer extends BaseModel
 				'outlet.suggested_dishes',
 				'term_conditions_link', 
 				'offer.title as offer_title',
-				'outlet.metadata',
+				'offer.metadata',
 				'start_date', 'end_date',
 
 				DB::raw(
