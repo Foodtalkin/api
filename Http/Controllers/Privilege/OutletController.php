@@ -40,6 +40,7 @@ class OutletController extends Controller {
 	public function create(Request $request) {
 		
 		$attributes =	$request->getRawPost(true);
+		$attributes['pin'] = rand(1000, 9999);
 		$Outlet= Outlet::create ( $attributes );
 		
 		return $this->sendResponse ( $Outlet);
