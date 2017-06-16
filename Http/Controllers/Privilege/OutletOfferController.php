@@ -28,7 +28,11 @@ class OutletOfferController extends Controller {
 	
 	public function listAll() {
 
-		$result = OutletOffer::paginate(OutletOffer::PAGE_SIZE);
+		if(isset($_GET['status']) && $_GET['status'] == 'all')
+			$result = OutletOffer::paginate(OutletOffer::PAGE_SIZE);
+		else
+			$result = OutletOffer::where('is_disabled','0')->paginate(OutletOffer::PAGE_SIZE);
+		
 		return $this->sendResponse ( $result);
 	}
 
