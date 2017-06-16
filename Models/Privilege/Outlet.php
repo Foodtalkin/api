@@ -12,7 +12,7 @@ class Outlet extends BaseModel
 
 	public function offer()
 	{
-		return $this->belongsToMany('App\Models\Privilege\Offer', 'outlet_offer')->withPivot('id');
+		return $this->belongsToMany('App\Models\Privilege\Offer', 'outlet_offer')->withPivot('id', 'is_disabled');
 	}
 	
 	public function resturant()
