@@ -99,13 +99,13 @@ class OfferController extends Controller {
 					'outlet_id' => $post->outlet_id,
 					'offer_id' => $post->offer_id,
 			))
-			->where('start_date','<', DB::raw('now()'))
-			->where('end_date','>', DB::raw('now()'))
+// 			->where('start_date','<', DB::raw('now()'))
+// 			->where('end_date','>', DB::raw('now()'))
 			->first();
 			
 			
-			var_dump($outletOffer);
-			die('DEAD');
+// 			var_dump($outletOffer);
+// 			die('DEAD');
 			
 			$redeemedHistory = OfferRedeemed::select(DB::raw('SUM(offers_redeemed) as total_offers_redeemed'))
 			->where(array(
