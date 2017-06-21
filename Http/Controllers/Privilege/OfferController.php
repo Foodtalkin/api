@@ -110,7 +110,7 @@ class OfferController extends Controller {
 					'user_id' => $_SESSION['user_id']
 			))->first();
 			
-			if($outletOffer->limit_per_purchase > 0){
+			if(isset($outletOffer->limit_per_purchase) && $outletOffer->limit_per_purchase > 0){
 // 				echo 'limit_per_purchase : +ve ';
 				$couponLeft =  $outletOffer->limit_per_purchase - $redeemedHistory->total_offers_redeemed;
 			}else{
