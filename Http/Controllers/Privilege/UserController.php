@@ -236,7 +236,8 @@ class UserController extends Controller {
 			
 			
 		}
-		return $this->sendResponse ( $subscription);
+		$result['subscription'][] = $subscription;
+		return $this->sendResponse ( $result );
 	}
 	
 	
