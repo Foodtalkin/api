@@ -157,6 +157,11 @@ class UserController extends Controller {
 		$transactionInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
 		$transaction = json_decode($transactionInfo, true);
 
+		if(isset($transaction['id'])){
+			
+		}else 
+			return $this->sendResponse ( $transaction , self::NOT_ACCEPTABLE );
+		
 		$paymentRequest = array(
 				'user_id'=>$_SESSION['user_id'],
 				'payment_id'=> $transaction['id'],
