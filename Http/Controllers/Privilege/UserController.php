@@ -278,8 +278,8 @@ class UserController extends Controller {
 	
 	public function checkUser($phone){
 	 	$user = User::where('phone', 'like' , $phone)->first();
-	 	$user['subscription'] = 
-	 	Subscription::where('user_id','=', $user->id)->get();
+// 	 	$user['subscription'] = 
+// 	 	Subscription::where('user_id','=', $user->id)->get();
 // 	 	$user->subscription();
 	 	if(!$user){
 	 		$user = 'No such user';
