@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 // use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\OutletOffer;
 use App\Models\Privilege\Bookmark;
+use App\Models\Privilege\ES;
 
 class OfferController extends Controller {
 
@@ -290,7 +291,8 @@ class OfferController extends Controller {
 // 	echo	
 		$query = json_encode($search);
 			
-		$result = self::es($query, $searchurl);
+		$result = ES::request($query, $searchurl);
+// 		$result = self::es($query, $searchurl);
 		
 		return $this->sendResponse ( $result->hits);
 	}

@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-    		'App\Console\Commands\UploadEmailsForMailers'
+    		'App\Console\Commands\UploadEmailsToMailerList',
+    		'App\Console\Commands\UploadOffersToElastic'
         //
     ];
 
