@@ -109,7 +109,11 @@ class Offer extends BaseModel
 		
 // 		echo $query->toSql();
 		
-		$result = $query->paginate(self::PAGE_SIZE);
+			
+			if(isset($options['paginate'] ) and $options['paginate']=='no')
+				$result = $query->get();
+			else
+				$result = $query->paginate(self::PAGE_SIZE);
 		
 // 	$sql=	'SELECT count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
 // 			restaurant.id, restaurant.name, restaurant.cost, restaurant.description, restaurant.cover_image, restaurant.card_image 
