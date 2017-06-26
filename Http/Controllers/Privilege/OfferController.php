@@ -77,7 +77,9 @@ class OfferController extends Controller {
 		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
 		->where(array(
 				'user_id' => $_SESSION['user_id']
-		))->get();
+		))
+		->orderBy('offer_redeemed.created_at', 'desc')
+		->get();
 		return $this->sendResponse ( $result );
 	}
 	
@@ -196,6 +198,7 @@ class OfferController extends Controller {
 		->join('outlet_offer', 'bookmark.outlet_offer_id', '=','outlet_offer.id' )
 		->join('outlet', 'outlet.id', '=','outlet_offer.outlet_id' )
 // 		->toSql();
+		->orderBy('bookmark.created_at', 'desc')
 		->get();
 		
 		if(!$result)
