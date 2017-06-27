@@ -143,7 +143,7 @@ class UserController extends Controller {
 		$uri = '/v2/payment_requests/';
 		$post = array(
 				"amount"=> $type->price,
-				"purpose"=> "Annual Foodtalk Privilege Membership",
+				"purpose"=> "Annual Privilege Membership",
 				"buyer_name"=> $user->name,
 				"email"=> $user->email,
 				"phone"=> $user->phone,
