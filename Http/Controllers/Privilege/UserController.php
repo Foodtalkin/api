@@ -150,8 +150,8 @@ class UserController extends Controller {
 				"webhook"=> "http://api.foodtalk.in/webhook/instamojo",
 				"redirect_url" => $redirect_url,
 				"allow_repeated_payments"=> false,
-				"send_email"=> true,
-				"send_sms"=> true
+				"send_email"=> false,
+				"send_sms"=> false
 		);
 		
 		$transactionInfo = self::Instamojo(json_encode($post), $uri, 'POST', array('Authorization: Bearer '.$access['access_token']));
