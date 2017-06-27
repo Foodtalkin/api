@@ -114,6 +114,11 @@ class UserController extends Controller {
 	}
 	
 	
+	public function paymentMode() {
+		
+		return $this->sendResponse ( self::PAYMENT_MODE );
+	}
+	
 	public function subscriptionPayment(Request $request) {
 		$arr =	$request->getRawPost();
 		
@@ -136,7 +141,7 @@ class UserController extends Controller {
 		if(isset($arr->source) and 'web' == strtolower($arr->source))
 			$redirect_url = "http://foodtalk.in/success.html";
 		else 
-			$redirect_url = "https://www.instamojo.com/integrations/android/redirect/";
+			$redirect_url = "https://".self::PAYMENT_MODE.".instamojo.com/integrations/android/redirect/";
 		
 		$_SESSION['instamojo_access_token'] = $access['access_token'];
 		
