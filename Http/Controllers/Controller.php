@@ -147,7 +147,7 @@ class Controller extends BaseController {
 		
 		curl_setopt_array($curl, array(
 				
-				CURLOPT_URL => "https://test.instamojo.com".$uri,
+				CURLOPT_URL => "https://www.instamojo.com".$uri,
 // 				CURLOPT_URL => "https://test.instamojo.com/oauth2/token/?client_id=FFNcaPNlSaKlf7kmONUBhYMAIeUmqw7owwkOvkBO&client_secret=3RaSSxYEtcnOyec8UdHsqIVHXtvOf3R14fH0ejxgsbNRpMWnVnFasK2ACAgIIRIddd27dQoQ4EHJwQyMQJVQ2cpbLIEh84oTtKW1kdgFDAAbwGD17EOkgI1QYIloNvDe&grant_type=client_credentials",
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => "",
