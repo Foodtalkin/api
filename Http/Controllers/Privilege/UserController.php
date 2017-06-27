@@ -125,8 +125,8 @@ class UserController extends Controller {
 		$user = User::find($_SESSION['user_id']);
 		
 		$uri = '/oauth2/token/?'.
-		'client_id=FFNcaPNlSaKlf7kmONUBhYMAIeUmqw7owwkOvkBO'.
-		'&client_secret=3RaSSxYEtcnOyec8UdHsqIVHXtvOf3R14fH0ejxgsbNRpMWnVnFasK2ACAgIIRIddd27dQoQ4EHJwQyMQJVQ2cpbLIEh84oTtKW1kdgFDAAbwGD17EOkgI1QYIloNvDe'.
+		'client_id=EJIVonhms8TomBf0mEMPUmIJWTnHOgJzuD9ojA44'.
+		'&client_secret=KNnTI3fbdTF8rah9IVzVVv3YR3M1ECHmQ7WAKpCLobI9u1cLuI726rGjBHSqSMuCfSIOPalx1QaTYmRa47rObhBJ9pnXZuDgdsk2TYWcnk76i5LDf7sKXeV4jyOotBDK'.
 		'&grant_type=client_credentials';
 		
 		$accessInfo = self::Instamojo('' ,$uri, 'POST');
@@ -134,9 +134,9 @@ class UserController extends Controller {
 		
 		
 		if(isset($arr->source) and 'web' == strtolower($arr->source))
-			$redirect_url = "http://stg.foodtalk.in/new/success.html";
+			$redirect_url = "http://foodtalk.in/success.html";
 		else 
-			$redirect_url = "https://test.instamojo.com/integrations/android/redirect/";
+			$redirect_url = "https://www.instamojo.com/integrations/android/redirect/";
 		
 		$_SESSION['instamojo_access_token'] = $access['access_token'];
 		
