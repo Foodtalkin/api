@@ -23,6 +23,8 @@ class Controller extends BaseController {
 // 		parent::__construct();
 	}
 	
+	const PAYMENT_MODE = 'www';
+	
 	const PAGE_SIZE = 100;
 	const MAX_PAGE_SIZE = 150;
 	

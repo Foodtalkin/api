@@ -50,6 +50,8 @@ $app->get('/', function() use ($app) {
 		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);
 		$app->get('resendotp/{phone}', [ 'uses' =>'UserController@resendOTP']);
 		
+		$app->get('paymentmode', [ 'uses' =>'UserController@paymentMode']);
+		
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
 		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
 		
