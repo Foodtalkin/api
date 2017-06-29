@@ -85,16 +85,16 @@ class Offer extends BaseModel
 				$query->where('restaurant.cost', '>=', '500');
 			}elseif($b and $s){
 				$query->where(function ($query) {
-					$query->where('restaurant.cost', '<=', '500')
-					->orWhere('restaurant.cost', '>=', '1599');
+					$query->where('restaurant.cost', '<', '500')
+					->orWhere('restaurant.cost', '>', '1500');
 				});
 				
 			}elseif ($b){
-				$query->where('restaurant.cost', '<=', '500');
+				$query->where('restaurant.cost', '<', '500');
 			}elseif ($m){
-				$query->whereBetween('restaurant.cost', ['500', '1500']);
+				$query->whereBetween('restaurant.cost', ['499', '1501']);
 			}elseif ($s){
-				$query->where('restaurant.cost', '>=', '1599');
+				$query->where('restaurant.cost', '>', '1500');
 			}
 			
 // 			if($options['cost']=='budget')
