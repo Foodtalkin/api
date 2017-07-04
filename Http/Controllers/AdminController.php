@@ -31,6 +31,7 @@ class AdminController extends Controller{
 	        	$session_id = session_id();
 	        	$response = array(
 	        			'APPSESSID'=> session_id(),
+	        			'role'=>$admin->role,
 	        			'email'=>$admin->email,
 	        			'name'=>$admin->name
 	        	);
