@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use App\Models\Privilege\OutletOffer;
 use App\Models\Privilege\Bookmark;
 use App\Models\Privilege\ES;
+use App\Models\Privilege\Sendgrid;
 
 class OfferController extends Controller {
 
@@ -141,6 +142,18 @@ class OfferController extends Controller {
 				return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'ERROR! : no such offer');
 			}
 	
+			
+			$option['restaurant_name'] = $outlet->name;
+			$option['area'] = $outlet->area;
+			$option['redeem_id'] = $offerRedeem->id;
+			$option['offer'] = $outletOffer->offer->title;
+			$option['coupon_count'] = $offerRedeem->offers_redeemed;
+			$option['date'] = date_format($offerRedeem->created_at, 'D M Y');
+			$option['time'] = date_format($offerRedeem->created_at, 'h:i A');;
+			$body =  Sendgrid::redumption_tpl($option);
+						
+			Sendgrid::sendMail($outlet->email, 'Food Talk Redemption Confirmation', $body);
+			
 		return $this->sendResponse ( $offerRedeem );
 	}
 

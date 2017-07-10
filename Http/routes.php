@@ -42,6 +42,9 @@ $app->get('/', function() use ($app) {
 		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);
 		$app->get('outletoffer/{outlet_id}', [ 'uses' =>'OfferController@outletOffer']);
 		$app->get('offers', [ 'uses' =>'OfferController@listAll']);
+		
+		$app->get('offer_types', [ 'uses' =>'OfferController@getAll']);
+		
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		

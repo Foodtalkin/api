@@ -52,6 +52,10 @@ class Offer extends BaseModel
 		if(isset($options['city_zone_id'])){
 			$query->whereIn('outlet.city_zone_id', explode(',', $options['city_zone_id']));
 		}
+		
+		if(isset($options['type'])){
+			$query->whereIn('outlet_offer.offer_id', explode(',', $options['type']));
+		}
 // 			$where['outlet.city_zone_id']=$options['city_zone_id'];
 			
 		

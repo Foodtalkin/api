@@ -7,7 +7,7 @@ class Outlet extends BaseModel
 {
 	protected $table = 'outlet';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['name', 'phone', 'suggested_dishes', 'address', 'city_id', 'city_zone_id', 'area', 'postcode', 'description', 'resturant_id', 'work_hours', 'pin', 'latitude', 'longitude', 'ft_resturantId', 'disable_reason', 'is_disabled', 'created_by', 'metadata'];
+	protected $fillable = ['name', 'phone', 'email', 'suggested_dishes', 'address', 'city_id', 'city_zone_id', 'area', 'postcode', 'description', 'resturant_id', 'work_hours', 'pin', 'latitude', 'longitude', 'ft_resturantId', 'disable_reason', 'is_disabled', 'created_by', 'metadata'];
 // 	protected $dates = ['start_date'];
 
 	public function offer()
