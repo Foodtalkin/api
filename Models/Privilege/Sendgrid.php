@@ -214,6 +214,7 @@ class Sendgrid
 	
 	public static final function request($api, $body = '', $method = 'POST'){
 		
+		$sendgridKey = getenv('SENDGRID_KEY');
 		$curl = curl_init();
 		
 		curl_setopt_array($curl, array(
@@ -226,7 +227,7 @@ class Sendgrid
 				CURLOPT_CUSTOMREQUEST => $method,
 				CURLOPT_POSTFIELDS => $body,
 				CURLOPT_HTTPHEADER => array(
-						"authorization: Bearer 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",
+						"authorization: Bearer $sendgridKey",
 						"cache-control: no-cache",
 						"content-type: application/json",
 				),
