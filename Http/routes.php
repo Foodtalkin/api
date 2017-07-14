@@ -88,7 +88,7 @@ $app->get('/', function() use ($app) {
 	
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 
 // 			'middleware' => 'privilegeuser'
-						'middleware' => 'auth', 
+// 						'middleware' => 'auth', 
 			'prefix' => 'privilege' 
 	], function($app)
 	{
