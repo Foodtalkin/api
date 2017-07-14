@@ -322,7 +322,8 @@ class UserController extends Controller {
 		
 		$otp->otp = $OTP;
 		$otp->phone = $phone;
-		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
+		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=$OTP%20is%20your%20Foodtalk%20Privilege%20OTP&sender=FODTLK&otp=$OTP";
+// 		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
 
 		
 		if(isset($arr->name)){
