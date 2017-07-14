@@ -317,6 +317,7 @@ class OfferController extends Controller {
 		
 		$result = Offer::where('offer.is_disabled', '0' )->where('is_active', '1')
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
+		->where('outlet_offer.is_disabled', '0' )
 		->where('outlet_offer.outlet_id',  $outlet_id)->get()
 		;
 		
