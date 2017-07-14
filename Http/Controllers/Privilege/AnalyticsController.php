@@ -60,28 +60,33 @@ class AnalyticsController extends Controller {
 		$overall = DB::connection('ft_privilege')->select( DB::raw('SELECT count(offer_id) count, offer.title FROM offer left JOIN `offer_redeemed` on offer.id = offer_id group by offer.id'));
 		
 		$result = array(
-				'overall'=>$overall,
-				// 				'latest' => $lastdays,
-// 				'datewise'=>array(
-// 						'total'=>$total,
-// 						'paid'=>$paid,
-// 						'unpaid'=>$unpaid,
-// 				)
+				'overall'=>$overall
 		);
-		
 		$offers = Offer::where('is_disabled', '0')->get();
 		
 		foreach ($offers as $offer){
 			DB::connection('ft_privilege')->statement('SET @i=0');
 			$result['datewise'][$offer->title] = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(offer_redeemed.created_at,"%Y-%m-%d") as redeemed_on from offer_redeemed left JOIN `offer` on offer.id = offer_id WHERE offer.id = '.$offer->id.' GROUP by redeemed_on) as o on o.redeemed_on = calander.theday'));
 		}
-		
-// 		$result['datewise'][$offer->title] = DB::connection('ft_privilege')->select( DB::raw(''));
-		
-		
 		return $this->sendResponse ( $result );
 	}
 	
+
+	public function restaurants(Request $request ,$top = 3, $days = 30){
+		
+		$result=array();
+		
+		$result['restaurants'] = DB::connection('ft_privilege')->select( DB::raw('SELECT COUNT(1) count FROM `restaurant` WHERE is_disabled = 0'));
+		
+		$result['outlet'] = DB::connection('ft_privilege')->select( DB::raw('SELECT COUNT(1) as count FROM `outlet` , restaurant WHERE restaurant.id = outlet.resturant_id and restaurant.is_disabled = 0 AND outlet.is_disabled=0'));
+
+		$result['top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , outlet.id, outlet.name FROM `outlet` , offer_redeemed WHERE outlet.id = offer_redeemed.outlet_id GROUP BY outlet.id  
+ORDER BY `count`  DESC LIMIT '.$top));
+		
+		$result['latest_top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , outlet.id, outlet.name FROM `outlet` , offer_redeemed WHERE outlet.id = offer_redeemed.outlet_id AND offer_redeemed.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP BY outlet.id ORDER BY `count`  DESC LIMIT '.$top));
+		
+		return $this->sendResponse ( $result );
+	}
 	
 	
 	// gets a user with id
