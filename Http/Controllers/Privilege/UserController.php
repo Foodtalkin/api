@@ -29,7 +29,11 @@ class UserController extends Controller {
 		
 		$arr =	$request->getRawPost();
 		
-		$where['user_id'] = $arr->user_id;
+		if(isset($_SESSION['user_id']))
+			$where['user_id']= $_SESSION['user_id'];
+		else
+			$where['user_id'] = $arr->user_id;
+		
 		$where['event_name'] = $arr->event_name;
 		
 		$user_event = UserEvent::where($where)->first();
@@ -41,7 +45,10 @@ class UserController extends Controller {
 		else {
 			
 			$user_event = new UserEvent();
-			$user_event->user_id = $arr->user_id;
+			if(isset($_SESSION['user_id']))
+				$user_event->user_id = $_SESSION['user_id'];
+			else
+				$user_event->user_id = $arr->user_id;
 			$user_event->event_name = $arr->event_name;
 			$user_event->save();
 			
