@@ -98,6 +98,7 @@ $app->get('/', function() use ($app) {
 		$app->get('analytics/redemption', [ 'uses' =>'AnalyticsController@offers']);
 		$app->get('analytics/redemption/{days}', [ 'uses' =>'AnalyticsController@offers']);
 		
+		$app->get('analytics/restaurants', [ 'uses' =>'AnalyticsController@restaurants']);
 		$app->get('analytics/restaurants/{days}/{top}', [ 'uses' =>'AnalyticsController@restaurants']);
 		$app->get('analytics/restaurants/{days}', [ 'uses' =>'AnalyticsController@restaurants']);
 
