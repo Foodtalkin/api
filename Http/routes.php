@@ -86,15 +86,18 @@ $app->get('/', function() use ($app) {
 	
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 
 // 			'middleware' => 'privilegeuser'
-						'middleware' => 'auth', 
+// 						'middleware' => 'auth', 
 			'prefix' => 'privilege' 
 	], function($app)
 	{
 		
+		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);
+		$app->get('analytics/user', [ 'uses' =>'AnalyticsController@users']);
+		$app->get('analytics/offers', [ 'uses' =>'AnalyticsController@offers']);
+		
 		
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');
-		
 		
 		$app->get('user', [ 'uses' =>'OutletController@get']);
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@allCuisine']);
