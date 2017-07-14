@@ -95,7 +95,8 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);
 		$app->get('analytics/user', [ 'uses' =>'AnalyticsController@users']);
-		$app->get('analytics/offers', [ 'uses' =>'AnalyticsController@offers']);
+		$app->get('analytics/redemption', [ 'uses' =>'AnalyticsController@offers']);
+		$app->get('analytics/redemption/{days}', [ 'uses' =>'AnalyticsController@offers']);
 		
 
 		$app->get('user/event', [ 'uses' =>'UserController@allevent']);

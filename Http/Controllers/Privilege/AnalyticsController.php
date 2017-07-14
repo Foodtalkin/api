@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Privilege\DBLog;
 use App\Models\Privilege\User;
+use App\Models\Privilege\Offer;
 // use Illuminate\Http\JsonResponse;
 
 class AnalyticsController extends Controller {
@@ -58,9 +59,6 @@ class AnalyticsController extends Controller {
 
 		$overall = DB::connection('ft_privilege')->select( DB::raw('SELECT count(offer_id) count, offer.title FROM offer left JOIN `offer_redeemed` on offer.id = offer_id group by offer.id'));
 		
-		
-		$overall = DB::connection('ft_privilege')->select( DB::raw('SELECT count(offer_id) count, offer.title FROM offer left JOIN `offer_redeemed` on offer.id = offer_id group by offer.id'));
-		
 		$result = array(
 				'overall'=>$overall,
 				// 				'latest' => $lastdays,
@@ -70,6 +68,17 @@ class AnalyticsController extends Controller {
 // 						'unpaid'=>$unpaid,
 // 				)
 		);
+		
+		$offers = Offer::where('is_disabled', '0')->get();
+		
+		foreach ($offers as $offer){
+			DB::connection('ft_privilege')->statement('SET @i=0');
+			$result['datewise'][$offer->title] = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(offer_redeemed.created_at,"%Y-%m-%d") as redeemed_on from offer_redeemed left JOIN `offer` on offer.id = offer_id WHERE offer.id = '.$offer->id.' GROUP by redeemed_on) as o on o.redeemed_on = calander.theday'));
+		}
+		
+// 		$result['datewise'][$offer->title] = DB::connection('ft_privilege')->select( DB::raw(''));
+		
+		
 		return $this->sendResponse ( $result );
 	}
 	
