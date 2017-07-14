@@ -43,6 +43,8 @@ $app->get('/', function() use ($app) {
 		$app->get('outletoffer/{outlet_id}', [ 'uses' =>'OfferController@outletOffer']);
 		$app->get('offers', [ 'uses' =>'OfferController@listAll']);
 		
+		$app->post('user/event', [ 'uses' =>'UserController@event']);
+		
 		$app->get('offer_types', [ 'uses' =>'OfferController@getAll']);
 		
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
@@ -86,7 +88,7 @@ $app->get('/', function() use ($app) {
 	
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 
 // 			'middleware' => 'privilegeuser'
-// 						'middleware' => 'auth', 
+						'middleware' => 'auth', 
 			'prefix' => 'privilege' 
 	], function($app)
 	{
@@ -95,6 +97,8 @@ $app->get('/', function() use ($app) {
 		$app->get('analytics/user', [ 'uses' =>'AnalyticsController@users']);
 		$app->get('analytics/offers', [ 'uses' =>'AnalyticsController@offers']);
 		
+
+		$app->get('user/event', [ 'uses' =>'UserController@allevent']);
 		
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');

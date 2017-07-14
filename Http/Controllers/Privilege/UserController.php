@@ -20,10 +20,50 @@ use Illuminate\Database\QueryException;
 use App\Models\Privilege\InstamojoRequest;
 use App\Models\Privilege\InstamojoPayment;
 use App\Models\Privilege\InstamojoLog;
+use App\Models\Privilege\UserEvent;
 
 class UserController extends Controller {
 
 
+	public function event(Request $request){
+		
+		$arr =	$request->getRawPost();
+		
+		$where['user_id'] = $arr->user_id;
+		$where['event_name'] = $arr->event_name;
+		
+		$user_event = UserEvent::where($where)->first();
+
+		if($user_event){
+			
+			return $this->sendResponse ( true, self::SUCCESS_OK, 'Already registered' );
+		}
+		else {
+			
+			$user_event = new UserEvent();
+			$user_event->user_id = $arr->user_id;
+			$user_event->event_name = $arr->event_name;
+			$user_event->save();
+			
+			return $this->sendResponse ( $user_event, self::SUCCESS_OK );
+			
+		}
+		
+		
+	}
+	
+	public function allevent(){
+		
+		$users = User::select('user.id', 'name', 'email', 'phone', 'gender', 'preference', 'dob',  'event_name', 'user_event.created_at')
+		->join('user_event', 'user.id', '=', 'user_event.user_id')
+		->get();
+// 		->paginate(self::PAGE_SIZE);
+		
+		return $this->sendResponse ( $users );
+		
+	}
+	
+	
 	
 	public function update(Request $request) {
 		
