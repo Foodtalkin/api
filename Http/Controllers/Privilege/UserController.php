@@ -71,6 +71,12 @@ class UserController extends Controller {
 	}
 	
 	
+	public function profile() {
+		
+		$user = User::find($_SESSION['user_id']);
+		return $this->sendResponse ( $user );
+	}
+	
 	
 	public function update(Request $request) {
 		
