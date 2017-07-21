@@ -28,6 +28,7 @@ class AthuPrivilageUserMiddleware {
 		if(boolval($sessionID) and isset ($_SESSION ['user_id'])){
 			
 // 			$DBsession = Session::find($sessionID);
+
 			$DBsession = Session::
 			where('session_id',  $sessionID)
 			->where('created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 7 DAY)'))
