@@ -10,8 +10,8 @@ use App\Models\Privilege\Image;
 // use App\Models\Privilege\RestaurantCuisine;
 use App\Models\Privilege\Cuisine;
 use App\Models\Privilege\Offer;
-
-use App\Models\User;
+use App\Models\Privilege\User;
+// use App\Models\User;
 use App\Models\Events;
 // use App\Models\Contest;
 use App\Models\EventParticipant;
@@ -108,8 +108,23 @@ class OfferController extends Controller {
 			->first();
 			
 			
+// 			echo 'offers_redeemed : '.$post->offers_redeemed;
+// 			echo '<br> cost : '.$outlet->resturant->cost;
+			
+			if($outlet->resturant->cost < 500){
+				$unitSaving = $outletOffer->offer->saving_budget;
+			}elseif ($outlet->resturant->cost > 999){
+				$unitSaving = $outletOffer->offer->saving_splurge;
+			}else {
+				$unitSaving = $outletOffer->offer->saving_mid;
+			}
+			
+			
+// 			echo '<br> unitSaving :  '.$unitSaving;
+			
+			
 // 			var_dump($outletOffer);
-// 			die('DEAD');
+// 			die('<br>DEAD');
 			
 			$redeemedHistory = OfferRedeemed::select(DB::raw('SUM(offers_redeemed) as total_offers_redeemed'))
 			->where(array(
@@ -137,12 +152,12 @@ class OfferController extends Controller {
 				$offerRedeem->offer_id = $post->offer_id;
 				$offerRedeem->offers_redeemed = $post->offers_redeemed;
 				$offerRedeem->user_id = $_SESSION['user_id'];
+				$offerRedeem->saving = $unitSaving * $post->offers_redeemed;
 				$offerRedeem->save();
 			}else {
 				return $this->sendResponse ( false, self::NOT_ACCEPTABLE , 'ERROR! : no such offer');
 			}
 	
-			
 			$option['restaurant_name'] = $outlet->name;
 			$option['area'] = $outlet->area;
 			$option['redeem_id'] = $offerRedeem->id;
@@ -317,6 +332,7 @@ class OfferController extends Controller {
 		
 		$result = Offer::where('offer.is_disabled', '0' )->where('is_active', '1')
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
+		->where('outlet_offer.is_disabled', '0' )
 		->where('outlet_offer.outlet_id',  $outlet_id)->get()
 		;
 		

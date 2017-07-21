@@ -20,10 +20,63 @@ use Illuminate\Database\QueryException;
 use App\Models\Privilege\InstamojoRequest;
 use App\Models\Privilege\InstamojoPayment;
 use App\Models\Privilege\InstamojoLog;
+use App\Models\Privilege\UserEvent;
 
 class UserController extends Controller {
 
 
+	public function event(Request $request){
+		
+		$arr =	$request->getRawPost();
+		
+		if(isset($_SESSION['user_id']))
+			$where['user_id']= $_SESSION['user_id'];
+		else
+			$where['user_id'] = $arr->user_id;
+		
+		$where['event_name'] = $arr->event_name;
+		
+		$user_event = UserEvent::where($where)->first();
+
+		if($user_event){
+			
+			return $this->sendResponse ( true, self::SUCCESS_OK, 'Already registered' );
+		}
+		else {
+			
+			$user_event = new UserEvent();
+			if(isset($_SESSION['user_id']))
+				$user_event->user_id = $_SESSION['user_id'];
+			else
+				$user_event->user_id = $arr->user_id;
+			$user_event->event_name = $arr->event_name;
+			$user_event->save();
+			
+			return $this->sendResponse ( $user_event, self::SUCCESS_OK );
+			
+		}
+		
+		
+	}
+	
+	public function allevent(){
+		
+		$users = User::select('user.id', 'name', 'email', 'phone', 'gender', 'preference', 'dob',  'event_name', 'user_event.created_at')
+		->join('user_event', 'user.id', '=', 'user_event.user_id')
+		->get();
+// 		->paginate(self::PAGE_SIZE);
+		
+		return $this->sendResponse ( $users );
+		
+	}
+	
+	
+	public function profile() {
+		
+		$user = User::find($_SESSION['user_id']);
+		return $this->sendResponse ( $user );
+	}
+	
 	
 	public function update(Request $request) {
 		
@@ -303,7 +356,7 @@ class UserController extends Controller {
 		$result = Otp::find($phone);
 		if($result){
 			$OTP = $result->otp;
-			$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
+			$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=$OTP%20is%20your%20Foodtalk%20Privilege%20OTP&sender=FOODTK&otp=$OTP";
 			file_get_contents($url);
 			return $this->sendResponse('OTP '.$OTP.' is sent to : '.$phone);
 		}
@@ -322,7 +375,8 @@ class UserController extends Controller {
 		
 		$otp->otp = $OTP;
 		$otp->phone = $phone;
-		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
+		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=$OTP%20is%20your%20Foodtalk%20Privilege%20OTP&sender=FOODTK&otp=$OTP";
+// 		$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=Your%20Foodtalk%20Privilege%20OTP%20is%20$OTP&sender=FODTLK&otp=$OTP";
 
 		
 		if(isset($arr->name)){

@@ -43,6 +43,8 @@ $app->get('/', function() use ($app) {
 		$app->get('outletoffer/{outlet_id}', [ 'uses' =>'OfferController@outletOffer']);
 		$app->get('offers', [ 'uses' =>'OfferController@listAll']);
 		
+		$app->post('user/event', [ 'uses' =>'UserController@event']);
+		
 		$app->get('offer_types', [ 'uses' =>'OfferController@getAll']);
 		
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
@@ -61,6 +63,7 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
+		$app->get('profile', [ 'uses' =>'UserController@profile']);
 		
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
 			
@@ -86,15 +89,24 @@ $app->get('/', function() use ($app) {
 	
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 
 // 			'middleware' => 'privilegeuser'
-						'middleware' => 'auth', 
+// 						'middleware' => 'auth', 
 			'prefix' => 'privilege' 
 	], function($app)
 	{
 		
+		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);
+		$app->get('analytics/user', [ 'uses' =>'AnalyticsController@users']);
+		$app->get('analytics/redemption', [ 'uses' =>'AnalyticsController@offers']);
+		$app->get('analytics/redemption/{days}', [ 'uses' =>'AnalyticsController@offers']);
+		
+		$app->get('analytics/restaurants', [ 'uses' =>'AnalyticsController@restaurants']);
+		$app->get('analytics/restaurants/{days}/{top}', [ 'uses' =>'AnalyticsController@restaurants']);
+		$app->get('analytics/restaurants/{days}', [ 'uses' =>'AnalyticsController@restaurants']);
+
+		$app->get('user/event', [ 'uses' =>'UserController@allevent']);
 		
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');
-		
 		
 		$app->get('user', [ 'uses' =>'OutletController@get']);
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@allCuisine']);
