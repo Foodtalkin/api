@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Privilege\DBLog;
 use App\Models\Privilege\User;
 use App\Models\Privilege\Offer;
+use App\Models\Privilege\OfferRedeemed;
 // use Illuminate\Http\JsonResponse;
 
 class AnalyticsController extends Controller {
@@ -102,6 +103,27 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		
 		return $this->sendResponse ( $result );
 	}
-
+	
+	
+	public function feeds(Request $request) {
+		
+		
+		
+// 		$result = DB::connection('ft_privilege')->select( DB::raw('SELECT * FROM `offer_redeemed` WHERE is_disabled = 0'))->paginate(OfferRedeemed::PAGE_SIZE);
+		
+		$query = OfferRedeemed::select('offer_redeemed.id as redeemed_id', 'offers_redeemed', 'offer_redeemed.created_at as redeemed_on', 'user_id', 'user.name as user_name', 'offer_id', 'offer.title', 'outlet_id', 'outlet.name as outlet_name', 'area' )
+	 	->join('user', 'user.id', '=','offer_redeemed.user_id' )
+	 	->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
+	 	->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+	 	->orderBy('offer_redeemed.created_at', 'desc');
+		
+		if(isset($_GET['after']))
+			$query->where('offer_redeemed.created_at', '>', $_GET['after']);
+	 	
+	 	$result = $query->paginate(OfferRedeemed::PAGE_SIZE);
+			
+		return $this->sendResponse ( $result );
+	}
+	
 }
 ?>

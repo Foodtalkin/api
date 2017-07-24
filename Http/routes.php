@@ -93,6 +93,8 @@ $app->get('/', function() use ($app) {
 			'prefix' => 'privilege' 
 	], function($app)
 	{
+		$app->get('feeds', [ 'uses' =>'AnalyticsController@feeds']);
+		
 		
 		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);
 		$app->get('analytics/user', [ 'uses' =>'AnalyticsController@users']);
