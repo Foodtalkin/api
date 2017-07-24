@@ -93,7 +93,12 @@ $app->get('/', function() use ($app) {
 			'prefix' => 'privilege' 
 	], function($app)
 	{
-		$app->get('feeds', [ 'uses' =>'AnalyticsController@feeds']);
+		
+		
+		
+		$app->get('redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
+		$app->get('signups', [ 'uses' =>'AnalyticsController@signups']);
+		$app->get('purchases', [ 'uses' =>'AnalyticsController@purchases']);
 		
 		
 		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);

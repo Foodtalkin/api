@@ -104,12 +104,44 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		return $this->sendResponse ( $result );
 	}
 	
+
+	public function top_users(Request $request ,$top = 3, $days = 30){
+		
+	}
 	
-	public function feeds(Request $request) {
+	
+	public function signups(Request $request) {
 		
+		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), 'user.created_at as signup_on')
+		->leftjoin('subscription', 'user.id', '=','subscription.user_id')
+// 		->whereNull('subscription.expiry')
+		->orderBy('user.created_at', 'desc');
 		
+		if(isset($_GET['after']))
+			$query->where('user.created_at', '>', $_GET['after']);
+			
+			$result = $query->paginate(OfferRedeemed::PAGE_SIZE);
+			
+			return $this->sendResponse ( $result );
+	}
+	
+	
+	public function purchases(Request $request) {
 		
-// 		$result = DB::connection('ft_privilege')->select( DB::raw('SELECT * FROM `offer_redeemed` WHERE is_disabled = 0'))->paginate(OfferRedeemed::PAGE_SIZE);
+		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), 'subscription.created_at as purchased_on')
+		->join('subscription', 'user.id', '=','subscription.user_id')
+		->orderBy('subscription.created_at', 'desc');
+		
+		if(isset($_GET['after']))
+			$query->where('subscription.created_at', '>', $_GET['after']);
+			
+			$result = $query->paginate(OfferRedeemed::PAGE_SIZE);
+			
+			return $this->sendResponse ( $result );
+	}
+	
+	
+	public function redeemptions(Request $request) {
 		
 		$query = OfferRedeemed::select('offer_redeemed.id as redeemed_id', 'offers_redeemed', 'offer_redeemed.created_at as redeemed_on', 'user_id', 'user.name as user_name', 'offer_id', 'offer.title', 'outlet_id', 'outlet.name as outlet_name', 'area' )
 	 	->join('user', 'user.id', '=','offer_redeemed.user_id' )
