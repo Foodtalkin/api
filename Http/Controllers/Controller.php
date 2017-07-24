@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
@@ -335,12 +334,7 @@ private static function json_to_array(&$array)
 			$response ['result'] = $responseData;
 		}
 		
-		$d = DB::connection('ft_privilege')->select( DB::raw('SELECT now() dd FROM `city` limit 1'));
-		$response['db_date'] = $d[0]->dd;
-		
-		$response['server_date'] = date('Y-m-d H:i:s');
-		
-		
+		$response['date_time'] = date('Y-m-d H:i:s');
 		$response['api'] = $_SERVER['REQUEST_URI'];
 		
 // 		if(isset($response['result']['next_page_url'])){
@@ -356,8 +350,6 @@ private static function json_to_array(&$array)
 // 			$response['result']['data'][]=$response['result']['data'][0];
 			
 // 		}
-		
-		
 		return response ()->json ( $response )
 // 		->headers->add(array('Access-Control-Allow-Origin', '*'))
 		;
