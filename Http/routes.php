@@ -96,9 +96,9 @@ $app->get('/', function() use ($app) {
 		
 		
 		
-		$app->get('redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
-		$app->get('signups', [ 'uses' =>'AnalyticsController@signups']);
-		$app->get('purchases', [ 'uses' =>'AnalyticsController@purchases']);
+		$app->get('feeds/redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
+		$app->get('feeds/signups', [ 'uses' =>'AnalyticsController@signups']);
+		$app->get('feeds/purchases', [ 'uses' =>'AnalyticsController@purchases']);
 		
 		
 		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);
