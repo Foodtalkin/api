@@ -109,7 +109,8 @@ class Offer extends BaseModel
 // 				$query->where('restaurant.cost', '>=', '1599');
 			
 		}
-			$query->orderBy('restaurant.id', 'desc');
+			$query->orderBy('restaurant.sort_order', 'desc');
+			$query->orderBy('restaurant.created_at', 'desc');
 		
 // 		echo $query->toSql();
 		
