@@ -36,6 +36,7 @@ class Controller extends BaseController {
 	const REQUEST_ACCEPTED = 202;	// 202 => 'Accepted',
 	// 203 => 'Non-Authoritative Information',
 	// 204 => 'No Content',
+	const SUCCESS_OK_NO_CONTENT = 204; // 200 => 'OK',
 	// 205 => 'Reset Content',
 	// 206 => 'Partial Content',
 	// 300 => 'Multiple Choices',

@@ -230,10 +230,12 @@ class OfferController extends Controller {
 		->orderBy('bookmark.created_at', 'desc')
 		->get();
 		
-		if(!$result)
-			$result = [];
-		return $this->sendResponse ( $result );
-		
+		if($result->isEmpty())
+			$status=  self::SUCCESS_OK_NO_CONTENT;
+		else
+			$status = self::SUCCESS_OK;
+
+		return $this->sendResponse ( $result, $status);
 		
 	}
 	// list all user
