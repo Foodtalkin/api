@@ -34,6 +34,7 @@ class RestaurantController extends Controller {
 	
 	public function get(Request $request, $id) {
 		$result = Restaurant::find ( $id );
+		$result->primaryCuisine;
 		$result->cuisine;
 		$result->outlet;
 		

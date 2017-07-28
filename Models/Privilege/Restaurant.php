@@ -8,9 +8,13 @@ class Restaurant extends BaseModel
 	
 	protected $table = 'restaurant';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['name', 'cost','description', 'one_liner', 'cover_image', 'card_image', 'disable_reason', 'is_disabled', 'created_by'];
+	protected $fillable = ['name', 'cost','description', 'one_liner', 'cover_image', 'card_image', 'primary_cuisine', 'disable_reason', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 
+	
+	public function primaryCuisine(){
+			return $this->belongsTo('App\Models\Privilege\Cuisine', 'primary_cuisine');
+	}
 	
 	public function cuisine(){
 		return $this->belongsToMany('App\Models\Privilege\Cuisine', 'restaurant_cuisine')->select('cuisine.id', 'cuisine.title')->orderBy('cuisine.title', 'asc');
