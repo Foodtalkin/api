@@ -82,7 +82,7 @@ class OfferController extends Controller {
 		))
 		->orderBy('offer_redeemed.created_at', 'desc')
 		->get();
-		return $this->sendResponse ( $result );
+		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
 	}
 	
 	public function redeem(Request $request) {
