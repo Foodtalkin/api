@@ -299,6 +299,7 @@ class UserController extends Controller {
 			
 			
 		}
+		$result['amount'] = $instamojo_payment['amount'];
 		$result['subscription'][] = $subscription;
 		return $this->sendResponse ( $result );
 	}
