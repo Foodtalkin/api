@@ -152,6 +152,22 @@ class UserController extends Controller {
 		
 		$log = InstamojoLog::create($arr);
 		
+		if($_POST['status']=='Credit'){
+
+			$paymentRequest = InstamojoRequest::where('payment_id', '=', $_POST['payment_request_id'])->first();
+			$payment = InstamojoPayment::where('payment_id', '=', $_POST['payment_request_id'])->first();
+
+			if(!$payment or $payment->status !='Completed')
+			{
+				$subscription = new Subscription();
+				$subscription->user_id = $paymentRequest->user_id;
+				$subscription->subscription_type_id = $paymentRequest->subscription_type_id;
+				$subscription->city_id = $subscription->subscriptionType->city_id;
+				$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+				$subscription->expiry = $NewDate;
+				$subscription->save();
+			}
+		}
 		
 // 		$paymentPayment= array(
 // 				'payment_id'=> $_POST['payment_request_id'],
