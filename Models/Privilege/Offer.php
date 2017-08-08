@@ -42,11 +42,14 @@ class Offer extends BaseModel
 // 		$result = self::where('1')->;
 
 		$query = self::select(DB::raw(' count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
-			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, restaurant.card_image '))
+			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, restaurant.card_image,  cuisine.title as primary_cuisine'))
 		->where ( $where )
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
-		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')->groupBy('restaurant.id');
+		->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')
+		->leftjoin('cuisine', 'cuisine.id', '=', 'restaurant.primary_cuisine')
+		->groupBy('restaurant.id');
+		
 
 		
 		if(isset($options['city_zone_id'])){
