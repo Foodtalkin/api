@@ -21,10 +21,21 @@ use App\Models\Privilege\InstamojoRequest;
 use App\Models\Privilege\InstamojoPayment;
 use App\Models\Privilege\InstamojoLog;
 use App\Models\Privilege\UserEvent;
+use App\Models\Privilege\Paytmlog;
 
 class UserController extends Controller {
 
 
+	public function paytm(Request $request){
+		
+		
+		$log = Paytmlog::create(['metadata' => json_encode($_POST) ]);
+		
+		return $this->sendResponse ( $log, self::SUCCESS_OK );
+		
+	}
+	
+	
 	public function event(Request $request){
 		
 		$arr =	$request->getRawPost();

@@ -35,6 +35,9 @@ $app->get('/', function() use ($app) {
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'privilegeuser' ], function($app)
 	{
 
+		
+		$app->post('paytm', [ 'uses' =>'UserController@paytm']);
+		
 		$app->get('outlet/{outlet_id}/offer/{offer_id}', [ 'uses' =>'OfferController@offerWithOutlet']);
 		$app->get('checkuser/{phone}', [ 'uses' =>'UserController@checkUser']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
