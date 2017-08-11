@@ -311,7 +311,11 @@ class UserController extends Controller {
 		$ORDER_ID = sha1(date("Ymd").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price);
 		$result['ORDER_ID'] = $ORDER_ID;
 			
-		$paytm_order = PaytmOrder::firstOrCreate(['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]); 
+		$paytm_order = PaytmOrder::firstOrCreate(['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]);
+
+		require_once  __DIR__.'/../../../../public/encdec_paytm.php';
+// 		require '/var/www/html/lumen/app/public/encdec_paytm.php';
+		$result['CHECKSUMHASH']= getChecksumFromArray($result ,PAYTM_MERCHANT_KEY);
 		
 		return $this->sendResponse ( $result );
 	}
