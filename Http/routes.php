@@ -38,6 +38,10 @@ $app->get('/', function() use ($app) {
 		
 		$app->post('paytm', [ 'uses' =>'UserController@paytm']);
 		
+		$app->post('paytm_order', [ 'uses' =>'UserController@subscriptionOrder']);
+		$app->post('subscribe', [ 'uses' =>'UserController@subscribe']);
+		
+		
 		$app->get('outlet/{outlet_id}/offer/{offer_id}', [ 'uses' =>'OfferController@offerWithOutlet']);
 		$app->get('checkuser/{phone}', [ 'uses' =>'UserController@checkUser']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);

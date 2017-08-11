@@ -22,6 +22,8 @@ use App\Models\Privilege\InstamojoPayment;
 use App\Models\Privilege\InstamojoLog;
 use App\Models\Privilege\UserEvent;
 use App\Models\Privilege\Paytmlog;
+use App\Models\Privilege\PaytmOrder;
+use App\Models\Privilege\PaytmOrderStatus;
 
 class UserController extends Controller {
 
@@ -276,6 +278,97 @@ class UserController extends Controller {
 	}
 	
 	
+	
+	public function subscriptionOrder(Request $request) {
+		
+		$arr =	$request->getRawPost();
+		
+		$type = SubscriptionType::where('id', '=',$arr->subscription_type_id)->first();
+		
+		if(!$type){
+			return $this->sendResponse ( 'ERROR! : Invalid / subscription type',  self::NOT_ACCEPTABLE, 'ERROR! : Invalid / subscription type');
+		}
+		$user = User::find($_SESSION['user_id']);
+
+		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$_SESSION['user_id'], 'subscription_type_id'=>$arr->subscription_type_id ))->first();
+
+		if($subscription){
+ 			return $this->sendResponse ( 'ERROR! : already subscribed',  self::NOT_ACCEPTABLE, 'ERROR! : similar subscription is already active!');
+		}
+
+		$result['MID'] = PAYTM_MERCHANT_MID;
+		$result['CUST_ID'] = $_SESSION['user_id'];
+		$result['INDUSTRY_TYPE_ID'] = 'Retail';
+		$result['TXN_AMOUNT'] = $type->price;
+		$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
+		
+		if(isset($arr->source) and 'web' == strtolower($arr->source)){
+			$result['CHANNEL_ID'] = 'WEB';
+			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
+		}else
+			$result['CHANNEL_ID'] = 'WAP';
+
+		$ORDER_ID = sha1(date("Ymd").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price);
+		$result['ORDER_ID'] = $ORDER_ID;
+			
+		$paytm_order = PaytmOrder::firstOrCreate(['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]); 
+		
+		return $this->sendResponse ( $result );
+	}
+	
+	public function subscribe(Request $request) {
+		
+		$arr =	$request->getRawPost();
+		
+		$paytm_order = PaytmOrder::find( $arr->order_id );
+		
+		if(!$paytm_order){
+			return $this->sendResponse ( 'ERROR! : Invalid order_id',  self::NO_ENTITY, 'ERROR! : Invalid order_id');
+		}
+		
+		$PaytmOrderStatus = PaytmOrderStatus::where('paytm_order_id', '=', $arr->order_id)->first();
+
+		if(!$PaytmOrderStatus or $PaytmOrderStatus->payment_status!='TXN_SUCCESS'){
+		
+			$paytm_txn_order = file_get_contents(PAYTM_TXNSTATUS_URL.'?JsonData={"MID":"'.PAYTM_MERCHANT_MID.'","ORDERID":"'.$arr->order_id.'"}');
+			
+			$txn_order = json_decode($paytm_txn_order);
+			
+			$PaytmOrderStatus = PaytmOrderStatus::firstOrCreate(['paytm_order_id' =>$arr->order_id]);
+			$PaytmOrderStatus->payment_status = $txn_order->STATUS;
+			$PaytmOrderStatus->metadata = $paytm_txn_order;
+			
+			if($txn_order->STATUS =='TXN_SUCCESS' and $txn_order->RESPCODE == '01'){
+				
+				echo 'TEST new subscription';
+				$subscription = new Subscription();
+				$subscription->user_id = $paytm_order->user_id;
+				$subscription->subscription_type_id = $paytm_order->subscription_type_id;
+				$subscription->city_id = $subscription->subscriptionType->city_id;
+				$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+				$subscription->expiry = $NewDate;
+				$subscription->save();
+				
+				$PaytmOrderStatus->subscription_id = $subscription->id;
+				$PaytmOrderStatus->save();
+				
+			}else{
+				
+				$PaytmOrderStatus->save();
+				return $this->sendResponse ($txn_order , self::PAYMENT_REQUIRED, 'ERROR! : failed transaction');
+			}
+		
+		}
+		
+		$subscription= Subscription::find($PaytmOrderStatus->subscription_id);
+		
+		$result['amount'] = $paytm_order->txn_amount;
+		$result['subscription'][] = $subscription;
+		return $this->sendResponse ( $result );
+	}
+	
+	
+	
 	public function subscription(Request $request) {
 		
 		$arr =	$request->getRawPost();
@@ -330,6 +423,9 @@ class UserController extends Controller {
 		$result['subscription'][] = $subscription;
 		return $this->sendResponse ( $result );
 	}
+	
+	
+	
 	
 	
 	public function activeSubscription() {
