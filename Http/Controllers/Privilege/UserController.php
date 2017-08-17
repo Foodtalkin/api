@@ -311,7 +311,8 @@ class UserController extends Controller {
 			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
 		}
 
-		$ORDER_ID = sha1(date("Ymd").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price);
+// 		date("Ymd H:i:s").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price
+		$ORDER_ID = sha1($_SESSION['user_id'].'-'.microtime());
 		$result['ORDER_ID'] = $ORDER_ID;
 			
 		$paytm_order = PaytmOrder::firstOrCreate(['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]);
