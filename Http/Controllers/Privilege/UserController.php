@@ -36,7 +36,8 @@ class UserController extends Controller {
 		return $this->sendResponse ( $log, self::SUCCESS_OK );
 		
 	}
-	
+	public function addUser(Request $request){
+	}
 	
 	public function event(Request $request){
 		
@@ -305,8 +306,10 @@ class UserController extends Controller {
 		if(isset($arr->source) and 'web' == strtolower($arr->source)){
 			$result['CHANNEL_ID'] = 'WEB';
 			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
-		}else
+		}else{
 			$result['CHANNEL_ID'] = 'WAP';
+			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
+		}
 
 		$ORDER_ID = sha1(date("Ymd").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price);
 		$result['ORDER_ID'] = $ORDER_ID;
