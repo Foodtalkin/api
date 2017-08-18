@@ -348,7 +348,6 @@ class UserController extends Controller {
 			
 			if($txn_order->STATUS =='TXN_SUCCESS' and $txn_order->RESPCODE == '01'){
 				
-				echo 'TEST new subscription';
 				$subscription = new Subscription();
 				$subscription->user_id = $paytm_order->user_id;
 				$subscription->subscription_type_id = $paytm_order->subscription_type_id;
