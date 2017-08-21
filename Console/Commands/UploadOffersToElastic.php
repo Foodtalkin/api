@@ -45,10 +45,15 @@ class UploadOffersToElastic extends Command
 		$offers = Offer::getAllOffers(['paginate'=>'no']);
 
 		$url = '/ft_privilege';
+		
+		try {
 		$result = ES::request('', $url, 'DELETE');
 		if(isset($result->errors) && $result->errors)
 			echo json_encode($result);
-		
+		}catch (\Exception $e){
+			
+		}
+			
 		ob_start();
 		
 		foreach ($offers as $key => $offer){
