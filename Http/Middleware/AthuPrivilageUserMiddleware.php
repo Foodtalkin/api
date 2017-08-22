@@ -31,7 +31,7 @@ class AthuPrivilageUserMiddleware {
 
 			$DBsession = Session::
 			where('session_id',  $sessionID)
-			->where('created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 7 DAY)'))
+			->where('created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 30 DAY)'))
 			->first();
 			
 			if($DBsession){
