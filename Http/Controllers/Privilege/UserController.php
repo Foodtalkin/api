@@ -299,7 +299,7 @@ class UserController extends Controller {
 
 		$result['MID'] = PAYTM_MERCHANT_MID;
 		$result['CUST_ID'] = $_SESSION['user_id'];
-		$result['INDUSTRY_TYPE_ID'] = 'Retail';
+		$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
 		$result['TXN_AMOUNT'] = $type->price;
 		$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
 		
@@ -308,7 +308,8 @@ class UserController extends Controller {
 			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
 		}else{
 			$result['CHANNEL_ID'] = 'WAP';
-			$result['CALLBACK_URL'] = "https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp";
+			$result['CALLBACK_URL'] = PAYTM_CALLBACK_URL;
+// 			"http://api.foodtalk.in/paytm";
 		}
 
 // 		date("Ymd H:i:s").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price
