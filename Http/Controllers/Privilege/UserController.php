@@ -338,7 +338,13 @@ class UserController extends Controller {
 
 		if(!$PaytmOrderStatus or $PaytmOrderStatus->payment_status!='TXN_SUCCESS'){
 		
-			$paytm_txn_order = file_get_contents(PAYTM_TXNSTATUS_URL.'?JsonData={"MID":"'.PAYTM_MERCHANT_MID.'","ORDERID":"'.$arr->order_id.'"}');
+			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
+			$queryParam=array();
+			$queryParam['MID'] = PAYTM_MERCHANT_MID;
+			$queryParam['ORDERID'] = $arr->order_id;
+			$queryParam['CHECKSUMHASH']= getChecksumFromArray($result ,PAYTM_MERCHANT_KEY);
+			
+			$paytm_txn_order = file_get_contents(PAYTM_STATUS_QUERY_NEW_URL.'?JsonData='.urlencode(json_encode($queryParam)));
 			
 			$txn_order = json_decode($paytm_txn_order);
 			
