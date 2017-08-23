@@ -47,15 +47,10 @@ class SendPushNotification extends Command
 		$result = PushNotification::where(array('is_disabled'=>'0', 'status'=>'0'))->where('push_time', '<', DB::raw('now()'))->get();
 		if(!empty($result)){
 			foreach ($result as $push){
-				
-// 				echo $push->id.' =>  '. $push->push_time.' _ ARRAY ';
 				$data = json_decode($push->push, true);
 				$response = $this->sendpush($data);
-// 				print_r($response);
-// 				echo "\n";
 				$push->status = '1';
 				$push->save();
-				
 			}
 		}
 	}
@@ -67,7 +62,6 @@ class SendPushNotification extends Command
 		$data['_MasterKey']="parse@ftp";
 		$body = json_encode($data);
 		
-// 		return true;
 		$curl = curl_init();
 		
 		curl_setopt_array($curl, array(
