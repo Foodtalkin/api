@@ -50,7 +50,8 @@ class SendPushNotification extends Command
 				
 				echo $push->id.' =>  '. $push->push_time.' _ ARRAY ';
 				$data = json_decode($push->push, true);
-				echo $this->sendpush($data);	
+				$response = $this->sendpush($data);
+				print_r($response);
 				echo "\n";
 				
 				
