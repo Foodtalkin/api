@@ -50,7 +50,7 @@ class SendPushNotification extends Command
 				
 				echo $push->id.' =>  '. $push->push_time.' _ ARRAY ';
 				$data = json_decode($push->push, true);
-				$this->sendpush($data);	
+				echo $this->sendpush($data);	
 				echo "\n";
 				
 				
@@ -63,9 +63,9 @@ class SendPushNotification extends Command
 		
 		$data['_ApplicationId']="ftp";
 		$data['_MasterKey']="parse@ftp";
-		echo $body = json_encode($data);
+		$body = json_encode($data);
 		
-		return true;
+// 		return true;
 		$curl = curl_init();
 		
 		curl_setopt_array($curl, array(
