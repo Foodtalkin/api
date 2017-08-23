@@ -53,7 +53,7 @@ class SendPushNotification extends Command
 				$response = $this->sendpush($data);
 // 				print_r($response);
 // 				echo "\n";
-				$push->status = 1;
+				$push->status = '1';
 				$push->save();
 				
 			}
