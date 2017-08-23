@@ -46,10 +46,11 @@ class SendPushNotification extends Command
 	{
 		$result = PushNotification::where(array('is_disabled'=>'0', 'status'=>'0'))->where('push_time', '<', DB::raw('now()'))->get();
 		if(!empty($result)){
-			foreach ($result as $push)
-				echo $push->push;
+			foreach ($result as $push){
+				echo $push->id.' =>  '. $push->push_time;
+				echo "/n";
+			}
 		}
-
 	}
 	
 	
