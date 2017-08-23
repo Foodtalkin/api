@@ -48,7 +48,7 @@ class SendPushNotification extends Command
 		if(!empty($result)){
 			foreach ($result as $push){
 				echo $push->id.' =>  '. $push->push_time;
-				echo "/n";
+				echo "\n";
 			}
 		}
 	}
