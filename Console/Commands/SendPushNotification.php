@@ -49,9 +49,9 @@ class SendPushNotification extends Command
 			foreach ($result as $push){
 				
 				echo $push->id.' =>  '. $push->push_time.' _ ARRAY ';
-				print_r(json_decode($push->push, true));
+				$data = json_decode($push->push, true);
+				$this->sendpush($data);	
 				echo "\n";
-				
 				
 				
 			}
@@ -59,12 +59,13 @@ class SendPushNotification extends Command
 	}
 	
 	
-	public function sendpush($api, $data, $method = 'POST'){
+	public function sendpush($data, $method = 'POST'){
 		
 		$data['_ApplicationId']="ftp";
 		$data['_MasterKey']="parse@ftp";
-		$body = json_encode($data);
+		echo $body = json_encode($data);
 		
+		return true;
 		$curl = curl_init();
 		
 		curl_setopt_array($curl, array(
