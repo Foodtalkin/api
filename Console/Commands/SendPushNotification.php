@@ -48,12 +48,13 @@ class SendPushNotification extends Command
 		if(!empty($result)){
 			foreach ($result as $push){
 				
-				echo $push->id.' =>  '. $push->push_time.' _ ARRAY ';
+// 				echo $push->id.' =>  '. $push->push_time.' _ ARRAY ';
 				$data = json_decode($push->push, true);
 				$response = $this->sendpush($data);
-				print_r($response);
-				echo "\n";
-				
+// 				print_r($response);
+// 				echo "\n";
+				$push->status = 1;
+				$push->save();
 				
 			}
 		}
