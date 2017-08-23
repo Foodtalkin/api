@@ -102,6 +102,12 @@ $app->get('/', function() use ($app) {
 	{
 		
 		
+		$app->get('push', [ 'uses' =>'PushNotificationController@getAll']);
+		$app->get('push/{id}', [ 'uses' =>'PushNotificationController@get']);
+		$app->post('push', [ 'uses' =>'PushNotificationController@create']);
+		$app->put('push/{id}', [ 'uses' =>'PushNotificationController@update']);
+		$app->delete('push/{id}', [ 'uses' =>'PushNotificationController@delete']);
+		
 		
 		$app->get('feeds/redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
 		$app->get('feeds/signups', [ 'uses' =>'AnalyticsController@signups']);

@@ -308,8 +308,9 @@ class UserController extends Controller {
 			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
 		}else{
 			$result['CHANNEL_ID'] = 'WAP';
-			$result['CALLBACK_URL'] = PAYTM_CALLBACK_URL;
-// 			"http://api.foodtalk.in/paytm";
+			$result['CALLBACK_URL'] = 
+// 			PAYTM_CALLBACK_URL;
+			"http://api.foodtalk.in/paytm";
 		}
 
 // 		date("Ymd H:i:s").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price
