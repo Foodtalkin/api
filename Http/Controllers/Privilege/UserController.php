@@ -533,7 +533,7 @@ class UserController extends Controller {
 				
 			if($user){
 				
-// 				if(!$user->is_verified)
+				if($user->is_verified)
 					return $this->sendResponse(array('error'=>'phone'),self::NOT_ACCEPTABLE, 'phone already registered');
 			}
 			else
