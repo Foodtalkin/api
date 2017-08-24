@@ -479,7 +479,7 @@ class UserController extends Controller {
 	
 	
 	public function checkUser($phone){
-	 	$user = User::where('phone', 'like' , $phone)->first();
+		$user = User::where('phone', 'like' , $phone)->where('is_verified', '1')->first();
 // 	 	$user['subscription'] = 
 // 	 	Subscription::where('user_id','=', $user->id)->get();
 // 	 	$user->subscription();
@@ -532,7 +532,7 @@ class UserController extends Controller {
 			if(isset($arr->signup) && $arr->signup == '1'){
 				
 			if($user){
-				return $this->sendResponse(array('error'=>'phone'),self::NOT_ACCEPTABLE, 'phone already registered');
+// 				return $this->sendResponse(array('error'=>'phone'),self::NOT_ACCEPTABLE, 'phone already registered');
 			}
 			else
 				$user = new User();
