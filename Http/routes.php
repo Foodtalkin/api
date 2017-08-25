@@ -36,6 +36,7 @@ $app->get('/', function() use ($app) {
 	{
 
 		
+		
 		$app->post('paytm', [ 'uses' =>'UserController@paytm']);
 		
 		$app->post('paytm_order', [ 'uses' =>'UserController@subscriptionOrder']);
@@ -44,6 +45,7 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('outlet/{outlet_id}/offer/{offer_id}', [ 'uses' =>'OfferController@offerWithOutlet']);
 		$app->get('checkuser/{phone}', [ 'uses' =>'UserController@checkUser']);
+		$app->post('add_user', [ 'uses' =>'UserController@addUser']);
 		$app->get('restaurant/{id}', [ 'uses' =>'RestaurantController@get']);
 		$app->get('restaurant/outlets/{id}', [ 'uses' =>'RestaurantController@outlets']);
 		$app->get('outlet/{id}', [ 'uses' =>'OutletController@get']);

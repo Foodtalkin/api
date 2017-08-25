@@ -37,6 +37,22 @@ class UserController extends Controller {
 		
 	}
 	public function addUser(Request $request){
+		
+		$attributes = $request->getRawPost(true);
+		
+		$user = User::firstOrCreate(array('phone'=>$attributes['phone']));
+		$user->fill($attributes)->save();
+		
+		$att = array('user_id'=>$user->id,'city_id'=>1, 'subscription_type_id'=>1);
+		
+		$subscription =  Subscription::firstOrCreate($att);
+		
+		$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+		$subscription->expiry = $NewDate;
+		$subscription->created_by = '1';
+		$subscription->save();
+		
+		return $this->sendResponse ( $subscription, self::SUCCESS_OK );
 	}
 	
 	public function event(Request $request){
