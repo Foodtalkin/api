@@ -41,8 +41,18 @@ class Offer extends BaseModel
 			
 // 		$result = self::where('1')->;
 
+		
+		if(isset($options['latitude']) and isset($options['longitude'])){
+			
+			$latitude = $options['latitude'];
+			$longitude = $options['longitude'];
+			$distance = ",DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006 as distance";
+			
+		}else 
+			$distance= '';
+		
 		$query = self::select(DB::raw(' count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
-			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, restaurant.card_image,  cuisine.title as primary_cuisine'))
+			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, restaurant.card_image,  cuisine.title as primary_cuisine '.$distance))
 		->where ( $where )
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
@@ -55,6 +65,24 @@ class Offer extends BaseModel
 		if(isset($options['city_zone_id'])){
 			$query->whereIn('outlet.city_zone_id', explode(',', $options['city_zone_id']));
 		}
+		
+		if(isset($options['city_id'])){
+			$query->whereIn('outlet.city_id', explode(',', $options['city_id']));
+		}
+		
+		if(isset($options['latitude']) and isset($options['longitude'])){
+			
+			$latitude = $options['latitude'];
+			$longitude = $options['longitude'];
+			$maxDistance = 5000;
+			
+// 			$sql .= " AND DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(r.latitude)) + COS(RADIANS($latitude)) * 
+// 						COS(RADIANS(r.latitude)) * COS(RADIANS($longitude - r.longitude)))) * 111189.3006  < $maxDistance";
+
+			$query->where(DB::raw("DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * 
+					COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006"), '<', $maxDistance);
+		}
+		
 		
 		if(isset($options['type'])){
 			$query->whereIn('outlet_offer.offer_id', explode(',', $options['type']));
