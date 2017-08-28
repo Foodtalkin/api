@@ -166,7 +166,8 @@ class OfferController extends Controller {
 			$option['date'] = date_format($offerRedeem->created_at, 'D M Y');
 			$option['time'] = date_format($offerRedeem->created_at, 'h:i A');;
 			$body =  Sendgrid::redumption_tpl($option);
-						
+
+			if(PAYTM_ENVIRONMENT != 'TEST')
 			Sendgrid::sendMail($outlet->email, 'Food Talk Redemption Confirmation', $body);
 			
 		return $this->sendResponse ( $offerRedeem );
