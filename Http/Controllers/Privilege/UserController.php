@@ -523,7 +523,7 @@ class UserController extends Controller {
 		
 		$arr =	$request->getRawPost();
 		
-		if($arr->phone=='1111111111')
+		if($arr->phone=='1111111111' or PAYTM_ENVIRONMENT == 'TEST')
 			$OTP = 8888;
 		else 
 			$OTP = rand(1000, 9999);
@@ -580,7 +580,8 @@ class UserController extends Controller {
 		
 		$otp->save();
 		
-		if($arr->phone!='1111111111')
+// 		if($arr->phone!='1111111111')
+		if($arr->phone!='1111111111' or PAYTM_ENVIRONMENT != 'TEST')
 			file_get_contents($url);
 		
 		return $this->sendResponse('OTP '.$OTP.' is sent to : '.$arr->phone);
