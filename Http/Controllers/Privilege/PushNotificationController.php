@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Privilege;
 
-// use DB;
+use DB;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
