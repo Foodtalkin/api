@@ -48,14 +48,19 @@ class PushNotificationController extends Controller {
 	
 	
 	public function delete($id) {
-		$result= PushNotification::find ( $id );
+		
+		
+		$result= PushNotification::where('push_time', '>', DB::raw('now()'))
+		->where ( 'id', $id)
+		->first();
+// 		find ( $id );
 		
 		if ($result) {
 			$result->is_disabled = 1;
 			$result->save();
 			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Notification Disabled' );
 		} else {
-			return $this->sendResponse ( null );
+			return $this->sendResponse ( false, self::NOT_ACCEPTABLE, 'Invalid or expired notification' );
 		}
 	}
 }
