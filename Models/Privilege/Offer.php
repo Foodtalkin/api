@@ -52,7 +52,7 @@ class Offer extends BaseModel
 			$distance= '';
 		
 		$query = self::select(DB::raw(' count(DISTINCT offer.id) offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids, COUNT(DISTINCT outlet.id) outlet_count , GROUP_CONCAT(DISTINCT outlet.id) as outlet_ids , 
-			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, restaurant.card_image,  cuisine.title as primary_cuisine '.$distance))
+			restaurant.id as rid, restaurant.name, restaurant.cost, restaurant.one_liner, REPLACE(restaurant.card_image,"/upload/","/upload/f_jpg,h_400/") as card_image ,  cuisine.title as primary_cuisine '.$distance))
 		->where ( $where )
 		->join('outlet_offer', 'offer.id', '=', 'outlet_offer.offer_id')
 		->join('outlet', 'outlet.id', '=', 'outlet_offer.outlet_id')
