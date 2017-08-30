@@ -182,7 +182,7 @@ class Offer extends BaseModel
 				'outlet.id as outlet_id',
 				'restaurant.id as restaurant_id',
 				'outlet.name as outlet_name', 
-				'outlet_offer.cover_image',
+				DB::raw('REPLACE(outlet_offer.cover_image,"/upload/","/upload/f_jpg,q_70/") as cover_image'),
 				'latitude', 'longitude',
 				'outlet.phone', 
 				'area', 'postcode', 
