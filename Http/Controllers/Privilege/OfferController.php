@@ -247,6 +247,13 @@ class OfferController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function searchDB($searchText , $entity = 'restaurant', $options=array()){
+		
+		$searchText = urldecode($searchText);
+		$result = Offer::getAllOffers(array('search'=>$searchText));
+		return $this->sendResponse ( $result);
+	}
+
 	public function search($searchText , $entity = 'restaurant', $options=array()){
 	
 		

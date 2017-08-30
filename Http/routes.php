@@ -57,6 +57,7 @@ $app->get('/', function() use ($app) {
 		$app->get('offer_types', [ 'uses' =>'OfferController@getAll']);
 		
 		$app->get('search/{searchText}', [ 'uses' =>'OfferController@search']);
+		$app->get('search_restaurant/{searchText}', [ 'uses' =>'OfferController@searchDB']);
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		
 		

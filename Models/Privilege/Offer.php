@@ -140,6 +140,11 @@ class Offer extends BaseModel
 // 				$query->where('restaurant.cost', '>=', '1599');
 			
 		}
+		
+		if(isset($options['search'] )) {
+			$query->where('restaurant.name', 'like', '%'.$options['search'].'%');
+		}
+		
 			$query->orderBy('restaurant.sort_order', 'desc');
 			$query->orderBy('restaurant.created_at', 'desc');
 		
