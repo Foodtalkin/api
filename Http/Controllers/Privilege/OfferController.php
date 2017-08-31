@@ -188,7 +188,7 @@ class OfferController extends Controller {
 		
 		if($result){
 			$result['images'] = Image::select(
-					DB::raw('REPLACE(url,"/upload/","/upload/f_auto,h_400,q_70/") as url'),
+					DB::raw('REPLACE(url,"/upload/","/upload/f_auto,w_500,q_70/") as url'),
 					'title', 
 					'type'
 					)->where(array(
