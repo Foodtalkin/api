@@ -70,18 +70,18 @@ class Offer extends BaseModel
 			$query->whereIn('outlet.city_id', explode(',', $options['city_id']));
 		}
 		
-		if(isset($options['latitude']) and isset($options['longitude'])){
-			
-			$latitude = $options['latitude'];
-			$longitude = $options['longitude'];
-			$maxDistance = 5000;
-			
-// 			$sql .= " AND DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(r.latitude)) + COS(RADIANS($latitude)) * 
-// 						COS(RADIANS(r.latitude)) * COS(RADIANS($longitude - r.longitude)))) * 111189.3006  < $maxDistance";
-
-			$query->where(DB::raw("DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * 
-					COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006"), '<', $maxDistance);
-		}
+// 		if(isset($options['latitude']) and isset($options['longitude'])){
+//			
+// 			$latitude = $options['latitude'];
+// 			$longitude = $options['longitude'];
+// 			$maxDistance = 5000;
+//
+// // 			$sql .= " AND DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(r.latitude)) + COS(RADIANS($latitude)) * 
+// // 						COS(RADIANS(r.latitude)) * COS(RADIANS($longitude - r.longitude)))) * 111189.3006  < $maxDistance";
+//
+// 			$query->where(DB::raw("DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * 
+// 					COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006"), '<', $maxDistance);
+// 		}
 		
 		
 		if(isset($options['type'])){
@@ -145,8 +145,13 @@ class Offer extends BaseModel
 			$query->where('restaurant.name', 'like', '%'.$options['search'].'%');
 		}
 		
+		
+		if(isset($options['latitude']) and isset($options['longitude'])){
+			$query->orderBy('distance');
+		}else{
 			$query->orderBy('restaurant.sort_order', 'desc');
 			$query->orderBy('restaurant.created_at', 'desc');
+		}
 		
 // 		echo $query->toSql();
 		
