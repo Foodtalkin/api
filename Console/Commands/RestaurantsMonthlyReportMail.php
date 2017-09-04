@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\ES;
 use App\Models\Privilege\Outlet;
+use App\Models\Privilege\OfferRedeemed;
 
 
 class RestaurantsMonthlyReportMail extends Command
@@ -47,7 +48,13 @@ class RestaurantsMonthlyReportMail extends Command
 		
 		foreach ($outlets as $outlet){
 			
-			echo 'CITY : '.$outlet->city->name;
+			$redemptions = OfferRedeemed::select('offer.title', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at' )
+			->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
+			->where('outlet_id', $outlet->id)
+			->get();
+			
+			
+			echo $redemptions->id.' | '.$redemptions->title.' | '.$redemptions->offers_redeemed.' | '.date_format($redemptions->created_at, 'D M Y').' | '.date_format($redemptions->created_at, 'h:i A')."\n";
 			
 		}
 
