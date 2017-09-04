@@ -22,7 +22,7 @@ class Outlet extends BaseModel
 	
 	public function city()
 	{
-		return $this->hasOne('App\Models\Privilege\City');
+		return $this->belongsTo('App\Models\Privilege\City');
 	}
 	
 // 	public function resturant()
