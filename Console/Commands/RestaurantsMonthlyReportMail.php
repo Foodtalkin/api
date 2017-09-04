@@ -47,7 +47,7 @@ class RestaurantsMonthlyReportMail extends Command
 		
 		foreach ($outlets as $outlet){
 			
-			
+			echo 'CITY : '.$outlet->city->name;
 			
 		}
 
