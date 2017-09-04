@@ -196,6 +196,15 @@ class Sendgrid
 	
 	public static function report_tpl($option){
 		
+		$tableBody ='';
+		foreach($option['redemptions'] as $redemption){
+			$tableBody = '<tr align="center"><td>'.$redemption->id.'</td>
+<td>'.$redemption->title.'</td>
+<td>'.$redemption->offers_redeemed.'</td>
+<td>'. date_format($redemption->created_at, 'jS M Y').'</td>
+<td>'. date_format($redemption->created_at, 'h:i A').'</td></tr>';
+		}
+		
 		return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -306,7 +315,7 @@ class Sendgrid
             height="100%"
             valign="top"
             bgcolor="">
-            <div><span style="font-family:arial,helvetica,sans-serif;"><span style="font-size:20px;">Redemption alert at '.$option['restaurant_name'].', '.$option['area'].'</span></span></div>
+            <div><span style="font-family:arial,helvetica,sans-serif;"><span style="font-size:20px;">Redemption alert at '.$option['outlet']->name.', '.$option['outlet']->area.'</span></span></div>
         </td>
       </tr>
     </table>
@@ -316,38 +325,23 @@ class Sendgrid
             height="100%"
             valign="top"
             bgcolor="">
-            <div>There was a new offer redemption at '.$option['restaurant_name'].', '.$option['area'].'. Please find the details about the same below.&nbsp;</div>
+            <div>There was a new offer redemption at '.$option['outlet']->name.', '.$option['outlet']->area.'. Please find the details about the same below.&nbsp;</div>
 <div>&nbsp;</div>
-<div>Redemption id: <strong>'.$option['redeem_id'].'</strong></div>
 <div>&nbsp;</div>
 <div>
 <div>
-<table border="0" cellpadding="0" cellspacing="0" style="width:500px;">
+<table  border="1"  cellpadding="0" cellspacing="0" style="width:500px;">
 	<tbody>
-		<tr>
-			<td>Name of the restaurant</td>
-			<td>
-      <div>'.$option['restaurant_name'].', '.$option['area'].'</div>
-			</td>
-		</tr>
-		<tr>
-			<td>Type of offer</td>
-      <td>'.$option['offer'].'</td>
-		</tr>
-		<tr>
-			<td>Number of coupons used</td>
-      <td>'.$option['coupon_count'].'</td>
-		</tr>
-		<tr>
-			<td>Date of redemption</td>
-      <td>'.$option['date'].'</td>
-		</tr>
-		<tr>
-			<td>Time of redemption</td>
-			<td>
-      <div>'.$option['time'].'</div>
-			</td>
-		</tr>
+<tr align="center">
+<td>Redemption id</td>
+<td>Offer Type</td>
+<td>Coupons used</td>
+<td>Date</td>
+<td>Time</td>
+</tr>
+
+
+'.$tableBody.'
 	</tbody>
 </table>
 </div>

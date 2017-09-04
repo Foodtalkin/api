@@ -36,6 +36,7 @@ $app->get('/', function() use ($app) {
 	{
 
 		
+		$app->get('ttss', [ 'uses' =>'OutletController@test']);
 		
 		$app->post('paytm', [ 'uses' =>'UserController@paytm']);
 		
