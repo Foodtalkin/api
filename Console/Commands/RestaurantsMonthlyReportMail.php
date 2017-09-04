@@ -44,13 +44,13 @@ class RestaurantsMonthlyReportMail extends Command
 	 */
 	public function handle()
 	{
-		$outlets = Outlet::select('id', 'name', 'area', 'email', 'city_id', 'postcode')->where('is_disabled','0')->get();
+		$outlets = Outlet::where('is_disabled','0')->get();
 		
 		foreach ($outlets as $outlet){
 			
 			$redemptions = OfferRedeemed::select('offer.title', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at' )
 			->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
-			->where('outlet_id', $outlet->id)
+			->where('offer_redeemed.outlet_id', $outlet->id)
 			->get();
 			
 			
