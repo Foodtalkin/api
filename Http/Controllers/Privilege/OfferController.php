@@ -168,7 +168,7 @@ class OfferController extends Controller {
 			$body =  Sendgrid::redumption_tpl($option);
 
 			if(PAYTM_ENVIRONMENT != 'TEST')
-			Sendgrid::sendMail($outlet->email, 'Food Talk Redemption Confirmation', $body);
+				$sendgridresponse =	Sendgrid::sendMail(explode(',', $outlet->email), 'Food Talk Redemption Confirmation', $body);
 			
 		return $this->sendResponse ( $offerRedeem );
 	}

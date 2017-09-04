@@ -195,9 +195,18 @@ class Sendgrid
 
 	public static function sendMail($email, $subject , $body, $from = 'privilege@foodtalkindia.com', $cc= false , $contentType='text/html'){
 		
+		$to = array();
+		if(is_array($email)){
+			foreach ($email as $em){
+				$to[] = array('email'=>$em);
+			}
+		}
+		else 
+			$to[] = array('email'=>$email);
+		
 		$request['personalizations'][]  = array(
 				'subject'=> $subject,
-				'to'=> array(array('email'=>$email))
+				'to'=> $to
 		);
 		
 		$request['from'] = array('email'=>$from, 'name'=>'Food Talk Privilege');
