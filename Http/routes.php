@@ -182,140 +182,140 @@ $app->get('/', function() use ($app) {
 	});
 	
 	// list all users
-	$app->get('user','UserController@listAll');
-	$app->get('user/{for:onapp|nonapp}','UserController@listAll');
+// 	$app->get('user','UserController@listAll');
+// 	$app->get('user/{for:onapp|nonapp}','UserController@listAll');
 	
 	
-	$app->get('user/city/{city}','UserController@listAllWithCity');
-	$app->get('user/city','UserController@listAllWithCity');
+// 	$app->get('user/city/{city}','UserController@listAllWithCity');
+// 	$app->get('user/city','UserController@listAllWithCity');
 	
 	
-	$app->get('city','CityController@listAll');
+// 	$app->get('city','CityController@listAll');
 	
 	
 	
-	$app->post('contact','ContactController@create');
-	$app->put('contact/{id}','ContactController@update');
+// 	$app->post('contact','ContactController@create');
+// 	$app->put('contact/{id}','ContactController@update');
 	
 	
-	// get user's info
-	$app->get('user/{id}','UserController@get');
+// 	// get user's info
+// 	$app->get('user/{id}','UserController@get');
 	
-	// get events of user's and its info
-	$app->get('user/{id}/{with:events}','UserController@get');
+// 	// get events of user's and its info
+// 	$app->get('user/{id}/{with:events}','UserController@get');
 	
 	
-	// creates a new user
-	$app->post('user','UserController@create');
+// 	// creates a new user
+// 	$app->post('user','UserController@create');
 	
-	$app->post('emailavilability','UserController@checkEmail');
+// 	$app->post('emailavilability','UserController@checkEmail');
 	
-	// update a user
-	$app->put('user/{id}','UserController@update');
+// 	// update a user
+// 	$app->put('user/{id}','UserController@update');
 	
 	// delete a user
-	$app->delete('user/{id}','UserController@delete');
+// 	$app->delete('user/{id}','UserController@delete');
 	
-	// update a user
-	$app->post('user/{id}/{ptype:participation|rsvp}','UserController@participation');
+// 	// update a user
+// 	$app->post('user/{id}/{ptype:participation|rsvp}','UserController@participation');
 
-	$app->get('getfeeds','EventController@getMobileAppFeeds');
+// 	$app->get('getfeeds','EventController@getMobileAppFeeds');
 	
 	
 // as per himanshu	
 // 	$app->get('{type:event|contest}', [ 'uses' =>'EventController@listAll']);
-	$app->get('{type:event|contest}/{status:upcomming|ongoing}', [ 'uses' =>'EventController@listAll']);
-	$app->get("{type:event|contest}/{id}",[ 'uses' =>'EventController@get', 'as'=>'ssssss']);
-	$app->get("{type:event|contest}/{id}/{with:participants}",'EventController@get');
-	$app->get('sub_category','SubCategoryController@listAll');
-	$app->get('sub_category/{id}','SubCategoryController@get');
-	$app->get('sub_category/{id}/{with:events}','SubCategoryController@get');
+// 	$app->get('{type:event|contest}/{status:upcomming|ongoing}', [ 'uses' =>'EventController@listAll']);
+// 	$app->get("{type:event|contest}/{id}",[ 'uses' =>'EventController@get', 'as'=>'ssssss']);
+// 	$app->get("{type:event|contest}/{id}/{with:participants}",'EventController@get');
+// 	$app->get('sub_category','SubCategoryController@listAll');
+// 	$app->get('sub_category/{id}','SubCategoryController@get');
+// 	$app->get('sub_category/{id}/{with:events}','SubCategoryController@get');
 	
 
-	$app->post('{type:event|contest}/{id}/addtags',[ 'uses' =>'EventController@addTags']);
+// 	$app->post('{type:event|contest}/{id}/addtags',[ 'uses' =>'EventController@addTags']);
 	
 	
-	$app->post('transaction/{method:instamojo}',[ 'uses' =>'TransactionController@create']);
-	$app->post('transaction/{method:instamojo}/{id}',[ 'uses' =>'TransactionController@create']);
+// 	$app->post('transaction/{method:instamojo}',[ 'uses' =>'TransactionController@create']);
+// 	$app->post('transaction/{method:instamojo}/{id}',[ 'uses' =>'TransactionController@create']);
 	
 	
-	$app->group([
-// 					'middleware' => 'auth', 
-					'prefix' => 'api',
-					'namespace' => 'App\Http\Controllers'
-				], function($app)
-				{
-					$app->get('contact','ContactController@listAll');
-					$app->get('contact/{id}','ContactController@get');
+// 	$app->group([
+// // 					'middleware' => 'auth', 
+// 					'prefix' => 'api',
+// 					'namespace' => 'App\Http\Controllers'
+// 				], function($app)
+// 				{
+// 					$app->get('contact','ContactController@listAll');
+// 					$app->get('contact/{id}','ContactController@get');
 					
-					$app->get('search/user/tags/{tags}','UserController@tag');
-					$app->get('search/user/{text}/tags/{tags}','UserController@search');
-					$app->get('search/user/{text}','UserController@search');
+// 					$app->get('search/user/tags/{tags}','UserController@tag');
+// 					$app->get('search/user/{text}/tags/{tags}','UserController@search');
+// 					$app->get('search/user/{text}','UserController@search');
 					
-					$app->get('transaction',[ 'uses' =>'TransactionController@listAll']);
+// 					$app->get('transaction',[ 'uses' =>'TransactionController@listAll']);
 					
-					$app->get('partners', [ 'uses' =>'PartnersController@listAll']);
-					$app->post('partners', [ 'uses' =>'PartnersController@create']);
-					$app->put('partners/{id}', [ 'uses' =>'PartnersController@update']);
-					$app->delete('partners/{id}', [ 'uses' =>'PartnersController@delete']);
-					$app->get('partners/{id}', [ 'uses' =>'PartnersController@get']);
-					$app->get('partners/{id}/{with:events}',[ 'uses' =>'PartnersController@get']);
+// 					$app->get('partners', [ 'uses' =>'PartnersController@listAll']);
+// 					$app->post('partners', [ 'uses' =>'PartnersController@create']);
+// 					$app->put('partners/{id}', [ 'uses' =>'PartnersController@update']);
+// 					$app->delete('partners/{id}', [ 'uses' =>'PartnersController@delete']);
+// 					$app->get('partners/{id}', [ 'uses' =>'PartnersController@get']);
+// 					$app->get('partners/{id}/{with:events}',[ 'uses' =>'PartnersController@get']);
 					
-					$app->post('{type:event}/{id}/partners',[ 'uses' =>'EventController@addPartners']);
-					$app->delete('{type:event}/{id}/partners/{partners_id}','EventController@deletePartners');
+// 					$app->post('{type:event}/{id}/partners',[ 'uses' =>'EventController@addPartners']);
+// 					$app->delete('{type:event}/{id}/partners/{partners_id}','EventController@deletePartners');
 						
 					
-// 					event|contest api
-					$app->get('{type:event|contest}', [ 'uses' =>'EventController@listAll']);
-					$app->get('{type:event|contest}/{status:upcomming|ongoing|disabled|pending|active|past}', [ 'uses' =>'EventController@listAll']);
-					$app->get("{type:event|contest}/{id}", [ 'uses' =>'EventController@get', 'as'=>'ssssss']);
-					$app->get("{type:event|contest}/{id}/{with:participants}",'EventController@get');
+// // 					event|contest api
+// 					$app->get('{type:event|contest}', [ 'uses' =>'EventController@listAll']);
+// 					$app->get('{type:event|contest}/{status:upcomming|ongoing|disabled|pending|active|past}', [ 'uses' =>'EventController@listAll']);
+// 					$app->get("{type:event|contest}/{id}", [ 'uses' =>'EventController@get', 'as'=>'ssssss']);
+// 					$app->get("{type:event|contest}/{id}/{with:participants}",'EventController@get');
 			
 					
-					$app->post('{type:event|contest}','EventController@create');
+// 					$app->post('{type:event|contest}','EventController@create');
 				
-					$app->put('{type:event|contest}/{id}','EventController@update');
+// 					$app->put('{type:event|contest}/{id}','EventController@update');
 				
-					$app->delete('{type:event|contest}/{id}','EventController@delete');
+// 					$app->delete('{type:event|contest}/{id}','EventController@delete');
 					
-					$app->post('{type:event}/{id}/vendors','EventController@addVendors');
-					$app->delete('{type:event}/{id}/vendors/{vendors_id}','EventController@deleteVendors');
+// 					$app->post('{type:event}/{id}/vendors','EventController@addVendors');
+// 					$app->delete('{type:event}/{id}/vendors/{vendors_id}','EventController@deleteVendors');
 					
-//					vendors category
-					$app->get('{type:vendor|media|bloggers|influencer}/category', [ 'uses' =>'VendorsCategoryController@listAll']);
-					$app->post('{type:vendor|media|bloggers|influencer}/category', [ 'uses' =>'VendorsCategoryController@create']);
+// //					vendors category
+// 					$app->get('{type:vendor|media|bloggers|influencer}/category', [ 'uses' =>'VendorsCategoryController@listAll']);
+// 					$app->post('{type:vendor|media|bloggers|influencer}/category', [ 'uses' =>'VendorsCategoryController@create']);
 						
-					$app->get('{type:vendor|media|bloggers|influencer}/category/{id}', [ 'uses' =>'VendorsCategoryController@get']);
+// 					$app->get('{type:vendor|media|bloggers|influencer}/category/{id}', [ 'uses' =>'VendorsCategoryController@get']);
 					
-					$app->get('{type:vendor|media|bloggers|influencer}/category/{id}/{with:vendors}', [ 'uses' =>'VendorsCategoryController@get']);
+// 					$app->get('{type:vendor|media|bloggers|influencer}/category/{id}/{with:vendors}', [ 'uses' =>'VendorsCategoryController@get']);
 						
-					$app->put('{type:vendor|media|bloggers|influencer}/category/{id}', [ 'uses' =>'VendorsCategoryController@update']);
-					$app->delete('{type:vendor|media|bloggers|influencer}/category/{id}', [ 'uses' =>'VendorsCategoryController@delete']);
+// 					$app->put('{type:vendor|media|bloggers|influencer}/category/{id}', [ 'uses' =>'VendorsCategoryController@update']);
+// 					$app->delete('{type:vendor|media|bloggers|influencer}/category/{id}', [ 'uses' =>'VendorsCategoryController@delete']);
 					
-// 					vendor's api
-					$app->get('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@listAll']);
-					$app->post('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@create']);						
+// // 					vendor's api
+// 					$app->get('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@listAll']);
+// 					$app->post('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@create']);						
 					
-					$app->get('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@get']);
-					$app->put('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@update']);
-					$app->delete('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@delete']);
+// 					$app->get('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@get']);
+// 					$app->put('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@update']);
+// 					$app->delete('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@delete']);
 						
 					
-// 					sub_category api
-					$app->get('sub_category','SubCategoryController@listAll');
+// // 					sub_category api
+// 					$app->get('sub_category','SubCategoryController@listAll');
 					
-					$app->post('sub_category','SubCategoryController@create');
-					$app->get('sub_category/{id}','SubCategoryController@get');
-					$app->get('sub_category/{id}/{with:events}','SubCategoryController@get');
+// 					$app->post('sub_category','SubCategoryController@create');
+// 					$app->get('sub_category/{id}','SubCategoryController@get');
+// 					$app->get('sub_category/{id}/{with:events}','SubCategoryController@get');
 					
-					$app->put('sub_category/{id}','SubCategoryController@update');
-					$app->delete('sub_category/{id}','SubCategoryController@delete');
+// 					$app->put('sub_category/{id}','SubCategoryController@update');
+// 					$app->delete('sub_category/{id}','SubCategoryController@delete');
 					
-					$app->get('dashboard/batcave','AccountsAnalyticsController@index');
+// 					$app->get('dashboard/batcave','AccountsAnalyticsController@index');
 					
 					
-				}
-	);
+// 				}
+// 	);
 	
 	
 // $app->get('/', function () use ($app) {
