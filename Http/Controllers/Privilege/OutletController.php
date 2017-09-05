@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers\Privilege;
 
-// use DB;
 
 use App\Models\Privilege\Outlet;
 use App\Models\Privilege\Image;
 use App\Models\User;
 use App\Models\Events;
-// use App\Models\Contest;
-// use App\Models\EventParticipant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Privilege\OfferRedeemed;
-use App\Models\Privilege\Sendgrid;
-// use Illuminate\Http\JsonResponse;
 
 class OutletController extends Controller {
 
@@ -29,27 +23,6 @@ class OutletController extends Controller {
 		$Outlet->resturant;
 		
 		return $this->sendResponse ( $Outlet);
-	}
-	
-	public function test(){
-		
-		$outlets = Outlet::where('is_disabled','0')->get();
-		
-		foreach ($outlets as $outlet){
-			
-			$redemptions = OfferRedeemed::select('offer.title', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at' )
-			->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
-			->where('offer_redeemed.outlet_id', $outlet->id)
-			->get();
-// 			foreach ($redemptions as $redemption)
-// 			echo $redemption->id.' | '.$redemption->title.' | '.$redemption->offers_redeemed.' | '.date_format($redemption->created_at, 'D M Y').' | '.date_format($redemption->created_at, 'h:i A')."<br>";
-			$option['outlet'] =  $outlet;
-			$option['redemptions'] = $redemptions;
-			echo Sendgrid::report_tpl($option);
-		}
-		
-		
-		
 	}
 	
 	public function getAll(Request $request) {
