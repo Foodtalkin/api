@@ -1,10 +1,9 @@
 <?php
 namespace App\Console\Commands;
 
-
+use DB;
 use Illuminate\Console\Command;
 use App\Models\Privilege\Offer;
-use App\Models\Privilege\ES;
 use App\Models\Privilege\Outlet;
 use App\Models\Privilege\OfferRedeemed;
 
@@ -16,7 +15,7 @@ class RestaurantsMonthlyReportMail extends Command
 	 *
 	 * @var string
 	 */
-	protected $signature = 'restaurants:send-monthly-report {id}';
+	protected $signature = 'restaurants:send-monthly-report {id?}';
 	
 	/**
 	 * The console command description.
