@@ -315,7 +315,7 @@ class Sendgrid
             height="100%"
             valign="top"
             bgcolor="">
-            <div><span style="font-family:arial,helvetica,sans-serif;"><span style="font-size:20px;">'.$option['outlet']->month.' Monthly Redemptions Report at '.$option['outlet']->name.', '.$option['outlet']->area.'</span></span></div>
+            <div><span style="font-family:arial,helvetica,sans-serif;"><span style="font-size:20px;">'.$option['outlet']->month.' Monthly Redemptions Report of '.$option['outlet']->name.', '.$option['outlet']->area.'</span></span></div>
         </td>
       </tr>
     </table>
