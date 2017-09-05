@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\Outlet;
 use App\Models\Privilege\OfferRedeemed;
+use App\Models\Privilege\Sendgrid;
 
 
 class RestaurantsMonthlyReportMail extends Command
