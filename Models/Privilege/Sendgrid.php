@@ -198,10 +198,10 @@ class Sendgrid
 		
 		$tableBody ='';
 		foreach($option['redemptions'] as $redemption){
-			$tableBody = '<tr align="center"><td>'.$redemption->id.'</td>
+			$tableBody .= '<tr align="center"><td>'.$redemption->id.'</td>
 <td>'.$redemption->title.'</td>
 <td>'.$redemption->offers_redeemed.'</td>
-<td>'. date_format($redemption->created_at, 'jS M Y').'</td>
+<td>'. date_format($redemption->created_at, 'j M Y').'</td>
 <td>'. date_format($redemption->created_at, 'h:i A').'</td></tr>';
 		}
 		
@@ -315,7 +315,7 @@ class Sendgrid
             height="100%"
             valign="top"
             bgcolor="">
-            <div><span style="font-family:arial,helvetica,sans-serif;"><span style="font-size:20px;">Redemption alert at '.$option['outlet']->name.', '.$option['outlet']->area.'</span></span></div>
+            <div><span style="font-family:arial,helvetica,sans-serif;"><span style="font-size:20px;">'.$option['outlet']->month.' Monthly Redemptions Report at '.$option['outlet']->name.', '.$option['outlet']->area.'</span></span></div>
         </td>
       </tr>
     </table>
@@ -325,8 +325,7 @@ class Sendgrid
             height="100%"
             valign="top"
             bgcolor="">
-            <div>There was a new offer redemption at '.$option['outlet']->name.', '.$option['outlet']->area.'. Please find the details about the same below.&nbsp;</div>
-<div>&nbsp;</div>
+            <div>Please find the details about the same below.&nbsp;</div>
 <div>&nbsp;</div>
 <div>
 <div>

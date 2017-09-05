@@ -16,7 +16,7 @@ class RestaurantsMonthlyReportMail extends Command
 	 *
 	 * @var string
 	 */
-	protected $signature = 'restaurants:send-monthly-report';
+	protected $signature = 'restaurants:send-monthly-report {id}';
 	
 	/**
 	 * The console command description.
@@ -44,18 +44,27 @@ class RestaurantsMonthlyReportMail extends Command
 	 */
 	public function handle()
 	{
-		$outlets = Outlet::where('is_disabled','0')->get();
+		$id = $this->argument('id');
+		$where['is_disabled'] = '0';
+		if($id>0){
+			$where['id'] = $id;
+		}
+		
+		$outlets = Outlet::select('id', 'name', 'email', 'area', 'city_id',  DB::raw('MONTHNAME(CURRENT_DATE - INTERVAL 1 MONTH) as month')) ->where($where)->get();
 		
 		foreach ($outlets as $outlet){
 			
 			$redemptions = OfferRedeemed::select('offer.title', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at' )
 			->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
 			->where('offer_redeemed.outlet_id', $outlet->id)
+			->where(DB::raw('MONTH(offer_redeemed.created_at)'),'=', DB::raw('MONTH(CURRENT_DATE - INTERVAL 1 MONTH)'))
 			->get();
+			echo $outlet->name."\n";
+			$option['outlet'] =  $outlet;
+			$option['redemptions'] = $redemptions;
+			$body = Sendgrid::report_tpl($option);
 			
-			
-			echo $redemptions->id.' | '.$redemptions->title.' | '.$redemptions->offers_redeemed.' | '.date_format($redemptions->created_at, 'D M Y').' | '.date_format($redemptions->created_at, 'h:i A')."\n";
-			
+// 			$sendgridresponse =	Sendgrid::sendMail(explode(',', $outlet->email), 'Food Talk Monthly Redemption Report', $body);
 		}
 
 	}
