@@ -59,14 +59,14 @@ class RestaurantsMonthlyReportMail extends Command
 			->where('offer_redeemed.outlet_id', $outlet->id)
 			->where(DB::raw('MONTH(offer_redeemed.created_at)'),'=', DB::raw('MONTH(CURRENT_DATE - INTERVAL 1 MONTH)'))
 			->get();
-			echo $outlet->name."\n";
+// 			echo $outlet->name."\n";
 			$option['outlet'] =  $outlet;
 			$option['redemptions'] = $redemptions;
 			$body = Sendgrid::report_tpl($option);
 			
 			$sendgridresponse =	Sendgrid::sendMail(explode(',', $outlet->email), 'Food Talk Monthly Redemption Report', $body);
 			
-			var_dump($sendgridresponse);
+// 			var_dump($sendgridresponse);
 			
 		}
 
