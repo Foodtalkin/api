@@ -65,6 +65,9 @@ class RestaurantsMonthlyReportMail extends Command
 			$body = Sendgrid::report_tpl($option);
 			
 			$sendgridresponse =	Sendgrid::sendMail(explode(',', $outlet->email), 'Food Talk Monthly Redemption Report', $body);
+			
+			var_dump($sendgridresponse);
+			
 		}
 
 	}
