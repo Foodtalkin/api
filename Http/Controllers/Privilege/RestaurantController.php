@@ -120,7 +120,16 @@ class RestaurantController extends Controller {
 	
 	public function outlets($restaurant_id) {
 		
-		$result = Outlet::select(DB::raw('count(1) as offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids,  outlet.id,outlet.name,outlet.city_id, outlet.area, city_zone_id, address, postcode, outlet.work_hours'))
+		if(isset($_GET['latitude']) and isset($_GET['longitude'])){
+			
+			$latitude = $_GET['latitude'];
+			$longitude = $_GET['longitude'];
+			$distance = "DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006 as distance, ";
+			
+		}else
+			$distance= '';
+		
+			$query = Outlet::select(DB::raw($distance.'count(1) as offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids,  outlet.id,outlet.name,outlet.city_id, outlet.area, city_zone_id, address, postcode, outlet.work_hours'))
 		->join('outlet_offer', 'outlet.id', '=', 'outlet_offer.outlet_id')
 		->join('offer', 'offer.id','=','outlet_offer.offer_id')
 		->where( 'outlet_offer.is_disabled', '0' )
@@ -128,8 +137,13 @@ class RestaurantController extends Controller {
 		->where( 'outlet.is_disabled', '0' )
 		->where( 'offer.is_active', '1' )
 		->where('outlet.resturant_id',  $restaurant_id)
-		->groupBy('outlet.id')
-		->paginate(Outlet::PAGE_SIZE);
+		->groupBy('outlet.id');
+		
+		if($distance){
+			$query->orderBy('distance', 'asc');
+		}
+		
+		$result = $query->paginate(Outlet::PAGE_SIZE);
 		
 		return $this->sendResponse ( $result );
 	}
