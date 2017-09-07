@@ -143,7 +143,7 @@ class RestaurantController extends Controller {
 			$query->orderBy('distance', 'asc');
 		}
 		
-		$result = $query->paginate(Outlet::PAGE_SIZE);
+		$result = $query->paginate(20);
 		
 		return $this->sendResponse ( $result );
 	}
