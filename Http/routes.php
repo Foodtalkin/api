@@ -192,6 +192,10 @@ $app->get('/', function() use ($app) {
 	
 // 	$app->get('city','CityController@listAll');
 	
+	$app->post('contact','ContactController@create');
+	$app->put('contact/{id}','ContactController@update');
+	$app->get('contact','ContactController@listAll');
+	$app->get('contact/{id}','ContactController@get');
 	
 	
 // 	$app->post('contact','ContactController@create');
