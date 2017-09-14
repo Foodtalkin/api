@@ -7,7 +7,7 @@ class User extends BaseModel
 {
 	protected $table = 'user';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['name', 'email','phone', 'gender', 'preference', 'city', 'dob', 'saving', 'is_verified', 'is_disabled', 'created_by'];
+	protected $fillable = ['name', 'email','phone', 'gender', 'preference', 'city_id', 'dob', 'saving', 'is_verified', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 
 	public function session()
@@ -17,7 +17,7 @@ class User extends BaseModel
 	
 	public function city()
 	{
-		return $this->hasOne('App\Models\Privilege\City');
+		return $this->belongsTo('App\Models\Privilege\City');
 	}
 	
 	public function subscription()

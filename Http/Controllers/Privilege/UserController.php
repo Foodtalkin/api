@@ -104,6 +104,7 @@ class UserController extends Controller {
 	public function profile() {
 		
 		$user = User::find($_SESSION['user_id']);
+		$user->city;
 		return $this->sendResponse ( $user );
 	}
 	
