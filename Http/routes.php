@@ -59,6 +59,7 @@ $app->get('/', function() use ($app) {
 		$app->get('search_restaurant/{searchText}', [ 'uses' =>'OfferController@searchDB']);
 		$app->get('offer/{id}', [ 'uses' =>'OfferController@get']);
 		
+		$app->get('cities', [ 'uses' =>'OfferController@cities']);
 		
 		$app->post('refreshsession', [ 'uses' =>'UserController@refreshSession']);
 		$app->post('getotp', [ 'uses' =>'UserController@getOTP']);

@@ -23,6 +23,7 @@ use App\Models\Privilege\OutletOffer;
 use App\Models\Privilege\Bookmark;
 use App\Models\Privilege\ES;
 use App\Models\Privilege\Sendgrid;
+use App\Models\Privilege\City;
 
 class OfferController extends Controller {
 
@@ -73,6 +74,16 @@ class OfferController extends Controller {
 		}
 	}
 	
+	public function cities(Request $request){
+		
+		$result = City::select(DB::raw('city.id, city.name, count(DISTINCT restaurant.id) as restaurant_count, COUNT(DISTINCT outlet.id) as outlet_count, is_active'))
+		->leftjoin('outlet', 'outlet.city_id', '=','city.id')
+		->leftjoin('restaurant', 'outlet.resturant_id', '=','restaurant.id' )
+		->where('city.is_disabled', '0')
+		->groupBy('city.id')
+		->get();
+		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
+	}
 
 	public function redeemHistory(Request $request){
 		$result = OfferRedeemed::select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
