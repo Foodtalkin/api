@@ -123,8 +123,8 @@ class UserController extends Controller {
 			$user->gender = $arr->gender;
 		if(isset($arr->preference))
 			$user->preference = $arr->preference;
-		if(isset($arr->city))
-			$user->city= $arr->city;
+		if(isset($arr->city_id))
+			$user->city_id= $arr->city_id;
 		if(isset($arr->dob))
 			$user->dob = new \DateTime($arr->dob);
 		
@@ -569,8 +569,8 @@ class UserController extends Controller {
 				if(isset($arr->preference))
 					$user->preference = $arr->preference;
 				
-				if(isset($arr->city))
-					$user->city= $arr->city;
+				if(isset($arr->city_id))
+					$user->city_id= $arr->city_id;
 				
 				if(isset($arr->dob))
 					$user->dob = $arr->dob;
