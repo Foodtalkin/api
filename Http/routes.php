@@ -117,6 +117,11 @@ $app->get('/', function() use ($app) {
 		$app->get('feeds/purchases', [ 'uses' =>'AnalyticsController@purchases']);
 		
 		
+		
+		$app->get('analytics/topuser', [ 'uses' =>'AnalyticsController@top_users']);
+		$app->get('analytics/topuser/{days}/{top}', [ 'uses' =>'AnalyticsController@top_users']);
+		$app->get('analytics/topuser/{days}', [ 'uses' =>'AnalyticsController@top_users']);
+		
 		$app->get('analytics/user/{days}', [ 'uses' =>'AnalyticsController@users']);
 		$app->get('analytics/user', [ 'uses' =>'AnalyticsController@users']);
 		$app->get('analytics/redemption', [ 'uses' =>'AnalyticsController@offers']);

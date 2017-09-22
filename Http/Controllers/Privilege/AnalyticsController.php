@@ -105,7 +105,13 @@ ORDER BY `count`  DESC LIMIT '.$top));
 	}
 	
 
-	public function top_users(Request $request ,$top = 3, $days = 30){
+	public function top_users(Request $request ,$top = 5, $days = 30){
+
+		$result=array();
+		$result['top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , user.id, user.name FROM `user` , offer_redeemed WHERE user.id = offer_redeemed.user_id GROUP BY user.id ORDER BY `count`  DESC LIMIT '.$top));
+		$result['latest_top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , user.id, user.name FROM `user` , offer_redeemed WHERE user.id = offer_redeemed.user_id AND offer_redeemed.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP BY user.id ORDER BY `count`  DESC LIMIT '.$top));
+		
+		return $this->sendResponse ( $result );
 		
 	}
 	
