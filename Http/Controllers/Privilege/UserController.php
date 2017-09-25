@@ -30,17 +30,19 @@ class UserController extends Controller {
 
 	public function listAll(Request $request){
 		
-		$query = User::where('is_disabled', '0')->with('subscription')->with('city');
+		$query = User::select('user.id', 'user.name', 'user.email', 'user.phone', 'user.gender', 'user.preference', 'user.city_id', 'dob', 'saving', 'is_verified','user.is_disabled', 'user.created_at')->where('user.is_disabled', '0')->with('subscription')->with('city');
 		
 		if(isset($_GET['search'])){
 			$searchText = urldecode($_GET['search']);
 			$query->where('user.name', 'like', '%'.$searchText.'%');
 		}
 		
-// 		if(isset($_GET['status'])){
-// 			$query->whereNotNull('subscription.id');
-// 		}
+		if(isset($_GET['status']) and $_GET['status'] == 'paid'){
+			$query->join('subscription', 'user.id', '=','subscription.user_id' );
+		}
 			
+// 		echo $query->toSql();
+		
 		$result = $query->paginate ( $this->pageSize );
 		return $this->sendResponse ( $result, self::SUCCESS_OK );
 		
