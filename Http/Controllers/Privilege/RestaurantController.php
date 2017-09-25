@@ -107,14 +107,20 @@ class RestaurantController extends Controller {
 	
 	public function cuisine(Request $request){
 		
-		$result = Cuisine::select(DB::raw('distinct  cuisine.id, cuisine.title'))
+		$query = Cuisine::select(DB::raw('distinct  cuisine.id, cuisine.title'))
 		->join('restaurant_cuisine', 'cuisine.id','=','restaurant_cuisine.cuisine_id')
 		->join('restaurant', 'restaurant.id','=','restaurant_cuisine.restaurant_id')
 		->where('restaurant.is_disabled', '=', '0')
-		->orderBy('cuisine.title', 'asc')
-		->get();
+		->orderBy('cuisine.title', 'asc');
 		
-		return $this->sendResponse ( $result );
+		if(isset($_GET['city_id']))
+		$query->join('outlet', 'outlet.resturant_id','=','restaurant.id')
+		->where('outlet.is_disabled', '0')
+		->where('outlet.city_id', $_GET['city_id']);
+		
+		$result = $query->get();
+		
+		return $this->sendResponse ( $result, self::SUCCESS_OK_NO_CONTENT);
 	}
 	
 	
