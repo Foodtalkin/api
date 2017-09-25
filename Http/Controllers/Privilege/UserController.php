@@ -41,7 +41,7 @@ class UserController extends Controller {
 // 			$query->whereNotNull('subscription.id');
 // 		}
 			
-		$result = $query->get();
+		$result = $query->paginate ( $this->pageSize );
 		return $this->sendResponse ( $result, self::SUCCESS_OK );
 		
 	}
