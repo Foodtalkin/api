@@ -24,9 +24,43 @@ use App\Models\Privilege\UserEvent;
 use App\Models\Privilege\Paytmlog;
 use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
+use App\Models\Privilege\OfferRedeemed;
 
 class UserController extends Controller {
 
+	public function listAll(Request $request){
+		
+		$query = User::where('is_disabled', '0')->with('subscription');
+		
+		if(isset($_GET['search'])){
+			$searchText = urldecode($_GET['search']);
+			$query->where('user.name', 'like', '%'.$searchText.'%');
+		}
+		
+// 		if(isset($_GET['status'])){
+// 			$query->whereNotNull('subscription.id');
+// 		}
+			
+		$result = $query->get();
+		return $this->sendResponse ( $result, self::SUCCESS_OK );
+		
+	}
+
+	public function get(Request $request, $id){
+		$result = User::find ( $id );
+		$result ->subscription;
+
+		$result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+		->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
+		->where('user_id' , $id)
+		->orderBy('offer_redeemed.created_at', 'desc')
+		->get();
+		
+// 		$result->offerRedeemed->outlet();
+		return $this->sendResponse ( $result);
+	}
+	
 
 	public function paytm(Request $request){
 		

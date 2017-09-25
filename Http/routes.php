@@ -104,6 +104,10 @@ $app->get('/', function() use ($app) {
 	], function($app)
 	{
 		
+		$app->get('user/event', [ 'uses' =>'UserController@allevent']);
+		
+		$app->get('user/{id}', [ 'uses' =>'UserController@get']);
+		$app->get('user', [ 'uses' =>'UserController@listAll']);
 		
 		$app->get('push', [ 'uses' =>'PushNotificationController@getAll']);
 		$app->get('push/{id}', [ 'uses' =>'PushNotificationController@get']);
@@ -131,12 +135,11 @@ $app->get('/', function() use ($app) {
 		$app->get('analytics/restaurants/{days}/{top}', [ 'uses' =>'AnalyticsController@restaurants']);
 		$app->get('analytics/restaurants/{days}', [ 'uses' =>'AnalyticsController@restaurants']);
 
-		$app->get('user/event', [ 'uses' =>'UserController@allevent']);
 		
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');
 		
-		$app->get('user', [ 'uses' =>'OutletController@get']);
+// 		$app->get('user', [ 'uses' =>'OutletController@get']);
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@allCuisine']);
 		
 		$app->get('restaurant', [ 'uses' =>'RestaurantController@listresto']);
