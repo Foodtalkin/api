@@ -30,7 +30,7 @@ class UserController extends Controller {
 
 	public function listAll(Request $request){
 		
-		$query = User::where('is_disabled', '0')->with('subscription');
+		$query = User::where('is_disabled', '0')->with('subscription')->with('city');
 		
 		if(isset($_GET['search'])){
 			$searchText = urldecode($_GET['search']);
@@ -49,6 +49,7 @@ class UserController extends Controller {
 	public function get(Request $request, $id){
 		$result = User::find ( $id );
 		$result ->subscription;
+		$result ->city;
 
 		$result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
 		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
