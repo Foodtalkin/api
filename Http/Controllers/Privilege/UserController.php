@@ -49,7 +49,10 @@ class UserController extends Controller {
 	}
 
 	public function get(Request $request, $id){
+		
 		$result = User::find ( $id );
+		
+		if($result){
 		$result ->subscription;
 		$result ->city;
 
@@ -59,7 +62,7 @@ class UserController extends Controller {
 		->where('user_id' , $id)
 		->orderBy('offer_redeemed.created_at', 'desc')
 		->get();
-		
+		}
 // 		$result->offerRedeemed->outlet();
 		return $this->sendResponse ( $result);
 	}
@@ -146,12 +149,16 @@ class UserController extends Controller {
 	}
 	
 	
-	public function update(Request $request) {
+	public function update(Request $request, $id=false) {
 		
 		$arr =	$request->getRawPost();
 		
-		$user = User::find($_SESSION['user_id']);
-		
+		if($id && $id>0)
+			$user = User::find($id);
+		else
+			$user = User::find($_SESSION['user_id']);
+
+		if($user){	
 		if(isset($arr->name))
 			$user->name = $arr->name;
 		if(isset($arr->email))
@@ -164,11 +171,13 @@ class UserController extends Controller {
 			$user->city_id= $arr->city_id;
 		if(isset($arr->dob))
 			$user->dob = new \DateTime($arr->dob);
-		
+		if(isset($arr->notes))
+			$user->notes= $arr->notes;
+
 		$user->save();
-		$user = User::find($_SESSION['user_id']);
-		
-		return $this->sendResponse ( $user, self::SUCCESS_OK, 'Update Success' );
+		$user = User::find($user->id);
+		}
+		return $this->sendResponse ( $user, self::SUCCESS_OK);
 	}
 	
 	

@@ -15,6 +15,10 @@ class AthuMiddleware {
 	 * @return mixed
 	 */
 	public function handle($request, Closure $next) {
+		
+		if(env('APP_ENV') == 'local' || env('APP_ENV') == 'stage'){
+			return $next ( $request );
+		}
 		$authorized = false;
 		$message = null;
 		$sessionID = $request->header ( 'APPSESSID' );

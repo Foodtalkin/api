@@ -107,6 +107,7 @@ $app->get('/', function() use ($app) {
 		$app->get('user/event', [ 'uses' =>'UserController@allevent']);
 		
 		$app->get('user/{id}', [ 'uses' =>'UserController@get']);
+		$app->put('user/{id}', [ 'uses' =>'UserController@update']);
 		$app->get('user', [ 'uses' =>'UserController@listAll']);
 		
 		$app->get('push', [ 'uses' =>'PushNotificationController@getAll']);
