@@ -361,7 +361,7 @@ class UserController extends Controller {
 		$subscription->save();
 
 		$subs = Subscription::find($subscription->id);
-		$result['amount'] = "0";
+// 		$result['amount'] = "0";
 		$result['subscription'][] = $subs;
 
 		return $this->sendResponse ( $result );
