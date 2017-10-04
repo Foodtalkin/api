@@ -343,7 +343,30 @@ class UserController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
-	
+	public function trial() {
+
+		$user_id = $_SESSION['user_id'];
+
+		$subscription = Subscription::where('user_id', '=', $user_id)->first();
+
+		if($subscription){
+			return $this->sendResponse ( 'ERROR! : Trial over',  self::NOT_ACCEPTABLE, 'ERROR! : Trial period over');
+		}
+
+		$subscription = new Subscription();
+		$subscription->user_id = $user_id;
+		$subscription->subscription_type_id = 3;
+		$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+		$subscription->expiry = $NewDate;
+		$subscription->save();
+
+		$subs = Subscription::find($subscription->id);
+		$result['amount'] = "0";
+		$result['subscription'][] = $subs;
+
+		return $this->sendResponse ( $result );
+
+	}
 	
 	public function subscriptionOrder(Request $request) {
 		

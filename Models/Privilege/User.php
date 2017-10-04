@@ -22,7 +22,7 @@ class User extends BaseModel
 	
 	public function subscription()
 	{
-		return $this->hasMany('App\Models\Privilege\Subscription');
+		return $this->hasMany('App\Models\Privilege\Subscription')->where('expiry', '>', date('Y-m-d').' 00:00:00');
 	}
 	
 	public function offerRedeemed(){

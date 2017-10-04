@@ -7,6 +7,7 @@ use App\Http\Controllers\Privilege;
 use App\Http\Controllers\Controller;
 use App\Models\Privilege\Session;
 use DB;
+use App\Models\Privilege\Subscription;
 // use App\Http\Controllers\Privilege\UserController;
 
 class AthuPrivilageUserMiddleware {
@@ -34,10 +35,14 @@ class AthuPrivilageUserMiddleware {
 			->where('created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 30 DAY)'))
 			->first();
 			
-			if($DBsession){
+			$subscription = Subscription::where('user_id', $DBsession->user_id)
+			->where('expiry', '>', DB::raw('NOW()'))
+			->first();
+
+			if($DBsession and $subscription){
 				$authorized = true;
 			}else{
-				$message = 'Invalid/Expired Session.';
+				$message = 'Invalid/Expired Session or Inactive/Expired Subscription';
 				session_destroy();
 			}
 		}

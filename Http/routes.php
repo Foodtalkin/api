@@ -41,6 +41,7 @@ $app->get('/', function() use ($app) {
 		$app->post('paytm_order', [ 'uses' =>'UserController@subscriptionOrder']);
 		$app->post('subscribe', [ 'uses' =>'UserController@subscribe']);
 		
+		$app->get('trial', [ 'uses' =>'UserController@trial']);
 		
 		$app->get('outlet/{outlet_id}/offer/{offer_id}', [ 'uses' =>'OfferController@offerWithOutlet']);
 		$app->get('checkuser/{phone}', [ 'uses' =>'UserController@checkUser']);
