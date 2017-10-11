@@ -145,6 +145,7 @@ class UserController extends Controller {
 		
 		$user = User::find($_SESSION['user_id']);
 		$user->city;
+		$user->subscription;
 		return $this->sendResponse ( $user );
 	}
 	
