@@ -20,9 +20,15 @@ class User extends BaseModel
 		return $this->belongsTo('App\Models\Privilege\City');
 	}
 	
+	public function allSubscription()
+	{
+		return $this->hasMany('App\Models\Privilege\Subscription');
+	}
+	
 	public function subscription()
 	{
-		return $this->hasMany('App\Models\Privilege\Subscription')->where('expiry', '>', date('Y-m-d').' 00:00:00');
+// 		return $this->hasMany('App\Models\Privilege\Subscription')->where('expiry', '>', date('Y-m-d').' 00:00:00')->orderBy('expiry', 'desc')->limit('1');
+		return $this->hasMany('App\Models\Privilege\Subscription')->orderBy('expiry', 'desc')->limit('1');
 	}
 	
 	public function offerRedeemed(){

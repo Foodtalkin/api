@@ -35,14 +35,18 @@ class AthuPrivilageUserMiddleware {
 			->where('created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 30 DAY)'))
 			->first();
 			
-			$subscription = Subscription::where('user_id', $DBsession->user_id)
-			->where('expiry', '>', DB::raw('NOW()'))
-			->first();
-
-			if($DBsession and $subscription){
+			if($DBsession){
+				
+				$subscription = Subscription::where('user_id', $DBsession->user_id)
+				->where('expiry', '>', DB::raw('NOW()'))
+				->first();
+				
+				if(!boolval($subscription))
+					return Controller::sendResponse ( null, Controller::PAYMENT_REQUIRED , 'Inactive/Expired Subscription');
+				
 				$authorized = true;
 			}else{
-				$message = 'Invalid/Expired Session or Inactive/Expired Subscription';
+				$message = 'Invalid/Expired Session';
 				session_destroy();
 			}
 		}
