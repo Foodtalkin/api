@@ -74,7 +74,9 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
-		$app->get('profile', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@profile']);
+		$app->get('profile', [ 
+// 				'middleware' => 'athuprivilage', 
+				'uses' =>'UserController@profile']);
 		
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
 			
