@@ -80,7 +80,9 @@ $app->get('/', function() use ($app) {
 		
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
 			
-			$app->put('user', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@update']);
+			$app->put('user', [ 
+// 					'middleware' => 'athuprivilage', 
+					'uses' =>'UserController@update']);
 			
 			$app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
 			
@@ -88,7 +90,9 @@ $app->get('/', function() use ($app) {
 			
 			
 			$app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
-			$app->get('redeemhistory', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeemHistory']);
+			$app->get('redeemhistory', [
+// 					'middleware' => 'athuprivilage', 
+					'uses' =>'OfferController@redeemHistory']);
 			
 			$app->post('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@bookmark']);
 			$app->delete('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@removeBookmark']);
