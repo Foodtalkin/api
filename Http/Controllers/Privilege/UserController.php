@@ -25,6 +25,7 @@ use App\Models\Privilege\Paytmlog;
 use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
 use App\Models\Privilege\OfferRedeemed;
+use App\Models\Privilege\PushNotification;
 
 class UserController extends Controller {
 
@@ -364,6 +365,9 @@ class UserController extends Controller {
 		$subs = Subscription::find($subscription->id);
 // 		$result['amount'] = "0";
 		$result['subscription'][] = $subs;
+		
+		
+		PushNotification::trialPush($user_id);
 
 		return $this->sendResponse ( $result );
 
