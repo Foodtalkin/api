@@ -165,7 +165,7 @@ class Sendgrid
 </table>
 </div>
 <div>&nbsp;</div><div>&nbsp;</div>
-<div>If there are any questions related to this redemption, please contact our support: <strong>contact@foodtalkindia.com</strong>&nbsp;</div>
+<div>If there are any questions related to this redemption, please contact our support: <strong>contact@foodtalkindia.com or 9953033074 </strong>&nbsp;</div>
 </div>
         </td>
       </tr>
