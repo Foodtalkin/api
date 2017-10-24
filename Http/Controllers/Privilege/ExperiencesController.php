@@ -13,8 +13,10 @@ class ExperiencesController extends Controller {
 	// gets a user with id
 	public function get(Request $request, $id, $with = false) {
 		$exp = Experiences::find ( $id );
-		$exp->data;
-		$exp->city;
+		if($exp){
+			$exp->data;
+			$exp->city;
+		}
 		
 		return $this->sendResponse ( $exp);
 	}
@@ -39,7 +41,7 @@ class ExperiencesController extends Controller {
 			$where['is_disabled'] = '0';
 		}
 		
-		$exp = Experiences::where( $where )->paginate($pageSize);
+		$exp = Experiences::where( $where )->with('city')->paginate($pageSize);
 		
 		
 		return $this->sendResponse ( $exp );
