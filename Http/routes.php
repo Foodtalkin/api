@@ -36,6 +36,9 @@ $app->get('/', function() use ($app) {
 	{
 
 		
+		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
+		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);
+		
 		$app->post('paytm', [ 'uses' =>'UserController@paytm']);
 		
 		$app->post('paytm_order', [ 'uses' =>'UserController@subscriptionOrder']);
@@ -110,6 +113,20 @@ $app->get('/', function() use ($app) {
 			'prefix' => 'privilege' 
 	], function($app)
 	{
+		
+		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
+		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);
+		$app->post('experiences', [ 'uses' =>'ExperiencesController@create']);
+		$app->put('experiences/{id}', [ 'uses' =>'ExperiencesController@update']);
+		$app->put('experiences/{id}/acitvate', [ 'uses' =>'ExperiencesController@activate']);
+		$app->put('experiences/{id}/deacitvate', [ 'uses' =>'ExperiencesController@deactivate']);
+		$app->delete('experiences/{id}', [ 'uses' =>'ExperiencesController@delete']);
+		
+		$app->post('experiences/data/{id}', [ 'uses' =>'ExperiencesController@addData']);
+		$app->put('experiences/data/{id}', [ 'uses' =>'ExperiencesController@updateData']);
+		$app->delete('experiences/data/{id}', [ 'uses' =>'ExperiencesController@deleteData']);
+		
+		$app->put('experiences/sort_data/{id}', [ 'uses' =>'ExperiencesController@sortData']);
 		
 		$app->get('user/event', [ 'uses' =>'UserController@allevent']);
 		
