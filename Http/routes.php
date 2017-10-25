@@ -36,8 +36,10 @@ $app->get('/', function() use ($app) {
 	{
 
 		
+		$app->post('experiences/{id}/order', [ 'uses' =>'ExperiencesController@createOrder']);
 		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
 		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);
+		
 		
 		$app->post('paytm', [ 'uses' =>'UserController@paytm']);
 		

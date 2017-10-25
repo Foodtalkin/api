@@ -10,6 +10,57 @@ use App\Models\Privilege\ExpData;
 
 class ExperiencesController extends Controller {
 
+	
+	public function createOrder(Request $request, $id) {
+		$exp = Experiences::find ( $id );
+		$result = array();
+		$attributes =	$request->getRawPost(true);
+// 		$attributes['exp_id'] = $id;
+		$txn_amount = ($exp->cost + $exp->convenience_fee )* $attributes['total_tickets']; 		
+		
+		if($exp){
+			$result['MID'] = PAYTM_MERCHANT_MID;
+			$result['CUST_ID'] = $_SESSION['user_id'];
+			$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
+			$result['TXN_AMOUNT'] = $txn_amount;
+			$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
+			
+			if(isset($arr->source) and 'web' == strtolower($arr->source)){
+				$result['CHANNEL_ID'] = 'WEB';
+				$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
+			}else{
+				$result['CHANNEL_ID'] = 'WAP';
+				$result['CALLBACK_URL'] = PAYTM_CALLBACK_URL;
+				// 			"http://api.foodtalk.in/paytm";
+			}
+			
+			$ORDER_ID = sha1($_SESSION['user_id'].'-'.microtime());
+			$result['ORDER_ID'] = $ORDER_ID;
+			
+			$purchases_data['id'] = $ORDER_ID;
+			$purchases_data['exp_id'] = $exp->id;
+			$purchases_data['user_id'] = $_SESSION['user_id'];
+			$purchases_data['total_tickets'] = $attributes['total_tickets'];
+			$purchases_data['non_veg'] = $attributes['non_veg'];
+			$purchases_data['txn_amount'] = $txn_amount;
+// 			$purchases_data['taxes'] = 
+			$purchases_data['convenience_fee'] = $exp->convenience_fee * $attributes['total_tickets'];
+			$purchases_data['channel'] = $result['CHANNEL_ID'];
+			
+			$purchases_order = ExpPurchasesOrder::firstOrCreate(
+					['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]
+					);
+			
+			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
+			// 		require '/var/www/html/lumen/app/public/encdec_paytm.php';
+			$result['CHECKSUMHASH']= getChecksumFromArray($result ,PAYTM_MERCHANT_KEY);
+		}
+		return $this->sendResponse ( $result );
+	}
+	
+	
+	
+	
 	// gets a user with id
 	public function get(Request $request, $id, $with = false) {
 		$exp = Experiences::find ( $id );

@@ -7,7 +7,7 @@ class Experiences extends BaseModel
 {
 	protected $table = 'experiences';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['title', 'address', 'city_id', 'start_time', 'end_time', 'cost', 'total_seats', 'action_text', 'tag', 'is_active','is_disabled', 'created_by'];
+	protected $fillable = ['title', 'cover_image', 'card_image', 'address', 'city_id', 'start_time', 'end_time', 'cost', 'total_seats', 'action_text', 'tag', 'is_active','is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 	
 	
