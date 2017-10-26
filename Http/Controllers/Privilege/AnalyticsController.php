@@ -118,7 +118,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 	
 	public function signups(Request $request) {
 		
-		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), 'user.created_at as signup_on')
+		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid",  IF( subscription_type_id = 3,  "trial", "paid")) as status'), 'user.created_at as signup_on')
 		->leftjoin('subscription', 'user.id', '=','subscription.user_id')
 // 		->whereNull('subscription.expiry')
 		->orderBy('user.created_at', 'desc');
@@ -136,6 +136,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		
 		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), 'subscription.created_at as purchased_on')
 		->join('subscription', 'user.id', '=','subscription.user_id')
+		->where('subscription.subscription_type_id', '=', '1')
 		->orderBy('subscription.created_at', 'desc');
 		
 		if(isset($_GET['after']))
