@@ -19,7 +19,7 @@ class AnalyticsController extends Controller {
 	public function users(Request $request ,$days = 7){
 		
 		
-		$overall = DB::connection('ft_privilege')->select( DB::raw('IF(expiry is null ,"unpaid",  IF( subscription_type_id = 3,  "trial", "paid")) as status , count(1) as count  from user LEFT JOIN subscription on subscription.user_id = user.id  GROUP by status'));
+		$overall = DB::connection('ft_privilege')->select( DB::raw('select IF( subscription.id is null, "unpaid",  IF( subscription_type_id = 3,  "trial", "paid") ) as status, count(1) as count  from user LEFT JOIN subscription on subscription.user_id = user.id  GROUP by status'));
 		
 // 		$lastdays = DB::connection('ft_privilege')->select( DB::raw('select IF( subscription.id is null, "unpaid", "paid" ) as status, count(1) as count  from user LEFT JOIN subscription on subscription.user_id = user.id where user.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP by status'));
 		
@@ -127,7 +127,6 @@ ORDER BY `count`  DESC LIMIT '.$top));
 // 		->whereNull('subscription.expiry')
 		->where('user.is_verified', '=', '1')
 		->orderBy('user.created_at', 'desc');
-		
 		
 		if(isset($_GET['after']))
 			$query->where('user.created_at', '>', $_GET['after']);
