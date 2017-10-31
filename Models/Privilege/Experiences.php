@@ -2,12 +2,12 @@
   
 // use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\Base\BaseModel;
-
+use \stdClass;
 class Experiences extends BaseModel
 {
 	protected $table = 'experiences';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['title', 'cover_image', 'card_image', 'address', 'city_id', 'start_time', 'end_time', 'cost', 'total_seats', 'action_text', 'tag', 'is_active','is_disabled', 'created_by'];
+	protected $fillable = ['title', 'cover_image', 'card_image', 'address', 'city_id', 'start_time', 'end_time', 'cost', 'nonveg_preference', 'taxes', 'convenience_fee', 'total_seats', 'action_text', 'tag', 'is_active','is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 	
 	
@@ -21,4 +21,17 @@ class Experiences extends BaseModel
 	{
 		return $this->belongsTo('App\Models\Privilege\City');
 	}
+	
+	public function estimateCost( $tickets = 1 ){
+		
+		$result = new stdClass();
+		$result->cost_for_one = $this->cost;
+		$result->tickets = $tickets;
+		$result->cost = $this->cost * $tickets;
+		$result->convenience_fee = $this->convenience_fee * $tickets;
+		$result->taxes = $result->convenience_fee * $this->taxes / 100;
+		$result->amount = $result->cost + $result->convenience_fee + $result->taxes;
+		return $result;
+	}
+	
 }

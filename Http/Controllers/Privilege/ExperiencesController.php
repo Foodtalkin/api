@@ -7,22 +7,51 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpData;
+use App\Models\Privilege\ExpPurchasesOrder;
+use App\Models\Privilege\ExpPurchases;
 
 class ExperiencesController extends Controller {
-
 	
-	public function createOrder(Request $request, $id) {
+	public function history(Request $request) {
+		
+		
+// 		SELECT exp_id, e.title, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status FROM `exp_purchases` p
+// 		LEFT JOIN exp_purchases_order o on o.id = p.order_id
+// 		INNER JOIN experiences e on e.id = o.exp_id
+// 		WHERE p.user_id = 248
+		
 		$exp = Experiences::find ( $id );
 		$result = array();
 		$attributes =	$request->getRawPost(true);
-// 		$attributes['exp_id'] = $id;
-		$txn_amount = ($exp->cost + $exp->convenience_fee )* $attributes['total_tickets']; 		
+		$txn = $exp->estimateCost($attributes['total_tickets']);
+		
+		return $this->sendResponse ( $txn );
+	}
+	
+	
+	public function estimateOrder(Request $request, $id) {
+		
+		$exp = Experiences::find ( $id );
+		$result = array();
+		$attributes =	$request->getRawPost(true);
+		$txn = $exp->estimateCost($attributes['total_tickets']);
+		
+		return $this->sendResponse ( $txn );
+	}
+	
+	public function createOrder(Request $request, $id) {
+		
+		$exp = Experiences::find ( $id );
+		$result = array();
+		$attributes =	$request->getRawPost(true);
+		
+		$txn = $exp->estimateCost($attributes['total_tickets']);
 		
 		if($exp){
 			$result['MID'] = PAYTM_MERCHANT_MID;
 			$result['CUST_ID'] = $_SESSION['user_id'];
 			$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
-			$result['TXN_AMOUNT'] = $txn_amount;
+			$result['TXN_AMOUNT'] = $txn->amount;
 			$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
 			
 			if(isset($arr->source) and 'web' == strtolower($arr->source)){
@@ -37,19 +66,17 @@ class ExperiencesController extends Controller {
 			$ORDER_ID = sha1($_SESSION['user_id'].'-'.microtime());
 			$result['ORDER_ID'] = $ORDER_ID;
 			
-			$purchases_data['id'] = $ORDER_ID;
+			$purchases_data['id']= $ORDER_ID;
 			$purchases_data['exp_id'] = $exp->id;
 			$purchases_data['user_id'] = $_SESSION['user_id'];
 			$purchases_data['total_tickets'] = $attributes['total_tickets'];
 			$purchases_data['non_veg'] = $attributes['non_veg'];
-			$purchases_data['txn_amount'] = $txn_amount;
-// 			$purchases_data['taxes'] = 
-			$purchases_data['convenience_fee'] = $exp->convenience_fee * $attributes['total_tickets'];
+			$purchases_data['txn_amount'] = $txn->amount;
+			$purchases_data['taxes'] = $txn->taxes;
+			$purchases_data['convenience_fee'] = $txn->convenience_fee;
 			$purchases_data['channel'] = $result['CHANNEL_ID'];
 			
-			$purchases_order = ExpPurchasesOrder::firstOrCreate(
-					['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]
-					);
+			$purchases_order = ExpPurchasesOrder ::create($purchases_data);
 			
 			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
 			// 		require '/var/www/html/lumen/app/public/encdec_paytm.php';
@@ -58,10 +85,38 @@ class ExperiencesController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
+	public function orderStatus(Request $request, $id) {
+		
+		$purchases_order = ExpPurchasesOrder::find( $id );
+		
+		if(!$purchases_order){
+			return $this->sendResponse ( 'ERROR! : Invalid order_id',  self::NO_ENTITY, 'ERROR! : Invalid order_id');
+		}
+		
+		$exp_purchases = ExpPurchases::where('order_id', '=', $id)->first();
+		
+		if(!$exp_purchases or $exp_purchases->payment_status!='TXN_SUCCESS'){
+			
+			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
+			$queryParam=array();
+			$queryParam['MID'] = PAYTM_MERCHANT_MID;
+			$queryParam['ORDERID'] = $id;
+			$queryParam['CHECKSUMHASH']= getChecksumFromArray($queryParam,PAYTM_MERCHANT_KEY);
+			
+			$paytm_txn_order = file_get_contents(PAYTM_STATUS_QUERY_NEW_URL.'?JsonData='.urlencode(json_encode($queryParam)));
+			
+			$txn_order = json_decode($paytm_txn_order);
+			
+			$exp_purchases = ExpPurchases::firstOrCreate(['order_id' =>$id]);
+			$exp_purchases->user_id = $purchases_order->user_id;
+			$exp_purchases->payment_status = $txn_order->STATUS;
+			$exp_purchases->metadata = $paytm_txn_order;
+			$exp_purchases->save();
+		}
+		return $this->sendResponse ( $exp_purchases );
+	}
 	
 	
-	
-	// gets a user with id
 	public function get(Request $request, $id, $with = false) {
 		$exp = Experiences::find ( $id );
 		if($exp){
@@ -205,7 +260,6 @@ class ExperiencesController extends Controller {
 		}
 		return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'order updated' );
 	}
-
 	
 }
 ?>
