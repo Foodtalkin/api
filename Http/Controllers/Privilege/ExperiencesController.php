@@ -241,7 +241,7 @@ class ExperiencesController extends Controller {
 		
 		$result = ExpData::find ( $id );
 		if($result){
-			$result->delete;
+			$result->delete();
 			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'deleted' );
 		}
 		return $this->sendResponse ( false );
