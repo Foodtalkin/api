@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Privilege;
 
-
+use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Privilege\Experiences;
@@ -12,20 +12,71 @@ use App\Models\Privilege\ExpPurchases;
 
 class ExperiencesController extends Controller {
 	
-	public function history(Request $request) {
+	public function userHistory(Request $request) {
 		
+		$query = 'SELECT exp_id, e.title, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id FROM `exp_purchases` p
+		LEFT JOIN exp_purchases_order o on o.id = p.order_id
+		INNER JOIN experiences e on e.id = o.exp_id
+		WHERE p.user_id = '.$_SESSION['user_id'];
 		
-// 		SELECT exp_id, e.title, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status FROM `exp_purchases` p
-// 		LEFT JOIN exp_purchases_order o on o.id = p.order_id
-// 		INNER JOIN experiences e on e.id = o.exp_id
-// 		WHERE p.user_id = 248
+		if(isset($_GET['status']))
+			$status = $_GET['status'];
+			else
+				$status = 'success';
+				switch ($status){
+					// 			case "success":
+					// 				$query .= 'AND p.payment_status = "TXN_SUCCESS" ';
+					// 			break;
+					case "failure":
+						$query .= ' AND p.payment_status = "TXN_FAILURE" ';
+						break;
+// 					case "pending":
+// 						$query .= ' AND p.payment_status is null ';
+// 						break;
+					case "all":
+						// 				$query .= 'AND p.payment_status = "TXN_FAILURE" ';
+						break;
+					default:
+						$query .= ' AND p.payment_status = "TXN_SUCCESS" ';
+				}
 		
-		$exp = Experiences::find ( $id );
-		$result = array();
-		$attributes =	$request->getRawPost(true);
-		$txn = $exp->estimateCost($attributes['total_tickets']);
+		$result = DB ::connection('ft_privilege')->select( DB::raw($query));
+		return $this->sendResponse ( $result );
+	}
+	
+	
+	public function expUsers(Request $request, $id) {
 		
-		return $this->sendResponse ( $txn );
+		$query = 'SELECT exp.id as exp_id, exp.title, u.id as user_id, u.name, o.id as order_id, txn_id, IFNULL (p.payment_status, "PENDING") payment_status , total_tickets, non_veg, txn_amount FROM `exp_purchases_order` o
+		LEFT JOIN exp_purchases p on p.order_id = o.id
+		INNER JOIN user u on o.user_id = u.id
+		INNER JOIN experiences exp on exp.id = o.exp_id
+		WHERE exp.id = '.$id;
+		
+		if(isset($_GET['status']))
+			$status = $_GET['status'];
+		else
+			$status = 'success';
+		switch ($status){
+// 			case "success":
+// 				$query .= 'AND p.payment_status = "TXN_SUCCESS" '; 
+// 			break;	
+			case "failure":
+				$query .= ' AND p.payment_status = "TXN_FAILURE" ';
+				break;
+			case "pending":
+				$query .= ' AND p.payment_status is null ';
+				break;
+			case "all":
+// 				$query .= 'AND p.payment_status = "TXN_FAILURE" ';
+				break;
+			default: 
+				$query .= ' AND p.payment_status = "TXN_SUCCESS" ';
+		}
+		
+		$result = DB ::connection('ft_privilege')->select( DB::raw($query));
+		
+	 	return $this->sendResponse ( $result );
 	}
 	
 	
@@ -110,6 +161,7 @@ class ExperiencesController extends Controller {
 			$exp_purchases = ExpPurchases::firstOrCreate(['order_id' =>$id]);
 			$exp_purchases->user_id = $purchases_order->user_id;
 			$exp_purchases->payment_status = $txn_order->STATUS;
+			$exp_purchases->txn_id= $txn_order->TXNID;
 			$exp_purchases->metadata = $paytm_txn_order;
 			$exp_purchases->save();
 		}

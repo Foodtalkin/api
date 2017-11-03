@@ -36,6 +36,7 @@ $app->get('/', function() use ($app) {
 	{
 
 		
+		$app->get('experiences/history', [ 'uses' =>'ExperiencesController@userHistory']);
 		$app->post('experiences/{id}/order/estimate', [ 'uses' =>'ExperiencesController@estimateOrder']);
 		$app->post('experiences/{id}/order', [ 'uses' =>'ExperiencesController@createOrder']);
 		$app->get('experiences/orderstatus/{id}', [ 'uses' =>'ExperiencesController@orderStatus']);
@@ -118,7 +119,7 @@ $app->get('/', function() use ($app) {
 			'prefix' => 'privilege' 
 	], function($app)
 	{
-		
+		$app->get('experiences/{id}/users', [ 'uses' =>'ExperiencesController@expUsers']);
 		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
 		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);
 		$app->post('experiences', [ 'uses' =>'ExperiencesController@create']);

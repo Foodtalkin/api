@@ -7,7 +7,7 @@ class ExpPurchases extends BaseModel
 {
 	protected $table = 'exp_purchases';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['order_id', 'user_id', 'payment_status',  'metadata', 'is_disabled', 'created_by'];
+	protected $fillable = ['order_id', 'user_id', 'payment_status', 'txn_id', 'metadata', 'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 	
 }
