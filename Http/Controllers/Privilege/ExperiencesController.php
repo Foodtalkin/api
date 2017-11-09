@@ -14,7 +14,7 @@ class ExperiencesController extends Controller {
 	
 	public function userHistory(Request $request) {
 		
-		$query = 'SELECT exp_id, e.title, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id FROM `exp_purchases` p
+		$query = 'SELECT exp_id, e.title, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id, start_time, end_time , p.created_at FROM `exp_purchases` p
 		LEFT JOIN exp_purchases_order o on o.id = p.order_id
 		INNER JOIN experiences e on e.id = o.exp_id
 		WHERE p.user_id = '.$_SESSION['user_id'];
