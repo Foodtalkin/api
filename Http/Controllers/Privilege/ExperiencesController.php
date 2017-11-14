@@ -40,6 +40,7 @@ class ExperiencesController extends Controller {
 						$query .= ' AND p.payment_status = "TXN_SUCCESS" ';
 				}
 		
+		$query .= ' order by o.created_at desc'; 
 		$result = DB ::connection('ft_privilege')->select( DB::raw($query));
 		return $this->sendResponse ( $result );
 	}
@@ -199,7 +200,7 @@ class ExperiencesController extends Controller {
 			$where['is_disabled'] = '0';
 		}
 		
-		$exp = Experiences::where( $where )->with('city')->paginate($pageSize);
+		$exp = Experiences::where( $where )->orderBy('created_at' ,'desc')->with('city')->paginate($pageSize);
 		
 		
 		return $this->sendResponse ( $exp );
