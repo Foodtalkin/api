@@ -78,6 +78,7 @@ $app->get('/', function() use ($app) {
 		$app->get('paymentmode', [ 'uses' =>'UserController@paymentMode']);
 		
 		$app->post('userlogin', [ 'uses' =>'UserController@login']);
+		$app->delete('userlogout', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@logout']);
 		$app->get('avilablesubscription', [ 'uses' =>'UserController@avilableSubscription']);
 		
 		

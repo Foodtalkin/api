@@ -218,7 +218,11 @@ class UserController extends Controller {
 		return $this->sendResponse ( $user, self::SUCCESS_OK, 'OTP Accepted' );
 	}
 
-	
+	public function logout(Request $request) {
+
+		return $this->sendResponse ( true, self::SUCCESS_OK, 'logout success' );
+	}
+
 	public function webhookInstamojo(Request $request) {
 		
 		$arr = array(
