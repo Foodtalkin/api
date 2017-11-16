@@ -9,6 +9,7 @@ use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpData;
 use App\Models\Privilege\ExpPurchasesOrder;
 use App\Models\Privilege\ExpPurchases;
+use App\Models\Privilege\ExperiencesSeats;
 
 class ExperiencesController extends Controller {
 	
@@ -86,6 +87,17 @@ class ExperiencesController extends Controller {
 		$exp = Experiences::find ( $id );
 		$result = array();
 		$attributes =	$request->getRawPost(true);
+		
+		$avilableSeats = $exp->avilable_seats - $exp->seats($_SESSION['user_id'])->sum('blocked_seats');
+		
+		if($attributes['total_tickets'] > $avilableSeats){
+			if($avilableSeats > 0)
+				return $this->sendResponse ( 'ERROR! : Only '.$avilableSeats.' tickets are left! ',  self::NOT_ACCEPTABLE, 'OOPS! Only '.$avilableSeats.' tickets are left.');
+			else
+				return $this->sendResponse ( 'ERROR! : Sold Out!',  self::NOT_ACCEPTABLE, 'OOPS! Sold Out.');
+		}
+			
+		
 		$txn = $exp->estimateCost($attributes['total_tickets']);
 		
 		return $this->sendResponse ( $txn );
@@ -96,6 +108,15 @@ class ExperiencesController extends Controller {
 		$exp = Experiences::find ( $id );
 		$result = array();
 		$attributes =	$request->getRawPost(true);
+		
+		$avilableSeats = $exp->avilable_seats - $exp->seats($_SESSION['user_id'])->sum('blocked_seats');
+		
+		if($attributes['total_tickets'] > $avilableSeats){
+			if($avilableSeats > 0)
+				return $this->sendResponse ( 'ERROR! : Only '.$avilableSeats.' tickets are left! ',  self::NOT_ACCEPTABLE, 'OOPS! Only '.$avilableSeats.' tickets are left.');
+			else
+				return $this->sendResponse ( 'ERROR! : Sold Out!',  self::NOT_ACCEPTABLE, 'OOPS! Sold Out.');
+		}
 		
 		$txn = $exp->estimateCost($attributes['total_tickets']);
 		
@@ -133,6 +154,16 @@ class ExperiencesController extends Controller {
 			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
 			// 		require '/var/www/html/lumen/app/public/encdec_paytm.php';
 			$result['CHECKSUMHASH']= getChecksumFromArray($result ,PAYTM_MERCHANT_KEY);
+			
+			//Block Seats
+			
+// 			$blockArr['user_id'] = $_SESSION['user_id'];
+			$blockArr['exp_id'] = $exp->id;
+			$blockArr['order_id'] = $ORDER_ID;
+			$blockArr['blocked_seats'] = $purchases_data['total_tickets'];
+			
+			$blockSeats = ExperiencesSeats::updateOrCreate( ['user_id'=>$_SESSION['user_id']], $blockArr);
+			
 		}
 		return $this->sendResponse ( $result );
 	}
@@ -165,6 +196,11 @@ class ExperiencesController extends Controller {
 			$exp_purchases->txn_id= $txn_order->TXNID;
 			$exp_purchases->metadata = $paytm_txn_order;
 			$exp_purchases->save();
+			
+			$blockedSeats = ExperiencesSeats::where('order_id', $id)->first();
+			if($blockedSeats)
+				$blockedSeats->delete();
+			
 		}
 		return $this->sendResponse ( $exp_purchases );
 	}

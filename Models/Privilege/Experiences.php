@@ -2,6 +2,7 @@
   
 // use Illuminate\Database\Eloquent\Model;
 use App\Models\Privilege\Base\BaseModel;
+use DB;
 use \stdClass;
 class Experiences extends BaseModel
 {
@@ -32,6 +33,16 @@ class Experiences extends BaseModel
 		$result->taxes = $result->convenience_fee * $this->taxes / 100;
 		$result->amount = $result->cost + $result->convenience_fee + $result->taxes;
 		return $result;
+	}
+
+	public function seats($userId = null){
+		
+		ExperiencesSeats::where('created_at', '<', DB::raw('DATE_SUB(NOW() , INTERVAL 10 MINUTE)'))->delete();
+		
+		if($userId)
+			return $this->hasMany('App\Models\Privilege\ExperiencesSeats', 'exp_id')->where('user_id', '!=',$userId);
+		else 	
+			return $this->hasMany('App\Models\Privilege\ExperiencesSeats', 'exp_id');
 	}
 	
 }
