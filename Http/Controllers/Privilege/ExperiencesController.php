@@ -250,6 +250,9 @@ class ExperiencesController extends Controller {
 		$attributes =	$request->getRawPost(true);
 		unset($attributes['is_active']);
 		unset($attributes['is_disabled']);
+		
+		if(isset($attributes['total_seats']))
+			$attributes['avilable_seats'] = $attributes['total_seats'];
 		$result = Experiences::create ( $attributes );
 		
 		return $this->sendResponse ( $result );
