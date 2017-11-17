@@ -127,9 +127,12 @@ class ExperiencesController extends Controller {
 			$result['TXN_AMOUNT'] = (string)$txn->amount;
 			$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
 			
-			if(isset($arr->source) and 'web' == strtolower($arr->source)){
+			if(isset($attributes['source']) and 'web' == strtolower($attributes['source'])){
 				$result['CHANNEL_ID'] = 'WEB';
-				$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
+				if(isset($attributes['callback_url']))
+					$result['CALLBACK_URL'] = $attributes['callback_url'];
+				else	
+					$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
 			}else{
 				$result['CHANNEL_ID'] = 'WAP';
 				$result['CALLBACK_URL'] = PAYTM_CALLBACK_URL;
