@@ -146,7 +146,10 @@ class ExperiencesController extends Controller {
 			$purchases_data['exp_id'] = $exp->id;
 			$purchases_data['user_id'] = $_SESSION['user_id'];
 			$purchases_data['total_tickets'] = $attributes['total_tickets'];
-			$purchases_data['non_veg'] = $attributes['non_veg'];
+			
+			if(isset($attributes['non_veg']))
+				$purchases_data['non_veg'] = $attributes['non_veg'];
+			
 			$purchases_data['txn_amount'] = $txn->amount;
 			$purchases_data['taxes'] = $txn->taxes;
 			$purchases_data['convenience_fee'] = $txn->convenience_fee;
