@@ -58,7 +58,7 @@ class Sendgrid
     <table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
       <tr>
         <td style="padding:18px 0px 18px 0px;line-height:22px;text-align:inherit;" height="100%"valign="top"bgcolor="">
-            <div>You booked 3 tickets for '.$options['title'].' with Food Talk Privilege. We look forward to seeing you at '.$options['start_date'].'. Please find your purchase details below. </div> <div>&nbsp;</div>
+            <div>You booked '.$options['total_tickets'].' tickets for '.$options['title'].' with Food Talk Privilege. We look forward to seeing you at '.$options['start_date'].'. Please find your purchase details below. </div> <div>&nbsp;</div>
 <div><strong>'.$options['title'].'</strong></div>
 <div>&nbsp;</div>
 <div>
