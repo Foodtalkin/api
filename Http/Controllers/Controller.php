@@ -229,6 +229,43 @@ class Controller extends BaseController {
 			}
 	}
 	
+	public static final function msg91Sendsms($to, $message){
+		
+		$post['sender'] = 'SOCKET';
+		$post['route'] = '4';
+		$post['country'] = '91';
+		$post['sms'][] = array("message"=> $message,"to"=>[$to]);
+		
+		$curl = curl_init();
+		
+		curl_setopt_array($curl, array(
+				CURLOPT_URL => "http://api.msg91.com/api/v2/sendsms",
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "POST",
+				CURLOPT_POSTFIELDS => $post,
+				CURLOPT_SSL_VERIFYHOST => 0,
+				CURLOPT_SSL_VERIFYPEER => 0,
+				CURLOPT_HTTPHEADER => array(
+						"authkey: ",
+						"content-type: application/json"
+				),
+		));
+		
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+		
+		curl_close($curl);
+		
+		if ($err) {
+			echo "cURL Error #:" . $err;
+		} else {
+			echo $response;
+		}
+	}
 	
 	public static final function es($query='',  $uri, $method = "GET"){
 	
