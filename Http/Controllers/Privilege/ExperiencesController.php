@@ -10,6 +10,7 @@ use App\Models\Privilege\ExpData;
 use App\Models\Privilege\ExpPurchasesOrder;
 use App\Models\Privilege\ExpPurchases;
 use App\Models\Privilege\ExperiencesSeats;
+use App\Models\Privilege\Sendgrid;
 
 class ExperiencesController extends Controller {
 	
@@ -202,6 +203,30 @@ class ExperiencesController extends Controller {
 			$exp_purchases->txn_id= $txn_order->TXNID;
 			$exp_purchases->metadata = $paytm_txn_order;
 			$exp_purchases->save();
+			
+			if($txn_order->STATUS == 'TXN_SUCCESS'){
+				
+				$message = 'You booked '.$purchases_order->total_tickets.' ticket(s) for '.$purchases_order->experiences->title.'. Your TRN ID: '.$txn_order->TXNID;
+				self::msg91Sendsms( $purchases_order->user->phone, $message);
+				
+				$option['title'] = $purchases_order->experiences->title;
+				$option['address'] = $purchases_order->experiences->address;
+				
+				if(date("m.d.y",strtotime($purchases_order->experiences->start_time) ) == date("m.d.y", strtotime($purchases_order->experiences->end_time) ))
+					$option['exp_date'] =  date("jS Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("g:i a", strtotime($purchases_order->experiences->end_time) );
+				else
+					$option['exp_date'] =  date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("jS F Y, g:i a", strtotime($purchases_order->experiences->end_time) );
+				
+				$option['total_tickets'] = $purchases_order->total_tickets;
+				$option['txn_id'] = $txn_order->TXNID;
+				
+				$option['start_date'] = date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) );
+				
+				$body = Sendgrid::expPurchase_tpl($option);
+				
+				Sendgrid::sendMail($purchases_order->user->email, 'Booking Confirmation', $body);
+				
+			}
 			
 			$blockedSeats = ExperiencesSeats::where('order_id', $id)->first();
 			if($blockedSeats)

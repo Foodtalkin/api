@@ -231,7 +231,7 @@ class Controller extends BaseController {
 	
 	public static final function msg91Sendsms($to, $message){
 		
-		$post['sender'] = 'SOCKET';
+		$post['sender'] = 'FOODTK';
 		$post['route'] = '4';
 		$post['country'] = '91';
 		$post['sms'][] = array("message"=> $message,"to"=>[$to]);
@@ -246,11 +246,11 @@ class Controller extends BaseController {
 				CURLOPT_TIMEOUT => 30,
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POSTFIELDS => $post,
+				CURLOPT_POSTFIELDS => json_encode($post),
 				CURLOPT_SSL_VERIFYHOST => 0,
 				CURLOPT_SSL_VERIFYPEER => 0,
 				CURLOPT_HTTPHEADER => array(
-						"authkey: ",
+						"authkey: 152200A5i7IQU959157bfe",
 						"content-type: application/json"
 				),
 		));
@@ -261,9 +261,9 @@ class Controller extends BaseController {
 		curl_close($curl);
 		
 		if ($err) {
-			echo "cURL Error #:" . $err;
+			return "cURL Error #:" . $err;
 		} else {
-			echo $response;
+			return $response;
 		}
 	}
 	
