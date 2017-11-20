@@ -253,6 +253,7 @@ class ExperiencesController extends Controller {
 		
 		if(isset($attributes['total_seats']))
 			$attributes['avilable_seats'] = $attributes['total_seats'];
+		
 		$result = Experiences::create ( $attributes );
 		
 		return $this->sendResponse ( $result );
