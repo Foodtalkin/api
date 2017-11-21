@@ -11,6 +11,7 @@ use App\Models\Privilege\ExpPurchasesOrder;
 use App\Models\Privilege\ExpPurchases;
 use App\Models\Privilege\ExperiencesSeats;
 use App\Models\Privilege\Sendgrid;
+use App\Models\Privilege\ParsePush;
 
 class ExperiencesController extends Controller {
 	
@@ -213,7 +214,7 @@ class ExperiencesController extends Controller {
 				$option['address'] = $purchases_order->experiences->address;
 				
 				if(date("m.d.y",strtotime($purchases_order->experiences->start_time) ) == date("m.d.y", strtotime($purchases_order->experiences->end_time) ))
-					$option['exp_date'] =  date("jS Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("g:i a", strtotime($purchases_order->experiences->end_time) );
+					$option['exp_date'] =  date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("g:i a", strtotime($purchases_order->experiences->end_time) );
 				else
 					$option['exp_date'] =  date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("jS F Y, g:i a", strtotime($purchases_order->experiences->end_time) );
 				
@@ -225,6 +226,14 @@ class ExperiencesController extends Controller {
 				$body = Sendgrid::expPurchase_tpl($option);
 				
 				Sendgrid::sendMail($purchases_order->user->email, 'Booking Confirmation', $body);
+				
+// 				{"where":{"userId":"248"},"data":{"alert":"Your 7 day free trial has started! Where is your first meal going to be?","badge":"Increment"} }
+				
+				$pushData['where']['userId'] =  $purchases_order->user_id;
+				$pushData['data']['alert'] = $message;
+				$pushData['data']['title'] = 'Booking Confirmation';
+				$pushData['data']['badge'] = 'Increment';
+				ParsePush::send($pushData);
 				
 			}
 			
