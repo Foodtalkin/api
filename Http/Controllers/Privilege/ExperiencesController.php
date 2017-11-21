@@ -45,7 +45,10 @@ class ExperiencesController extends Controller {
 		
 		$query .= ' order by o.created_at desc'; 
 		$result = DB ::connection('ft_privilege')->select( DB::raw($query));
-		return $this->sendResponse ( $result );
+		if(!empty($result))
+			return $this->sendResponse ( $result );
+		else 
+			return $this->sendResponse ( [], self::SUCCESS_OK_NO_CONTENT, 'No content' );
 	}
 	
 	
@@ -301,6 +304,9 @@ class ExperiencesController extends Controller {
 		$attributes = $request->getRawPost(true);
 		unset($attributes['is_active']);
 		unset($attributes['is_disabled']);
+// 		unset($attributes['total_seats']);
+		
+		
 		$exp = Experiences::find ( $id );
 		$exp->update ( $attributes );
 		
