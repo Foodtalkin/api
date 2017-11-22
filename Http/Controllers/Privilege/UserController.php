@@ -197,6 +197,9 @@ class UserController extends Controller {
 			$otpMatched = true;
 			
 			$session = Session::firstOrNew( array('user_id'=>$user->id));
+			
+// 			print_r(int $session);
+			
 			$session_id = sha1(microtime());
 			$session->session_id = $session_id;
 			$session->refresh_token = sha1(microtime());
