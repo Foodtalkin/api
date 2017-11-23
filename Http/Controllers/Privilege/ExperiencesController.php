@@ -279,6 +279,7 @@ class ExperiencesController extends Controller {
 			$where['is_disabled'] = '0';
 		}
 		
+// 		$exp = Experiences::where( $where )->orderBy('created_at' ,'desc')->with('city')->paginate($pageSize);
 		$exp = Experiences::where( $where )->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
 		
 		

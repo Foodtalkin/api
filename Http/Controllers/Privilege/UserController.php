@@ -596,7 +596,7 @@ class UserController extends Controller {
 			$OTP = $result->otp;
 			$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=$OTP%20is%20your%20Foodtalk%20Privilege%20OTP&sender=FOODTK&otp=$OTP";
 			file_get_contents($url);
-			return $this->sendResponse('OTP '.$OTP.' is sent to : '.$phone);
+			return $this->sendResponse('OTP is sent to : '.$phone);
 		}
 		else
 			return $this->sendResponse ( false );
@@ -674,7 +674,7 @@ class UserController extends Controller {
 		if($arr->phone!='1111111111' and PAYTM_ENVIRONMENT != 'TEST')
 			file_get_contents($url);
 		
-		return $this->sendResponse('OTP '.$OTP.' is sent to : '.$arr->phone);
+		return $this->sendResponse('OTP is sent to : '.$arr->phone);
 		
 	}
 	
