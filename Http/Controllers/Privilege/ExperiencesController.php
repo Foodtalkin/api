@@ -13,7 +13,6 @@ use App\Models\Privilege\ExperiencesSeats;
 use App\Models\Privilege\Sendgrid;
 use App\Models\Privilege\ParsePush;
 use App\Models\Privilege\ExpRefund;
-
 class ExperiencesController extends Controller {
 	
 	public function userHistory(Request $request) {
@@ -263,7 +262,7 @@ class ExperiencesController extends Controller {
 		$queryParam['TXNID'] = $exp_purchases->txn_id;
 		$queryParam['ORDERID'] = $exp_purchases->order_id;
 		$txn = json_decode($exp_purchases->metadata);
-		$queryParam['REFUNDAMOUNT'] =  $txn->TXNAMOUNT; // 50; 
+		$queryParam['REFUNDAMOUNT'] = $txn->TXNAMOUNT; 
 		$queryParam['TXNTYPE'] = 'REFUND';
 		
 		$REFID = time();
@@ -275,6 +274,9 @@ class ExperiencesController extends Controller {
 		if($output['STATUS']=='TXN_SUCCESS'){
 			$exp_purchases->refunded = true;
 			$exp_purchases->save();
+			
+			$exp_purchases->order->experiences->avilable_seats = $exp_purchases->order->experiences->avilable_seats + $exp_purchases->order->total_tickets;
+			$exp_purchases->order->experiences->save();
 		}
 		$attributes = array();
 		$attributes['id'] = $REFID;
