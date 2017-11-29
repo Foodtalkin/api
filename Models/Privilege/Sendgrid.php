@@ -466,7 +466,7 @@ Team Food Talk
 	}
 	
 
-	public static function sendMail($email, $subject , $body, $from = 'privilege@foodtalkindia.com', $cc= false , $contentType='text/html'){
+	public static function sendMail($email, $subject , $body, $from = 'privilege@foodtalkindia.com', $cc= 'privilege@foodtalkindia.com' , $contentType='text/html'){
 		
 		$to = array();
 		if(is_array($email)){
@@ -477,10 +477,19 @@ Team Food Talk
 		else 
 			$to[] = array('email'=>$email);
 		
-		$request['personalizations'][]  = array(
-				'subject'=> $subject,
-				'to'=> $to
-		);
+		if(getenv('APP_ENV')=='prod'){	
+			$request['personalizations'][]  = array(
+					'subject'=> $subject,
+					'to'=> $to,
+					'cc'=>  [array('email'=>$cc)]
+			);
+		}else {
+			$request['personalizations'][]  = array(
+					'subject'=> $subject,
+					'to'=> $to,
+			);
+		}
+		
 		
 		$request['from'] = array('email'=>$from, 'name'=>'Food Talk Privilege');
 	

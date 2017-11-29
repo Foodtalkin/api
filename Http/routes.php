@@ -120,6 +120,8 @@ $app->get('/', function() use ($app) {
 			'prefix' => 'privilege' 
 	], function($app)
 	{
+		
+		$app->get('refund/{id}', [ 'uses' =>'ExperiencesController@refund']);
 		$app->get('experiences/{id}/users', [ 'uses' =>'ExperiencesController@expUsers']);
 		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
 		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);

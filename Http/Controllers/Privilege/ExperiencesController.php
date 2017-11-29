@@ -12,6 +12,7 @@ use App\Models\Privilege\ExpPurchases;
 use App\Models\Privilege\ExperiencesSeats;
 use App\Models\Privilege\Sendgrid;
 use App\Models\Privilege\ParsePush;
+use App\Models\Privilege\ExpRefund;
 
 class ExperiencesController extends Controller {
 	
@@ -54,7 +55,7 @@ class ExperiencesController extends Controller {
 	
 	public function expUsers(Request $request, $id) {
 		
-		$query = 'SELECT exp.id as exp_id, exp.title, u.id as user_id, u.name, u.email, u.phone, o.id as order_id, txn_id, IFNULL (p.payment_status, "PENDING") payment_status , total_tickets, non_veg, txn_amount FROM `exp_purchases_order` o
+		$query = 'SELECT exp.id as exp_id, exp.title, u.id as user_id, u.name, u.email, u.phone, o.id as order_id, txn_id, IFNULL (p.payment_status, "PENDING") payment_status, p.refunded, total_tickets, non_veg, txn_amount FROM `exp_purchases_order` o
 		LEFT JOIN exp_purchases p on p.order_id = o.id
 		INNER JOIN user u on o.user_id = u.id
 		INNER JOIN experiences exp on exp.id = o.exp_id
@@ -246,6 +247,55 @@ class ExperiencesController extends Controller {
 			
 		}
 		return $this->sendResponse ( $exp_purchases );
+	}
+	
+	public function refund(Request $request, $id) {
+		
+		$exp_purchases = ExpPurchases::where('txn_id', '=', $id)->first();
+		
+		if(!$exp_purchases){
+			return $this->sendResponse ( $exp_purchases);
+		}		
+		require_once  __DIR__.'/../../../../public/encdec_paytm.php';
+		
+		$queryParam=array();
+		$queryParam['MID'] = PAYTM_MERCHANT_MID;
+		$queryParam['TXNID'] = $exp_purchases->txn_id;
+		$queryParam['ORDERID'] = $exp_purchases->order_id;
+		$txn = json_decode($exp_purchases->metadata);
+		$queryParam['REFUNDAMOUNT'] =  $txn->TXNAMOUNT; // 50; 
+		$queryParam['TXNTYPE'] = 'REFUND';
+		
+		$REFID = time();
+		$queryParam['REFID'] = $REFID;
+		
+		$output = array();
+		$output = initiateTxnRefund($queryParam);
+		
+		if($output['STATUS']=='TXN_SUCCESS'){
+			$exp_purchases->refunded = true;
+			$exp_purchases->save();
+		}
+		$attributes = array();
+		$attributes['id'] = $REFID;
+		$attributes['exp_purchases_id'] = $exp_purchases->id;
+		$attributes['order_id'] = $exp_purchases->order_id;
+		$attributes['txn_id'] = $exp_purchases->txn_id;
+		$attributes['user_id'] = $exp_purchases->user_id;
+		$attributes['refund_status'] = $output['STATUS'];
+		$attributes['metadata'] = $output;
+		
+		$result = ExpRefund::create ( $attributes );
+		
+// status of refund
+// 		$statusParam = array();
+// 		$statusParam['MID'] = PAYTM_MERCHANT_MID;
+// 		$statusParam['ORDERID'] = $exp_purchases->order_id;
+// 		$statusParam['REFID'] = $REFID;
+// 		$statusParam['CHECKSUMHASH']= getChecksumFromArray($statusParam,PAYTM_MERCHANT_KEY);		
+// 		$res = callAPI(PAYTM_REFUND_STATUS_URL, $statusParam);
+
+		return $this->sendResponse ( $output);
 	}
 	
 	
