@@ -122,6 +122,7 @@ $app->get('/', function() use ($app) {
 	{
 		
 		$app->get('refund/{id}', [ 'uses' =>'ExperiencesController@refund']);
+		$app->get('refund/{id}/status', [ 'uses' =>'ExperiencesController@refundStatus']);
 		$app->get('experiences/{id}/users', [ 'uses' =>'ExperiencesController@expUsers']);
 		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
 		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);

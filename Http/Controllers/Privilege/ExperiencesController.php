@@ -298,6 +298,27 @@ class ExperiencesController extends Controller {
 		return $this->sendResponse ( $output);
 	}
 	
+	public function refundStatus(Request $request, $id) {
+		
+		$where['txn_id'] = $id;
+		$where['refund_status'] = 'TXN_SUCCESS';
+		
+		$exp_refund = ExpRefund::where($where)->first();
+		
+		if(!$exp_refund){
+			return $this->sendResponse ( $exp_refund);
+		}
+		require_once  __DIR__.'/../../../../public/encdec_paytm.php';
+		
+		$statusParam = array();
+		$statusParam['MID'] = PAYTM_MERCHANT_MID;
+		$statusParam['ORDERID'] = $exp_refund->order_id;
+		$statusParam['REFID'] = $exp_refund->id;
+		$statusParam['CHECKSUMHASH']= getChecksumFromArray($statusParam,PAYTM_MERCHANT_KEY);
+		$output = callAPI(PAYTM_REFUND_STATUS_URL, $statusParam);
+		
+		return $this->sendResponse ( $output);
+	}
 	
 	public function get(Request $request, $id, $with = false) {
 		$exp = Experiences::find ( $id );
