@@ -36,6 +36,13 @@ $app->get('/', function() use ($app) {
 	{
 
 		
+
+		$app->get('unreviewed', [ 'uses' =>'UserController@unreviewed']);
+		
+		
+		$app->post('experiences/review/{id}', [ 'uses' =>'ExperiencesController@review']);
+		$app->post('offer/review/{id}', [ 'uses' =>'OfferController@review']);
+		
 		$app->get('experiences/history', [ 'uses' =>'ExperiencesController@userHistory']);
 		$app->post('experiences/{id}/order/estimate', [ 'uses' =>'ExperiencesController@estimateOrder']);
 		$app->post('experiences/{id}/order', [ 'uses' =>'ExperiencesController@createOrder']);
@@ -43,6 +50,9 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('experiences', [ 'uses' =>'ExperiencesController@getAll']);
 		$app->get('experiences/{id}', [ 'uses' =>'ExperiencesController@get']);
+		
+		
+		
 		
 		
 		$app->post('paytm', [ 'uses' =>'UserController@paytm']);

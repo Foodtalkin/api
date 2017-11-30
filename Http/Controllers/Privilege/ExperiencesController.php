@@ -17,7 +17,7 @@ class ExperiencesController extends Controller {
 	
 	public function userHistory(Request $request) {
 		
-		$query = 'SELECT exp_id, e.title, latitude, longitude, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id, start_time, end_time , p.created_at FROM `exp_purchases` p
+		$query = 'SELECT o.exp_id, e.title, latitude, longitude, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id, start_time, end_time , p.created_at FROM `exp_purchases` p
 		LEFT JOIN exp_purchases_order o on o.id = p.order_id
 		INNER JOIN experiences e on e.id = o.exp_id
 		WHERE p.user_id = '.$_SESSION['user_id'];
@@ -203,6 +203,7 @@ class ExperiencesController extends Controller {
 			
 			$exp_purchases = ExpPurchases::firstOrCreate(['order_id' =>$id]);
 			$exp_purchases->user_id = $purchases_order->user_id;
+			$exp_purchases->exp_id = $purchases_order->exp_id;
 			$exp_purchases->payment_status = $txn_order->STATUS;
 			$exp_purchases->txn_id= $txn_order->TXNID;
 			$exp_purchases->metadata = $paytm_txn_order;
@@ -246,6 +247,25 @@ class ExperiencesController extends Controller {
 			
 		}
 		return $this->sendResponse ( $exp_purchases );
+	}
+	
+	public function review(Request $request, $id) {
+		
+		$attributes = $request->getRawPost();
+		
+		$exp_purchases = ExpPurchases::where(['order_id' =>$id])->first();
+		
+		if(!$exp_purchases){
+			return $this->sendResponse ( 'ERROR! : Invalid order_id',  self::NO_ENTITY, 'ERROR! : Invalid order_id');
+		}
+		
+		$exp_purchases->rating = $attributes->rating;
+		if (isset($attributes->review))
+			$exp_purchases->review = $attributes->review;
+		$exp_purchases->save();
+		
+		return $this->sendResponse ( 'Review added', self::SUCCESS_OK_NO_CONTENT, 'success' );
+		
 	}
 	
 	public function refund(Request $request, $id) {

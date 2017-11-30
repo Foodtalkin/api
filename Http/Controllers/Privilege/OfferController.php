@@ -97,6 +97,25 @@ class OfferController extends Controller {
 		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
 	}
 	
+	public function review(Request $request, $id) {
+		
+		$attributes = $request->getRawPost();
+		
+		$redemption = OfferRedeemed::find($id);
+		
+		if(! $redemption ){
+			return $this->sendResponse ( 'ERROR! : Invalid rid',  self::NO_ENTITY, 'ERROR! : Invalid rid');
+		}
+		
+		$redemption->rating = $attributes->rating;
+		if (isset($attributes->review))
+			$redemption->review = $attributes->review;
+		$redemption->save();
+			
+		return $this->sendResponse ( 'Review added', self::SUCCESS_OK_NO_CONTENT, 'success' );
+			
+	}
+	
 	public function redeem(Request $request) {
 		
 		$post =	$request->getRawPost();

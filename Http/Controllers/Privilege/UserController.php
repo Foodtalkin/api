@@ -26,6 +26,7 @@ use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
 use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\PushNotification;
+use App\Models\Privilege\ExpPurchases;
 
 class UserController extends Controller {
 
@@ -48,6 +49,38 @@ class UserController extends Controller {
 		return $this->sendResponse ( $result, self::SUCCESS_OK );
 		
 	}
+	
+	
+	public function unreviewed(Request $request) {
+		
+		$offers = OfferRedeemed::select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+		->where(array(
+				'user_id' => $_SESSION['user_id']
+		))->whereNull('rating')
+// 		->orderBy('offer_redeemed.created_at', 'desc')
+		->get();
+		
+		$exp = ExpPurchases::select('exp_purchases.order_id', 'title', 'address', 'experiences.start_time' )
+// 		select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+		->join('experiences', 'experiences.id', '=','exp_purchases.exp_id' )
+		->where(array(
+				'user_id' => $_SESSION['user_id'],
+				'payment_status' => 'TXN_SUCCESS'
+		))->whereNull('rating')
+// 		->with('experiences')
+		->get();
+		
+		// 		->orderBy('offer_redeemed.created_at', 'desc')
+		
+		
+		$result['offers'] =  $offers;
+		$result['experiences'] =  $exp;
+		
+		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
+		
+	}
+	
 
 	public function get(Request $request, $id){
 		
