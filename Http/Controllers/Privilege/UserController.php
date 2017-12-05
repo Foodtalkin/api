@@ -61,19 +61,16 @@ class UserController extends Controller {
 // 		->orderBy('offer_redeemed.created_at', 'desc')
 		->get();
 		
-		$exp = ExpPurchases::select('exp_purchases.order_id', 'title', 'address', 'experiences.start_time' )
-// 		select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
-		->join('experiences', 'experiences.id', '=','exp_purchases.exp_id' )
-		->where(array(
-				'user_id' => $_SESSION['user_id'],
-				'payment_status' => 'TXN_SUCCESS'
-		))->whereNull('rating')
-// 		->with('experiences')
-		->get();
-		
-		// 		->orderBy('offer_redeemed.created_at', 'desc')
-		
-		
+		$exp=array();
+// 		$exp = ExpPurchases::select('exp_purchases.order_id', 'title', 'address', 'experiences.start_time' )
+// 		->join('experiences', 'experiences.id', '=','exp_purchases.exp_id' )
+// 		->where(array(
+// 				'user_id' => $_SESSION['user_id'],
+// 				'payment_status' => 'TXN_SUCCESS'
+// 		))->whereNull('rating')
+// 		->where('end_time','<',DB::raw('now()'))
+// 		->get();
+				
 		$result['offers'] =  $offers;
 		$result['experiences'] =  $exp;
 		
