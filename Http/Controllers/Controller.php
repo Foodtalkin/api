@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use DB;
 
 class Controller extends BaseController {
 	
@@ -14,6 +15,34 @@ class Controller extends BaseController {
 	
 	public function __construct() {
 		// $this->middleware('athu');
+
+		
+		if(getenv('APP_ENV')!='prod'){
+		
+			$requestType = $_SERVER['REQUEST_METHOD'];
+			if($requestType == 'POST'){
+				$jsonInput = file_get_contents("php://input");
+				$_JSON = json_decode($jsonInput, 1);
+			}else{
+				$_JSON = $_GET;
+			}
+			
+			$dump = json_encode($_JSON);
+			$ip_address = $_SERVER['REMOTE_ADDR'];
+			$end_point = $_SERVER['REQUEST_URI'];
+			$method = $_SERVER['REQUEST_METHOD'];
+			$platform = $_SERVER['HTTP_USER_AGENT'];
+			
+			if(isset($_SESSION['user_id']))
+				$user_id = $_SESSION['user_id'];
+			else 
+				$user_id = 0;
+			
+			$dumsql = "insert into access_logs (ip_address, user_id, platform, end_point, dump, method) values ('$ip_address', '$user_id', '$platform', '$end_point', '$dump', '$method')";
+			DB::connection('ft_privilege')->statement($dumsql);
+		}
+// 		$dum = DB ::connection('ft_privilege')->select( DB::raw($query));
+		
 		
 		if(isset($_GET['page_size']) && $_GET['page_size'] < self::MAX_PAGE_SIZE ){
 			$this->pageSize = $_GET['page_size']; 
