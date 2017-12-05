@@ -20,12 +20,12 @@ class Controller extends BaseController {
 		if(getenv('APP_ENV')!='prod'){
 		
 			$requestType = $_SERVER['REQUEST_METHOD'];
-			if($requestType == 'POST'){
+// 			if($requestType == 'POST'){
 				$jsonInput = file_get_contents("php://input");
 				$_JSON = json_decode($jsonInput, 1);
-			}else{
-				$_JSON = $_GET;
-			}
+// 			}else{
+// 				$_JSON = $_GET;
+// 			}
 			
 			$dump = json_encode($_JSON);
 			$ip_address = $_SERVER['REMOTE_ADDR'];
