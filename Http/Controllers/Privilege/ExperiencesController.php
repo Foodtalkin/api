@@ -15,7 +15,27 @@ use App\Models\Privilege\ParsePush;
 use App\Models\Privilege\ExpRefund;
 class ExperiencesController extends Controller {
 	
-	public function userHistory(Request $request) {
+	
+	public function testPush($user_id, $id = null){
+		
+		$pushData['where']['userId'] =  $user_id;
+		$pushData['data']['alert'] = 'click to open experiences';
+		$pushData['data']['title'] = 'click';
+		$pushData['data']['badge'] = 'Increment';
+		
+		if($id){
+			$pushData['data']['screen'] = 'experiences_details';
+			$pushData['data']['id'] = $id;
+		}else{
+			$pushData['data']['screen'] = 'experiences';
+			$pushData['data']['id'] = '';
+		}
+			ParsePush::send($pushData);
+			return $this->sendResponse ( $pushData);
+			
+	}
+	
+	public function userHistor(Request $request) {
 		
 		$query = 'SELECT e.display_time, o.exp_id, e.title, latitude, longitude, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id, start_time, end_time , p.created_at FROM `exp_purchases` p
 		LEFT JOIN exp_purchases_order o on o.id = p.order_id
@@ -48,6 +68,43 @@ class ExperiencesController extends Controller {
 		if(!empty($result))
 			return $this->sendResponse ( $result );
 		else 
+			return $this->sendResponse ( [], self::SUCCESS_OK_NO_CONTENT, 'No content' );
+	}
+	
+	public function userHistory1(Request $request) {
+
+		$where['exp_purchases.user_id'] = $_SESSION['user_id'];
+		
+		if(isset($_GET['status']))
+			$status = $_GET['status'];
+			else
+				$status = 'success';
+				switch ($status){
+					case "failure":
+						$where['exp_purchases.payment_status'] = "TXN_FAILURE" ;
+						break;
+					case "all":
+						break;
+					default:
+						$where['exp_purchases.payment_status'] = "TXN_SUCCESS" ;
+				}
+		
+		$query = ExpPurchases::select('experiences.display_time', 'exp_purchases_order.exp_id', 'experiences.title', 'latitude', 'longitude', 'experiences.address', 
+				'exp_purchases_order.id as order_id', 'exp_purchases_order.total_tickets', 'exp_purchases_order.non_veg', 'experiences.cost', 'exp_purchases_order.convenience_fee',
+				'exp_purchases_order.taxes', 'exp_purchases_order.txn_amount', 'payment_status', 'txn_id', 'start_time', 'end_time', 'exp_purchases.created_at')
+		->leftJoin('exp_purchases_order', 'exp_purchases_order.id', '=', 'exp_purchases.order_id')
+		->join('experiences', 'experiences.id', '=', 'exp_purchases_order.exp_id')
+		->where($where)
+		->orderBy('exp_purchases.created_at');		
+
+		$result = $query->
+		get();
+// 		paginate ( $this->pageSize );
+// 		$query .= ' order by o.created_at desc';
+// 		$result = DB ::connection('ft_privilege')->select( DB::raw($query));
+		if(!empty($result))
+			return $this->sendResponse ( $result );
+		else
 			return $this->sendResponse ( [], self::SUCCESS_OK_NO_CONTENT, 'No content' );
 	}
 	

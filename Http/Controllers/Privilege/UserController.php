@@ -29,6 +29,8 @@ use App\Models\Privilege\PushNotification;
 use App\Models\Privilege\ExpPurchases;
 
 class UserController extends Controller {
+	
+	
 
 	public function listAll(Request $request){
 		
@@ -512,7 +514,7 @@ class UserController extends Controller {
 	}
 	
 	
-	
+// 	instamojo payment
 	public function subscription(Request $request) {
 		
 		$arr =	$request->getRawPost();

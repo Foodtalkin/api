@@ -36,7 +36,9 @@ $app->get('/', function() use ($app) {
 	{
 
 		
-
+		$app->get('tpush/{user_id}/exp/{id}', [ 'uses' =>'ExperiencesController@testPush']);
+		$app->get('tpush/{user_id}', [ 'uses' =>'ExperiencesController@testPush']);
+		
 		$app->get('unreviewed', [ 'uses' =>'UserController@unreviewed']);
 		
 		
