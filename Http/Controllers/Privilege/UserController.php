@@ -483,6 +483,7 @@ class UserController extends Controller {
 			
 			$PaytmOrderStatus = PaytmOrderStatus::firstOrCreate(['paytm_order_id' =>$arr->order_id]);
 			$PaytmOrderStatus->payment_status = $txn_order->STATUS;
+			$PaytmOrderStatus->txn_id = $txn_order->TXNID;
 			$PaytmOrderStatus->metadata = $paytm_txn_order;
 			
 			if($txn_order->STATUS =='TXN_SUCCESS' and $txn_order->RESPCODE == '01'){

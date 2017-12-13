@@ -35,7 +35,7 @@ class ExperiencesController extends Controller {
 			
 	}
 	
-	public function userHistor(Request $request) {
+	public function userHistory1(Request $request) {
 		
 		$query = 'SELECT e.display_time, o.exp_id, e.title, latitude, longitude, e.address, o.id as order_id, o.total_tickets, o.non_veg, e.cost, o.convenience_fee, o.taxes, o.txn_amount,  payment_status, txn_id, start_time, end_time , p.created_at FROM `exp_purchases` p
 		LEFT JOIN exp_purchases_order o on o.id = p.order_id
@@ -71,7 +71,7 @@ class ExperiencesController extends Controller {
 			return $this->sendResponse ( [], self::SUCCESS_OK_NO_CONTENT, 'No content' );
 	}
 	
-	public function userHistory1(Request $request) {
+	public function userHistory(Request $request) {
 
 		$where['exp_purchases.user_id'] = $_SESSION['user_id'];
 		

@@ -13,7 +13,38 @@ use App\Models\Privilege\OfferRedeemed;
 // use Illuminate\Http\JsonResponse;
 
 class AnalyticsController extends Controller {
+	
+	public function transactions(Request $request){
 
+		if(isset($_GET['from'])){
+
+			if (isset($_GET['to'])){
+				$s1 = ' where paytm_order_status.created_at > "'.$_GET['from'].'" and paytm_order_status.created_at < "'.$_GET['to'].'" ';
+				$s2 = ' where exp_purchases.created_at > "'.$_GET['from'].'" and exp_purchases.created_at < "'.$_GET['to'].'" ';
+				
+			}else 
+			{
+				$s1 = ' where paytm_order_status.created_at > "'.$_GET['from'].'" ';
+				$s2 = ' where exp_purchases.created_at > "'.$_GET['from'].'" ';
+			}
+		}else {
+			
+			$s1 = ' where paytm_order_status.created_at >= DATE(NOW()) - INTERVAL 7 DAY ';
+			$s2 = ' where exp_purchases.created_at >= DATE(NOW()) - INTERVAL 7 DAY ';
+		}
+		
+	 	$sql = 'SELECT "subscription" as title, paytm_order_id as order_id, user_id, txn_id, txn_amount, paytm_order_status.created_at
+		FROM `paytm_order_status`
+		INNER JOIN paytm_order on paytm_order.id = `paytm_order_status`.`paytm_order_id` '.$s1.'
+		UNION
+		SELECT experiences.title, order_id, exp_purchases_order.user_id, txn_id, exp_purchases_order.txn_amount, exp_purchases.created_at  FROM `exp_purchases`
+		INNER JOIN exp_purchases_order on exp_purchases.order_id = exp_purchases_order.id
+		INNER JOIN experiences on exp_purchases_order.exp_id = experiences.id '.$s2;
+	 	
+	 	$result = DB::connection('ft_privilege')->select( DB::raw($sql) );
+	 	
+	 	return $this->sendResponse ( $result, self::SUCCESS_OK_NO_CONTENT);
+	}
 	
 	
 	public function users(Request $request ,$days = 7){
