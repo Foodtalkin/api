@@ -95,7 +95,7 @@ class ExperiencesController extends Controller {
 		->leftJoin('exp_purchases_order', 'exp_purchases_order.id', '=', 'exp_purchases.order_id')
 		->join('experiences', 'experiences.id', '=', 'exp_purchases_order.exp_id')
 		->where($where)
-		->orderBy('exp_purchases.created_at');		
+		->orderBy('exp_purchases.created_at', 'desc');		
 
 		$result = $query->
 		get();
