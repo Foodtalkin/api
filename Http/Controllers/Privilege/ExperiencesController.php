@@ -433,8 +433,10 @@ class ExperiencesController extends Controller {
 			$where['city_id'] = $_GET['city_id'];
 		
 // 		$exp = Experiences::where( $where )->orderBy('created_at' ,'desc')->with('city')->paginate($pageSize);
-			$exp = Experiences::select('*', DB::raw('IF(avilable_seats=0, "0", "1") as state'))->where( $where )->orderBy('state' ,'desc')->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
-		
+			if (isset ($_SESSION ['admin_id'] ))
+				$exp = Experiences::where( $where )->orderBy('is_active' ,'desc')->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
+			else 
+				$exp = Experiences::select('*', DB::raw('IF(avilable_seats=0, "0", "1") as state'))->where( $where )->orderBy('state' ,'desc')->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
 		
 		return $this->sendResponse ( $exp );
 	}
