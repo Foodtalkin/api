@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Privilege;
 
+use App\Models\Privilege\ExpPurchasesOrder;
+use App\Models\Privilege\Subscription;
 use DB;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Privilege\DBLog;
@@ -11,6 +12,7 @@ use App\Models\Privilege\User;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\OfferRedeemed;
 // use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
 
 class AnalyticsController extends Controller {
 	
@@ -204,6 +206,185 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			
 		return $this->sendResponse ( $result );
 	}
-	
+
+	public function salesRevenue()
+	{
+		$data = [];
+
+		// DAILY
+		$dates = $expSaleDates = [];
+		foreach (range(-6, 0) AS $i) {
+			$date = Carbon::now()->addDays($i)->format('Y-m-d');
+			$dates[] = [
+				'x' => $date,
+				'y' => 0,
+				'series' => 0,
+			];
+			$expSaleDates[] = [
+				'x' => $date,
+				'y' => 0,
+				'series' => 1
+			];
+			if ($i == -6) {
+				$firstDate = $date;
+			}
+		}
+
+		$subscriptions = Subscription::where('subscription.created_at', '>=', $firstDate)
+			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
+			->groupBy('date')
+			->orderBy('date')
+			->get([
+				DB::raw('DATE(subscription.created_at) as date'),
+				DB::raw('SUM(subscription_type.price) as sales')
+			]);
+		$subscriptions->map(function ($subscription) use (&$dates) {
+			$key = array_search($subscription->date, array_column($dates, 'x'));
+			$dates[$key]['y'] = (int)$subscription->sales;
+		});
+
+		$sales = ExpPurchasesOrder::where('created_at', '>=', $firstDate)
+			->groupBy('date')
+			->get([
+				DB::raw('DATE(created_at) as date'),
+				DB::raw('SUM(txn_amount) as sales')
+			]);
+		$sales->map(function ($sale) use (&$expSaleDates) {
+			$key = array_search($sale->date, array_column($expSaleDates, 'x'));
+			$expSaleDates[$key]['y'] = (int)$sale->sales;
+		});
+		$data['daily'] = [
+			[
+				'key' => 'Subscription Sales',
+				'values' => $dates
+			],
+			[
+				'key' => 'Experience Sales',
+				'values' => $expSaleDates
+			]
+		];
+
+		// WEEKLY
+		$dates = $expSaleDates = [];
+		$startDate = null;
+		$endDate = null;
+		foreach (range(-3, 0) as $i) {
+			$date = Carbon::now()->addWeek($i);
+			$dates[] = [
+				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
+				'y' => 0,
+				'series' => 0,
+				'week' => $date->weekOfMonth
+			];
+			$expSaleDates[] = [
+				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
+				'y' => 0,
+				'series' => 1,
+				'week' => $date->weekOfMonth
+			];
+			if ($i == -3) {
+				$startDate = $date->startOfWeek()->toDateString() . ' 00:00:00';
+			}
+			if ($i == 0) {
+				$endDate = $date->endOfWeek()->toDateString() . ' 00:00:00';
+			}
+		}
+		$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, WEEKOFYEAR(subscription.created_at) as week')
+			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
+			->where('subscription.created_at', '>=', $startDate)
+			->where('subscription.created_at', '<=', $endDate)
+			->groupBy('week')
+			->take(4)
+			->get();
+		$subscriptions->map(function ($subscription) use (&$dates) {
+			$key = array_search($subscription->week, array_column($dates, 'week'));
+			$dates[$key]['y'] = (int)$subscription->total;
+		});
+
+		$sales = ExpPurchasesOrder::where('created_at', '>=', $startDate)
+			->where('created_at', '<=', $endDate)
+			->groupBy('week')
+			->get([
+				DB::raw('WEEKOFYEAR(created_at) as week'),
+				DB::raw('SUM(txn_amount) as sales')
+			]);
+		$sales->map(function ($sale) use (&$expSaleDates) {
+			$key = array_search($sale->week, array_column($expSaleDates, 'week'));
+			$expSaleDates[$key]['y'] = (int)$sale->sales;
+		});
+		$data['weekly'] = [
+			[
+				'key' => 'Subscription Sales',
+				'values' => $dates
+			],
+			[
+				'key' => 'Experience Sales',
+				'values' => $expSaleDates
+			]
+		];
+
+		// MONTHLY
+		$dates = $expSaleDates = [];
+		$startDate = null;
+		$endDate = null;
+		foreach (range(-11, 0) as $i) {
+			$date = Carbon::now()->addMonth($i);
+			$dates[] = [
+				'x' => $date->startOfMonth()->toDateString() . ',' . $date->endOfMonth()->toDateString(),
+				'y' => 0,
+				'series' => 0,
+				'month' => $date->month
+			];
+			$expSaleDates[] = [
+				'x' => $date->startOfMonth()->toDateString() . ',' . $date->endOfMonth()->toDateString(),
+				'y' => 0,
+				'series' => 1,
+				'month' => $date->month
+			];
+			if ($i == -11) {
+				$startDate = $date->startOfMonth()->toDateString() . ' 00:00:00';
+			}
+			if ($i == 0) {
+				$endDate = $date->endOfMonth()->toDateString() . ' 00:00:00';
+			}
+		}
+
+		$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, MONTH(subscription.created_at) as month')
+			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
+			->where('subscription.created_at', '>=', $startDate)
+			->where('subscription.created_at', '<=', $endDate)
+			->groupBy('month')
+			->take(4)
+			->get();
+		$subscriptions->map(function ($subscription) use (&$dates) {
+			$key = array_search($subscription->month, array_column($dates, 'month'));
+			$dates[$key]['y'] = (int)$subscription->total;
+		});
+
+		$sales = ExpPurchasesOrder::where('created_at', '>=', $startDate)
+			->where('created_at', '<=', $endDate)
+			->groupBy('month')
+			->get([
+				DB::raw('MONTH(created_at) as month'),
+				DB::raw('SUM(txn_amount) as sales')
+			]);
+		$sales->map(function ($sale) use (&$expSaleDates) {
+			$key = array_search($sale->month, array_column($expSaleDates, 'month'));
+			$expSaleDates[$key]['y'] = (int)$sale->sales;
+		});
+
+		$data['monthly'] = [
+			[
+				'key' => 'Subscription Sales',
+				'values' => $dates
+			],
+			[
+				'key' => 'Experience Sales',
+				'values' => $expSaleDates
+			]
+		];
+
+		return $data;
+	}
 }
 ?>

@@ -183,7 +183,8 @@ $app->get('/', function() use ($app) {
 		$app->get('analytics/restaurants/{days}/{top}', [ 'uses' =>'AnalyticsController@restaurants']);
 		$app->get('analytics/restaurants/{days}', [ 'uses' =>'AnalyticsController@restaurants']);
 
-		
+		$app->get('analytics/sales-revenue', [ 'uses' =>'AnalyticsController@salesRevenue']);
+
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');
 		
