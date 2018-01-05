@@ -437,8 +437,17 @@ class ExperiencesController extends Controller {
 				$exp = Experiences::where( $where )->orderBy('is_active' ,'desc')->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
 			else 
 				$exp = Experiences::select('*', DB::raw('IF(avilable_seats=0, "0", "1") as state'))->where( $where )->orderBy('state' ,'desc')->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
-		
-		return $this->sendResponse ( $exp );
+
+		$expData = $exp->toArray();
+		if ($_GET['city_id']) {
+			if ($expData['next_page_url']) {
+				$expData['next_page_url'] = $expData['next_page_url'] . '&city_id=' . $_GET['city_id'];
+			}
+			if ($expData['prev_page_url']) {
+				$expData['prev_page_url'] = $expData['prev_page_url'] . '&city_id=' . $_GET['city_id'];
+			}
+		}
+		return $this->sendResponse ( $expData );
 	}
 	
 	public function create(Request $request) {
