@@ -23,6 +23,7 @@ use App\Models\Privilege\OutletOffer;
 use App\Models\Privilege\Bookmark;
 use App\Models\Privilege\ES;
 use App\Models\Privilege\Sendgrid;
+use App\Models\Privilege\City;
 
 class OfferController extends Controller {
 
@@ -73,6 +74,17 @@ class OfferController extends Controller {
 		}
 	}
 	
+	public function cities(Request $request){
+		
+		$result = City::select(DB::raw('city.id, city.name, count(DISTINCT restaurant.id) as restaurant_count, COUNT(DISTINCT outlet.id) as outlet_count, is_active'))
+		->leftjoin('outlet', 'outlet.city_id', '=',DB::raw('city.id and outlet.is_disabled = 0'))
+		->leftjoin('restaurant', 'outlet.resturant_id', '=','restaurant.id' )
+		->where('city.is_disabled', '0')
+// 		->where('outlet.is_disabled', '0')
+		->groupBy('city.id')
+		->get();
+		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
+	}
 
 	public function redeemHistory(Request $request){
 		$result = OfferRedeemed::select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
@@ -83,6 +95,25 @@ class OfferController extends Controller {
 		->orderBy('offer_redeemed.created_at', 'desc')
 		->get();
 		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
+	}
+	
+	public function review(Request $request, $id) {
+		
+		$attributes = $request->getRawPost();
+		
+		$redemption = OfferRedeemed::find($id);
+		
+		if(! $redemption ){
+			return $this->sendResponse ( 'ERROR! : Invalid rid',  self::NO_ENTITY, 'ERROR! : Invalid rid');
+		}
+		
+		$redemption->rating = $attributes->rating;
+		if (isset($attributes->review))
+			$redemption->review = $attributes->review;
+		$redemption->save();
+			
+		return $this->sendResponse ( 'Review added', self::SUCCESS_OK_NO_CONTENT, 'success' );
+			
 	}
 	
 	public function redeem(Request $request) {
@@ -167,7 +198,7 @@ class OfferController extends Controller {
 			$option['time'] = date_format($offerRedeem->created_at, 'h:i A');;
 			$body =  Sendgrid::redumption_tpl($option);
 
-			if(PAYTM_ENVIRONMENT != 'TEST')
+			if(PAYTM_ENVIRONMENT != 'TEST' and $_SESSION['user_id'] != '1219')
 				$sendgridresponse =	Sendgrid::sendMail(explode(',', $outlet->email), 'Food Talk Redemption Confirmation', $body);
 			
 		return $this->sendResponse ( $offerRedeem );
@@ -254,7 +285,8 @@ class OfferController extends Controller {
 	public function searchDB($searchText , $entity = 'restaurant', $options=array()){
 		
 		$searchText = urldecode($searchText);
-		$result = Offer::getAllOffers(array('search'=>$searchText));
+		$_GET['search'] = $searchText;
+		$result = Offer::getAllOffers($_GET);
 		return $this->sendResponse ( $result);
 	}
 

@@ -46,7 +46,7 @@ class Offer extends BaseModel
 			
 			$latitude = $options['latitude'];
 			$longitude = $options['longitude'];
-			$distance = ",DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006 as distance";
+			$distance = ", MIN(DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006) as distance";
 			
 		}else 
 			$distance= '';

@@ -24,9 +24,82 @@ use App\Models\Privilege\UserEvent;
 use App\Models\Privilege\Paytmlog;
 use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
+use App\Models\Privilege\OfferRedeemed;
+use App\Models\Privilege\PushNotification;
+use App\Models\Privilege\ExpPurchases;
 
 class UserController extends Controller {
+	
+	
 
+	public function listAll(Request $request){
+		
+		$query = User::select('user.id', 'user.name', 'user.email', 'user.phone', 'user.gender', 'user.preference', 'user.city_id', 'dob', 'saving', 'is_verified','user.is_disabled', 'user.created_at')->where('user.is_disabled', '0')->with('subscription')->with('city');
+		
+		if(isset($_GET['search'])){
+			$searchText = urldecode($_GET['search']);
+			$query->where('user.name', 'like', '%'.$searchText.'%');
+		}
+		
+		if(isset($_GET['status']) and $_GET['status'] == 'paid'){
+			$query->join('subscription', 'user.id', '=','subscription.user_id' );
+		}
+			
+// 		echo $query->toSql();
+		
+		$result = $query->paginate ( $this->pageSize );
+		return $this->sendResponse ( $result, self::SUCCESS_OK );
+		
+	}
+	
+	
+	public function unreviewed(Request $request) {
+		
+		$offers = OfferRedeemed::select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+		->where(array(
+				'user_id' => $_SESSION['user_id']
+		))->whereNull('rating')
+// 		->orderBy('offer_redeemed.created_at', 'desc')
+		->get();
+		
+		$exp=array();
+// 		$exp = ExpPurchases::select('exp_purchases.order_id', 'title', 'address', 'experiences.start_time' )
+// 		->join('experiences', 'experiences.id', '=','exp_purchases.exp_id' )
+// 		->where(array(
+// 				'user_id' => $_SESSION['user_id'],
+// 				'payment_status' => 'TXN_SUCCESS'
+// 		))->whereNull('rating')
+// 		->where('end_time','<',DB::raw('now()'))
+// 		->get();
+				
+		$result['offers'] =  $offers;
+		$result['experiences'] =  $exp;
+		
+		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
+		
+	}
+	
+
+	public function get(Request $request, $id){
+		
+		$result = User::find ( $id );
+		
+		if($result){
+		$result ->subscription;
+		$result ->city;
+
+		$result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+		->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
+		->where('user_id' , $id)
+		->orderBy('offer_redeemed.created_at', 'desc')
+		->get();
+		}
+// 		$result->offerRedeemed->outlet();
+		return $this->sendResponse ( $result);
+	}
+	
 
 	public function paytm(Request $request){
 		
@@ -104,16 +177,22 @@ class UserController extends Controller {
 	public function profile() {
 		
 		$user = User::find($_SESSION['user_id']);
+		$user->city;
+		$user->subscription;
 		return $this->sendResponse ( $user );
 	}
 	
 	
-	public function update(Request $request) {
+	public function update(Request $request, $id=false) {
 		
 		$arr =	$request->getRawPost();
 		
-		$user = User::find($_SESSION['user_id']);
-		
+		if($id && $id>0)
+			$user = User::find($id);
+		else
+			$user = User::find($_SESSION['user_id']);
+
+		if($user){	
 		if(isset($arr->name))
 			$user->name = $arr->name;
 		if(isset($arr->email))
@@ -122,15 +201,17 @@ class UserController extends Controller {
 			$user->gender = $arr->gender;
 		if(isset($arr->preference))
 			$user->preference = $arr->preference;
-		if(isset($arr->city))
-			$user->city= $arr->city;
+		if(isset($arr->city_id))
+			$user->city_id= $arr->city_id;
 		if(isset($arr->dob))
 			$user->dob = new \DateTime($arr->dob);
-		
+		if(isset($arr->notes))
+			$user->notes= $arr->notes;
+
 		$user->save();
-		$user = User::find($_SESSION['user_id']);
-		
-		return $this->sendResponse ( $user, self::SUCCESS_OK, 'Update Success' );
+		$user = User::find($user->id);
+		}
+		return $this->sendResponse ( $user, self::SUCCESS_OK);
 	}
 	
 	
@@ -148,6 +229,9 @@ class UserController extends Controller {
 			$otpMatched = true;
 			
 			$session = Session::firstOrNew( array('user_id'=>$user->id));
+			
+// 			print_r(int $session);
+			
 			$session_id = sha1(microtime());
 			$session->session_id = $session_id;
 			$session->refresh_token = sha1(microtime());
@@ -169,7 +253,11 @@ class UserController extends Controller {
 		return $this->sendResponse ( $user, self::SUCCESS_OK, 'OTP Accepted' );
 	}
 
-	
+	public function logout(Request $request) {
+
+		return $this->sendResponse ( true, self::SUCCESS_OK, 'logout success' );
+	}
+
 	public function webhookInstamojo(Request $request) {
 		
 		$arr = array(
@@ -296,7 +384,33 @@ class UserController extends Controller {
 		return $this->sendResponse ( $result );
 	}
 	
-	
+	public function trial() {
+
+		$user_id = $_SESSION['user_id'];
+
+		$subscription = Subscription::where('user_id', '=', $user_id)->first();
+
+		if($subscription){
+			return $this->sendResponse ( 'ERROR! : Trial over',  self::NOT_ACCEPTABLE, 'ERROR! : Trial period over');
+		}
+
+		$subscription = new Subscription();
+		$subscription->user_id = $user_id;
+		$subscription->subscription_type_id = 3;
+		$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
+		$subscription->expiry = $NewDate;
+		$subscription->save();
+
+		$subs = Subscription::find($subscription->id);
+// 		$result['amount'] = "0";
+		$result['subscription'][] = $subs;
+		
+		
+		PushNotification::trialPush($user_id);
+
+		return $this->sendResponse ( $result );
+
+	}
 	
 	public function subscriptionOrder(Request $request) {
 		
@@ -369,6 +483,7 @@ class UserController extends Controller {
 			
 			$PaytmOrderStatus = PaytmOrderStatus::firstOrCreate(['paytm_order_id' =>$arr->order_id]);
 			$PaytmOrderStatus->payment_status = $txn_order->STATUS;
+			$PaytmOrderStatus->txn_id = $txn_order->TXNID;
 			$PaytmOrderStatus->metadata = $paytm_txn_order;
 			
 			if($txn_order->STATUS =='TXN_SUCCESS' and $txn_order->RESPCODE == '01'){
@@ -400,7 +515,7 @@ class UserController extends Controller {
 	}
 	
 	
-	
+// 	instamojo payment
 	public function subscription(Request $request) {
 		
 		$arr =	$request->getRawPost();
@@ -514,7 +629,7 @@ class UserController extends Controller {
 			$OTP = $result->otp;
 			$url = "https://control.msg91.com/api/sendotp.php?authkey=152200A5i7IQU959157bfe&mobile=$phone&message=$OTP%20is%20your%20Foodtalk%20Privilege%20OTP&sender=FOODTK&otp=$OTP";
 			file_get_contents($url);
-			return $this->sendResponse('OTP '.$OTP.' is sent to : '.$phone);
+			return $this->sendResponse('OTP is sent to : '.$phone);
 		}
 		else
 			return $this->sendResponse ( false );
@@ -568,8 +683,8 @@ class UserController extends Controller {
 				if(isset($arr->preference))
 					$user->preference = $arr->preference;
 				
-				if(isset($arr->city))
-					$user->city= $arr->city;
+				if(isset($arr->city_id))
+					$user->city_id= $arr->city_id;
 				
 				if(isset($arr->dob))
 					$user->dob = $arr->dob;
@@ -589,10 +704,10 @@ class UserController extends Controller {
 		$otp->save();
 		
 // 		if($arr->phone!='1111111111')
-		if($arr->phone!='1111111111' or PAYTM_ENVIRONMENT != 'TEST')
+		if($arr->phone!='1111111111' and PAYTM_ENVIRONMENT != 'TEST')
 			file_get_contents($url);
 		
-		return $this->sendResponse('OTP '.$OTP.' is sent to : '.$arr->phone);
+		return $this->sendResponse('OTP is sent to : '.$arr->phone);
 		
 	}
 	

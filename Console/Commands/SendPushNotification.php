@@ -4,9 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use DB;
-use App\Models\Privilege\User;
-use App\Models\Privilege\Subscription;
 use App\Models\Privilege\PushNotification;
+use App\Models\Privilege\ParsePush;
 
 
 class SendPushNotification extends Command
@@ -48,50 +47,12 @@ class SendPushNotification extends Command
 		if(!empty($result)){
 			foreach ($result as $push){
 				$data = json_decode($push->push, true);
-				$response = $this->sendpush($data);
+// 				$response = $this->sendpush($data);
+				$response = ParsePush::send($data);
 				$push->status = '1';
 				$push->save();
 			}
 		}
-	}
-	
-	
-	public function sendpush($data, $method = 'POST'){
-		
-		$data['_ApplicationId']="ftp";
-		$data['_MasterKey']="parse@ftp";
-		$body = json_encode($data);
-		
-		$curl = curl_init();
-		
-		curl_setopt_array($curl, array(
-				CURLOPT_PORT => "1337",
-				CURLOPT_URL => "http://foodtalk.in:1337/parse/push",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POSTFIELDS => $body,
-				CURLOPT_HTTPHEADER => array(
-						"cache-control: no-cache",
-						"content-type: application/json",
-				),
-		));
-				
-		$response = curl_exec($curl);
-		$err = curl_error($curl);
-		
-		curl_close($curl);
-		
-		if ($err) {
-			echo "cURL Error #:" . $err;
-			return false;
-		} else {
-			return json_decode($response, true);
-		}
-		
 	}
 	
 }

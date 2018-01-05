@@ -107,20 +107,35 @@ class RestaurantController extends Controller {
 	
 	public function cuisine(Request $request){
 		
-		$result = Cuisine::select(DB::raw('distinct  cuisine.id, cuisine.title'))
+		$query = Cuisine::select(DB::raw('distinct  cuisine.id, cuisine.title'))
 		->join('restaurant_cuisine', 'cuisine.id','=','restaurant_cuisine.cuisine_id')
 		->join('restaurant', 'restaurant.id','=','restaurant_cuisine.restaurant_id')
 		->where('restaurant.is_disabled', '=', '0')
-		->orderBy('cuisine.title', 'asc')
-		->get();
+		->orderBy('cuisine.title', 'asc');
 		
-		return $this->sendResponse ( $result );
+		if(isset($_GET['city_id']))
+		$query->join('outlet', 'outlet.resturant_id','=','restaurant.id')
+		->where('outlet.is_disabled', '0')
+		->where('outlet.city_id', $_GET['city_id']);
+		
+		$result = $query->get();
+		
+		return $this->sendResponse ( $result, self::SUCCESS_OK_NO_CONTENT);
 	}
 	
 	
 	public function outlets($restaurant_id) {
 		
-		$result = Outlet::select(DB::raw('count(1) as offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids,  outlet.id,outlet.name,outlet.city_id, outlet.area, city_zone_id, address, postcode, outlet.work_hours'))
+		if(isset($_GET['latitude']) and isset($_GET['longitude'])){
+			
+			$latitude = $_GET['latitude'];
+			$longitude = $_GET['longitude'];
+			$distance = "DEGREES(ACOS(SIN(RADIANS($latitude)) * SIN(RADIANS(outlet.latitude)) + COS(RADIANS($latitude)) * COS(RADIANS(outlet.latitude)) * COS(RADIANS($longitude - outlet.longitude)))) * 111189.3006 as distance, ";
+			
+		}else
+			$distance= '';
+		
+			$query = Outlet::select(DB::raw($distance.'count(1) as offer_count, GROUP_CONCAT(DISTINCT offer.id) as offer_ids,  outlet.id,outlet.name,outlet.city_id, outlet.area, city_zone_id, address, postcode, outlet.work_hours'))
 		->join('outlet_offer', 'outlet.id', '=', 'outlet_offer.outlet_id')
 		->join('offer', 'offer.id','=','outlet_offer.offer_id')
 		->where( 'outlet_offer.is_disabled', '0' )
@@ -128,8 +143,13 @@ class RestaurantController extends Controller {
 		->where( 'outlet.is_disabled', '0' )
 		->where( 'offer.is_active', '1' )
 		->where('outlet.resturant_id',  $restaurant_id)
-		->groupBy('outlet.id')
-		->paginate(Outlet::PAGE_SIZE);
+		->groupBy('outlet.id');
+		
+		if($distance){
+			$query->orderBy('distance', 'asc');
+		}
+		
+		$result = $query->paginate(20);
 		
 		return $this->sendResponse ( $result );
 	}

@@ -13,13 +13,49 @@ use App\Models\Privilege\OfferRedeemed;
 // use Illuminate\Http\JsonResponse;
 
 class AnalyticsController extends Controller {
+	
+	public function transactions(Request $request){
 
+		if(isset($_GET['from'])){
+
+			if (isset($_GET['to'])){
+				$s1 = ' and paytm_order_status.created_at > "'.$_GET['from'].'" and paytm_order_status.created_at < "'.$_GET['to'].'" ';
+				$s2 = ' and exp_purchases.created_at > "'.$_GET['from'].'" and exp_purchases.created_at < "'.$_GET['to'].'" ';
+				
+			}else 
+			{
+				$s1 = ' and paytm_order_status.created_at > "'.$_GET['from'].'" ';
+				$s2 = ' and exp_purchases.created_at > "'.$_GET['from'].'" ';
+			}
+		}else {
+			
+			$s1 = ' and paytm_order_status.created_at >= DATE(NOW()) - INTERVAL 7 DAY ';
+			$s2 = ' and exp_purchases.created_at >= DATE(NOW()) - INTERVAL 7 DAY ';
+		}
+		
+	 	$sql = 'SELECT "subscription" as title, paytm_order_id as order_id, user_id, txn_id, txn_amount, paytm_order_status.created_at, user.name, user.email, user.phone
+		FROM `paytm_order_status`
+		INNER JOIN paytm_order on paytm_order.id = `paytm_order_status`.`paytm_order_id` 
+		INNER JOIN user on user.id = paytm_order.user_id  
+		WHERE paytm_order_status.payment_status = "TXN_SUCCESS" '.$s1.'
+		UNION
+		SELECT experiences.title, order_id, exp_purchases_order.user_id, txn_id, exp_purchases_order.txn_amount, exp_purchases.created_at, user.name, user.email, user.phone  
+		FROM `exp_purchases`
+		INNER JOIN exp_purchases_order on exp_purchases.order_id = exp_purchases_order.id
+		INNER JOIN user on user.id = exp_purchases_order.user_id
+		INNER JOIN experiences on exp_purchases_order.exp_id = experiences.id  
+		WHERE exp_purchases.payment_status = "TXN_SUCCESS" '.$s2;
+	 	
+	 	$result = DB::connection('ft_privilege')->select( DB::raw($sql) );
+	 	
+	 	return $this->sendResponse ( $result, self::SUCCESS_OK_NO_CONTENT);
+	}
 	
 	
 	public function users(Request $request ,$days = 7){
 		
 		
-		$overall = DB::connection('ft_privilege')->select( DB::raw('select IF( subscription.id is null, "unpaid", "paid" ) as status, count(1) as count  from user LEFT JOIN subscription on subscription.user_id = user.id  GROUP by status'));
+		$overall = DB::connection('ft_privilege')->select( DB::raw('select IF( subscription.id is null, "unpaid",  IF( subscription_type_id = 3,  "trial", "paid") ) as status, count(1) as count  from user LEFT JOIN subscription on subscription.user_id = user.id  GROUP by status'));
 		
 // 		$lastdays = DB::connection('ft_privilege')->select( DB::raw('select IF( subscription.id is null, "unpaid", "paid" ) as status, count(1) as count  from user LEFT JOIN subscription on subscription.user_id = user.id where user.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP by status'));
 		
@@ -27,8 +63,11 @@ class AnalyticsController extends Controller {
 		$total = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(created_at,"%Y-%m-%d") as onbord from user GROUP by onbord) as u on u.onbord = calander.theday'));
 
 		DB::connection('ft_privilege')->statement('SET @i=0');
-		$paid = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(subscription.created_at,"%Y-%m-%d") as onbord from user LEFT JOIN subscription on subscription.user_id = user.id WHERE subscription.id is not null GROUP by onbord ) as u on u.onbord = calander.theday'));
+		$paid = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(subscription.created_at,"%Y-%m-%d") as onbord from user LEFT JOIN subscription on subscription.user_id = user.id WHERE subscription.subscription_type_id = "1" GROUP by onbord ) as u on u.onbord = calander.theday'));
 
+		DB::connection('ft_privilege')->statement('SET @i=0');
+		$trial = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(subscription.created_at,"%Y-%m-%d") as onbord from user LEFT JOIN subscription on subscription.user_id = user.id WHERE subscription.subscription_type_id = "3" GROUP by onbord ) as u on u.onbord = calander.theday'));
+		
 		DB::connection('ft_privilege')->statement('SET @i=0');
 		$unpaid = DB::connection('ft_privilege')->select( DB::raw('SELECT theday as date, IFNULL(cnt, 0 ) as count FROM (SELECT DATE(ADDDATE(DATE_SUB(NOW(), INTERVAL '.$days.' DAY), INTERVAL @i:=@i+1 DAY)) AS theday FROM cuisine HAVING @i < DATEDIFF(now(), DATE_SUB(NOW(), INTERVAL '.$days.' DAY))) as calander left join (select count(1) cnt, DATE_FORMAT(user.created_at,"%Y-%m-%d") as onbord from user LEFT JOIN subscription on subscription.user_id = user.id WHERE subscription.id is null GROUP by onbord ) as u on u.onbord = calander.theday'));
 		
@@ -48,6 +87,7 @@ class AnalyticsController extends Controller {
 				'datewise'=>array(
 						'total'=>$total,
 						'paid'=>$paid,
+						'trial'=>$trial,
 						'unpaid'=>$unpaid,
 				)
 		);
@@ -105,16 +145,23 @@ ORDER BY `count`  DESC LIMIT '.$top));
 	}
 	
 
-	public function top_users(Request $request ,$top = 3, $days = 30){
+	public function top_users(Request $request ,$top = 5, $days = 30){
+
+		$result=array();
+		$result['top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , user.id, user.name FROM `user` , offer_redeemed WHERE user.id = offer_redeemed.user_id GROUP BY user.id ORDER BY `count`  DESC LIMIT '.$top));
+		$result['latest_top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , user.id, user.name FROM `user` , offer_redeemed WHERE user.id = offer_redeemed.user_id AND offer_redeemed.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP BY user.id ORDER BY `count`  DESC LIMIT '.$top));
+		
+		return $this->sendResponse ( $result );
 		
 	}
 	
 	
 	public function signups(Request $request) {
 		
-		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), 'user.created_at as signup_on')
+		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid",  IF( subscription_type_id = 3,  "trial", "paid")) as status'), 'user.created_at as signup_on')
 		->leftjoin('subscription', 'user.id', '=','subscription.user_id')
 // 		->whereNull('subscription.expiry')
+		->where('user.is_verified', '=', '1')
 		->orderBy('user.created_at', 'desc');
 		
 		if(isset($_GET['after']))
@@ -130,6 +177,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		
 		$query = user::select('user.id', 'name', 'phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), 'subscription.created_at as purchased_on')
 		->join('subscription', 'user.id', '=','subscription.user_id')
+		->where('subscription.subscription_type_id', '=', '1')
 		->orderBy('subscription.created_at', 'desc');
 		
 		if(isset($_GET['after']))
