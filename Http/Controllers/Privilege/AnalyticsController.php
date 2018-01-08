@@ -239,6 +239,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
 			->groupBy('date')
 			->orderBy('date')
+			->where('subscription.subscription_type_id', '=', 1)
 			->get([
 				DB::raw('DATE(subscription.created_at) as date'),
 				DB::raw('SUM(subscription_type.price) as sales')
@@ -288,35 +289,37 @@ ORDER BY `count`  DESC LIMIT '.$top));
 				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
 				'y' => 0,
 				'series' => 0,
-				'week' => $date->weekOfMonth
+				'week' => $date->weekOfYear
 			];
 			$expSaleDates[] = [
 				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
 				'y' => 0,
 				'series' => 1,
-				'week' => $date->weekOfMonth
+				'week' => $date->weekOfYear
 			];
 			$total[] = [
 				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
 				'y' => 0,
 				'series' => 2,
-				'week' => $date->weekOfMonth
+				'week' => $date->weekOfYear
 			];
 			if ($i == -3) {
 				$startDate = $date->startOfWeek()->toDateString() . ' 00:00:00';
 			}
 			if ($i == 0) {
-				$endDate = $date->endOfWeek()->toDateString() . ' 00:00:00';
+				$endDate = $date->endOfWeek()->toDateString() . ' 23:59:59';
 			}
 		}
 		$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, WEEKOFYEAR(subscription.created_at) as week')
 			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
 			->where('subscription.created_at', '>=', $startDate)
 			->where('subscription.created_at', '<=', $endDate)
+			->where('subscription.subscription_type_id', '=', 1)
 			->groupBy('week')
 			->take(4)
 			->get();
-		$subscriptions->map(function ($subscription) use (&$dates) {
+
+		$subscriptions->each(function ($subscription) use (&$dates) {
 			$key = array_search($subscription->week, array_column($dates, 'week'));
 			$dates[$key]['y'] = (int)$subscription->total;
 		});
@@ -381,7 +384,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 				$startDate = $date->startOfMonth()->toDateString() . ' 00:00:00';
 			}
 			if ($i == 0) {
-				$endDate = $date->endOfMonth()->toDateString() . ' 00:00:00';
+				$endDate = $date->endOfMonth()->toDateString() . ' 23:59:59';
 			}
 		}
 
@@ -389,6 +392,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
 			->where('subscription.created_at', '>=', $startDate)
 			->where('subscription.created_at', '<=', $endDate)
+			->where('subscription.subscription_type_id', '=', 1)
 			->groupBy('month')
 			->take(4)
 			->get();
