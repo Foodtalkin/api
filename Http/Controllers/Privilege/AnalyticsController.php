@@ -248,10 +248,12 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			$dates[$key]['y'] = (int)$subscription->sales;
 		});
 
-		$sales = ExpPurchasesOrder::where('created_at', '>=', $firstDate)
+		$sales = ExpPurchasesOrder::join('exp_purchases', 'exp_purchases.order_id', '=', 'exp_purchases_order.id')
+			->where('exp_purchases_order.created_at', '>=', $firstDate)
+			->where('exp_purchases.payment_status', 'TXN_SUCCESS')
 			->groupBy('date')
 			->get([
-				DB::raw('DATE(created_at) as date'),
+				DB::raw('DATE(exp_purchases_order.created_at) as date'),
 				DB::raw('SUM(txn_amount) as sales')
 			]);
 		$sales->map(function ($sale) use (&$expSaleDates) {
@@ -319,11 +321,13 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			$dates[$key]['y'] = (int)$subscription->total;
 		});
 
-		$sales = ExpPurchasesOrder::where('created_at', '>=', $startDate)
-			->where('created_at', '<=', $endDate)
+		$sales = ExpPurchasesOrder::join('exp_purchases', 'exp_purchases.order_id', '=', 'exp_purchases_order.id')
+			->where('exp_purchases_order.created_at', '>=', $startDate)
+			->where('exp_purchases_order.created_at', '<=', $endDate)
+			->where('exp_purchases.payment_status', 'TXN_SUCCESS')
 			->groupBy('week')
 			->get([
-				DB::raw('WEEKOFYEAR(created_at) as week'),
+				DB::raw('WEEKOFYEAR(exp_purchases_order.created_at) as week'),
 				DB::raw('SUM(txn_amount) as sales')
 			]);
 		$sales->map(function ($sale) use (&$expSaleDates) {
@@ -393,11 +397,13 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			$dates[$key]['y'] = (int)$subscription->total;
 		});
 
-		$sales = ExpPurchasesOrder::where('created_at', '>=', $startDate)
-			->where('created_at', '<=', $endDate)
+		$sales = ExpPurchasesOrder::join('exp_purchases', 'exp_purchases.order_id', '=', 'exp_purchases_order.id')
+			->where('exp_purchases.payment_status', 'TXN_SUCCESS')
+			->where('exp_purchases_order.created_at', '>=', $startDate)
+			->where('exp_purchases_order.created_at', '<=', $endDate)
 			->groupBy('month')
 			->get([
-				DB::raw('MONTH(created_at) as month'),
+				DB::raw('MONTH(exp_purchases_order.created_at) as month'),
 				DB::raw('SUM(txn_amount) as sales')
 			]);
 		$sales->map(function ($sale) use (&$expSaleDates) {
