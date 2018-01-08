@@ -189,8 +189,19 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			
 			return $this->sendResponse ( $result );
 	}
-	
-	
+
+	public function eventPurchases(Request $request)
+	{
+		$query = User::select('user.id', 'name', 'phone', 'user.email', 'txn_amount', 'exp_purchases_order.created_at as purchased_on', 'exp_purchases.payment_status')
+			->join('exp_purchases_order', 'user.id', '=','exp_purchases_order.user_id')
+			->join('exp_purchases', 'exp_purchases.order_id', '=','exp_purchases_order.id')
+			->orderBy('exp_purchases_order.created_at', 'DESC');
+
+		$result = $query->paginate(ExpPurchasesOrder::PAGE_SIZE);
+
+		return $this->sendResponse ( $result );
+	}
+
 	public function redeemptions(Request $request) {
 		
 		$query = OfferRedeemed::select('offer_redeemed.id as redeemed_id', 'offers_redeemed', 'offer_redeemed.created_at as redeemed_on', 'user_id', 'user.name as user_name', 'offer_id', 'offer.title', 'outlet_id', 'outlet.name as outlet_name', 'area' )

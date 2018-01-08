@@ -167,9 +167,8 @@ $app->get('/', function() use ($app) {
 		$app->get('feeds/redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
 		$app->get('feeds/signups', [ 'uses' =>'AnalyticsController@signups']);
 		$app->get('feeds/purchases', [ 'uses' =>'AnalyticsController@purchases']);
-		
-		
-		
+		$app->get('feeds/event-purchases', [ 'uses' =>'AnalyticsController@eventPurchases']);
+
 		$app->get('analytics/topuser', [ 'uses' =>'AnalyticsController@top_users']);
 		$app->get('analytics/topuser/{days}/{top}', [ 'uses' =>'AnalyticsController@top_users']);
 		$app->get('analytics/topuser/{days}', [ 'uses' =>'AnalyticsController@top_users']);
