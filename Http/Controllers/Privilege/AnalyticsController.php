@@ -212,7 +212,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		$data = [];
 
 		// DAILY
-		$dates = $expSaleDates = [];
+		$dates = $expSaleDates = $total = [];
 		foreach (range(-6, 0) AS $i) {
 			$date = Carbon::now()->addDays($i)->format('Y-m-d');
 			$dates[] = [
@@ -224,6 +224,11 @@ ORDER BY `count`  DESC LIMIT '.$top));
 				'x' => $date,
 				'y' => 0,
 				'series' => 1
+			];
+			$total[] = [
+				'x' => $date,
+				'y' => 0,
+				'series' => 2,
 			];
 			if ($i == -6) {
 				$firstDate = $date;
@@ -253,6 +258,9 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			$key = array_search($sale->date, array_column($expSaleDates, 'x'));
 			$expSaleDates[$key]['y'] = (int)$sale->sales;
 		});
+		foreach ($expSaleDates as $key => $expSaleDate) {
+			$total[$key]['y'] = $expSaleDate['y'] + $dates[$key]['y'];
+		}
 		$data['daily'] = [
 			[
 				'key' => 'Subscription Sales',
@@ -261,11 +269,15 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			[
 				'key' => 'Experience Sales',
 				'values' => $expSaleDates
+			],
+			[
+				'key' => 'Total',
+				'values' => $total
 			]
 		];
 
 		// WEEKLY
-		$dates = $expSaleDates = [];
+		$dates = $expSaleDates = $total = [];
 		$startDate = null;
 		$endDate = null;
 		foreach (range(-3, 0) as $i) {
@@ -280,6 +292,12 @@ ORDER BY `count`  DESC LIMIT '.$top));
 				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
 				'y' => 0,
 				'series' => 1,
+				'week' => $date->weekOfMonth
+			];
+			$total[] = [
+				'x' => $date->startOfWeek()->toDateString() . ',' . $date->endOfWeek()->toDateString(),
+				'y' => 0,
+				'series' => 2,
 				'week' => $date->weekOfMonth
 			];
 			if ($i == -3) {
@@ -312,6 +330,10 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			$key = array_search($sale->week, array_column($expSaleDates, 'week'));
 			$expSaleDates[$key]['y'] = (int)$sale->sales;
 		});
+		foreach ($expSaleDates as $key => $expSaleDate) {
+			$total[$key]['y'] = $expSaleDate['y'] + $dates[$key]['y'];
+		}
+
 		$data['weekly'] = [
 			[
 				'key' => 'Subscription Sales',
@@ -320,11 +342,15 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			[
 				'key' => 'Experience Sales',
 				'values' => $expSaleDates
+			],
+			[
+				'key' => 'Total',
+				'values' => $total
 			]
 		];
 
 		// MONTHLY
-		$dates = $expSaleDates = [];
+		$dates = $expSaleDates = $total = [];
 		$startDate = null;
 		$endDate = null;
 		foreach (range(-11, 0) as $i) {
@@ -339,6 +365,12 @@ ORDER BY `count`  DESC LIMIT '.$top));
 				'x' => $date->startOfMonth()->toDateString() . ',' . $date->endOfMonth()->toDateString(),
 				'y' => 0,
 				'series' => 1,
+				'month' => $date->month
+			];
+			$total[] = [
+				'x' => $date->startOfMonth()->toDateString() . ',' . $date->endOfMonth()->toDateString(),
+				'y' => 0,
+				'series' => 2,
 				'month' => $date->month
 			];
 			if ($i == -11) {
@@ -372,6 +404,9 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			$key = array_search($sale->month, array_column($expSaleDates, 'month'));
 			$expSaleDates[$key]['y'] = (int)$sale->sales;
 		});
+		foreach ($expSaleDates as $key => $expSaleDate) {
+			$total[$key]['y'] = $expSaleDate['y'] + $dates[$key]['y'];
+		}
 
 		$data['monthly'] = [
 			[
@@ -381,6 +416,10 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			[
 				'key' => 'Experience Sales',
 				'values' => $expSaleDates
+			],
+			[
+				'key' => 'Total',
+				'values' => $total
 			]
 		];
 
