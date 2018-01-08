@@ -439,7 +439,7 @@ class ExperiencesController extends Controller {
 				$exp = Experiences::select('*', DB::raw('IF(avilable_seats=0, "0", "1") as state'))->where( $where )->orderBy('state' ,'desc')->orderBy('start_time' ,'asc')->with('city')->paginate($pageSize);
 
 		$expData = $exp->toArray();
-		if ($_GET['city_id']) {
+		if (isset($_GET['city_id'])) {
 			if ($expData['next_page_url']) {
 				$expData['next_page_url'] = $expData['next_page_url'] . '&city_id=' . $_GET['city_id'];
 			}
