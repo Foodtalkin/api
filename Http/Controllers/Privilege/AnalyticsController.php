@@ -192,9 +192,11 @@ ORDER BY `count`  DESC LIMIT '.$top));
 
 	public function eventPurchases(Request $request)
 	{
-		$query = User::select('user.id', 'name', 'phone', 'user.email', 'txn_amount', 'exp_purchases_order.created_at as purchased_on', 'exp_purchases.payment_status')
+		$query = User::select('user.id', 'name', 'phone', 'user.email', 'txn_amount', 'exp_purchases_order.created_at as purchased_on', 'exp_purchases.payment_status', 'experiences.title')
 			->join('exp_purchases_order', 'user.id', '=','exp_purchases_order.user_id')
 			->join('exp_purchases', 'exp_purchases.order_id', '=','exp_purchases_order.id')
+			->join('experiences', 'experiences.id', '=','exp_purchases_order.exp_id')
+			->where('exp_purchases.payment_status', 'TXN_SUCCESS')
 			->orderBy('exp_purchases_order.created_at', 'DESC');
 
 		$result = $query->paginate(ExpPurchasesOrder::PAGE_SIZE);
