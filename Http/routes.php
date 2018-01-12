@@ -186,7 +186,9 @@ $app->get('/', function() use ($app) {
 
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');
-		
+
+		$app->get('details/live-events', [ 'uses' =>'AnalyticsController@liveEvents']);
+
 // 		$app->get('user', [ 'uses' =>'OutletController@get']);
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@allCuisine']);
 		
