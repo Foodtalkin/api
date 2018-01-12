@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Privilege;
 
+use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpPurchasesOrder;
 use App\Models\Privilege\Subscription;
 use DB;
@@ -447,6 +448,19 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		];
 
 		return $data;
+	}
+
+	public function liveEvents()
+	{
+		$events = Experiences::selectRaw('title, avilable_seats,(total_seats - avilable_seats) as booked_seats')
+			->where('is_active', 1)
+			->orderBy('id', 'DESC')
+			->get();
+
+		return response()->json([
+			'success' => true,
+			'data' => $events
+		]);
 	}
 }
 ?>
