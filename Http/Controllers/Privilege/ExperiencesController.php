@@ -110,8 +110,8 @@ class ExperiencesController extends Controller {
 	
 	
 	public function expUsers(Request $request, $id) {
-		
-		$query = 'SELECT exp.id as exp_id, exp.title, u.id as user_id, u.name, u.email, u.phone, o.id as order_id, txn_id, IFNULL (p.payment_status, "PENDING") payment_status, p.refunded, total_tickets, non_veg, txn_amount FROM `exp_purchases_order` o
+
+        $query = 'SELECT exp.id as exp_id, exp.title, u.id as user_id, u.name, u.email, u.phone, o.id as order_id, o.channel, txn_id, IFNULL (p.payment_status, "PENDING") payment_status, p.refunded, total_tickets, non_veg, txn_amount FROM `exp_purchases_order` o
 		LEFT JOIN exp_purchases p on p.order_id = o.id
 		INNER JOIN user u on o.user_id = u.id
 		INNER JOIN experiences exp on exp.id = o.exp_id
