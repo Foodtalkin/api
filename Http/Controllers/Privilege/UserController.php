@@ -79,26 +79,39 @@ class UserController extends Controller {
 		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
 		
 	}
-	
 
-	public function get(Request $request, $id){
-		
-		$result = User::find ( $id );
-		
-		if($result){
-		$result ->subscription;
-		$result ->city;
 
-		$result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
-		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
-		->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
-		->where('user_id' , $id)
-		->orderBy('offer_redeemed.created_at', 'desc')
-		->get();
-		}
+    public function get(Request $request, $id){
+
+        $result = User::find($id);
+
+        if ($result) {
+            $result ->subscription;
+            $result ->city;
+
+            $result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+                ->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+                ->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
+                ->where('user_id' , $id)
+                ->orderBy('offer_redeemed.created_at', 'desc')
+                ->get();
+
+            $sql = 'SELECT "subscription" as title, paytm_order_id as order_id, txn_amount, paytm_order_status.created_at
+				FROM `paytm_order_status`
+				INNER JOIN paytm_order on paytm_order.id = `paytm_order_status`.`paytm_order_id` 
+				WHERE paytm_order_status.payment_status = "TXN_SUCCESS" and paytm_order.user_id="'.$id.'"
+				UNION
+				SELECT experiences.title, order_id, exp_purchases_order.txn_amount, exp_purchases.created_at   
+				FROM `exp_purchases`
+				INNER JOIN exp_purchases_order on exp_purchases.order_id = exp_purchases_order.id
+				INNER JOIN experiences on exp_purchases_order.exp_id = experiences.id  
+				WHERE exp_purchases.payment_status = "TXN_SUCCESS"  and exp_purchases_order.user_id="'.$id.'"';
+
+            $result['subscriptionsAndEvents'] = DB::connection('ft_privilege')->select( DB::raw($sql) );
+        }
 // 		$result->offerRedeemed->outlet();
-		return $this->sendResponse ( $result);
-	}
+        return $this->sendResponse ( $result);
+    }
 	
 
 	public function paytm(Request $request){
