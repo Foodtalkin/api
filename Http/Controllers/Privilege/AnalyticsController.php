@@ -35,14 +35,14 @@ class AnalyticsController extends Controller {
 			$s1 = ' and paytm_order_status.created_at >= DATE(NOW()) - INTERVAL 7 DAY ';
 			$s2 = ' and exp_purchases.created_at >= DATE(NOW()) - INTERVAL 7 DAY ';
 		}
-		
-	 	$sql = 'SELECT "subscription" as title, paytm_order_id as order_id, user_id, txn_id, txn_amount, paytm_order_status.created_at, user.name, user.email, user.phone
+
+        $sql = 'SELECT "subscription" as title, paytm_order_id as order_id, user_id, user.name, user.email, user.phone, txn_id, txn_amount, paytm_order_status.created_at, user.name, user.email, user.phone
 		FROM `paytm_order_status`
 		INNER JOIN paytm_order on paytm_order.id = `paytm_order_status`.`paytm_order_id` 
 		INNER JOIN user on user.id = paytm_order.user_id  
 		WHERE paytm_order_status.payment_status = "TXN_SUCCESS" '.$s1.'
 		UNION
-		SELECT experiences.title, order_id, exp_purchases_order.user_id, txn_id, exp_purchases_order.txn_amount, exp_purchases.created_at, user.name, user.email, user.phone  
+		SELECT experiences.title, order_id, exp_purchases_order.user_id, user.name, user.email, user.phone, txn_id, exp_purchases_order.txn_amount, exp_purchases.created_at, user.name, user.email, user.phone  
 		FROM `exp_purchases`
 		INNER JOIN exp_purchases_order on exp_purchases.order_id = exp_purchases_order.id
 		INNER JOIN user on user.id = exp_purchases_order.user_id
