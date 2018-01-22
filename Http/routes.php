@@ -96,6 +96,8 @@ $app->get('/', function() use ($app) {
 		
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
+		$app->post('validate-coupon', ['uses' => 'CouponController@validateCode']);
+
 		$app->get('profile', [ 
 // 				'middleware' => 'athuprivilage', 
 				'uses' =>'UserController@profile']);
@@ -226,8 +228,11 @@ $app->get('/', function() use ($app) {
 		$app->post('outlet-offer', [ 'uses' =>'OutletOfferController@saveOutletOffer']);
 		$app->put('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@saveOutletOffer']);
 		$app->delete('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@disable']);
-		
-		
+
+        $app->get('coupons', ['uses' => 'CouponController@getAll']);
+        $app->post('coupons', ['uses' => 'CouponController@create']);
+        $app->put('coupons/{id}', ['uses' => 'CouponController@update']);
+        $app->delete('coupons/{id}', [ 'uses' =>'CouponController@delete']);
 	});
 	
 	
