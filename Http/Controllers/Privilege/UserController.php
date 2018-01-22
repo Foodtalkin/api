@@ -4,18 +4,16 @@ namespace App\Http\Controllers\Privilege;
 
 // use DB;
 
+use App\Models\Privilege\Coupon;
 use App\Models\Privilege\User;
 use App\Models\Privilege\Otp;
 use App\Models\Privilege\Session;
 use App\Models\Privilege\Subscription;
 use App\Models\Privilege\SubscriptionType;
 use DB;
-
-
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-// use Illuminate\Http\JsonResponse;
-
 use Illuminate\Database\QueryException;
 use App\Models\Privilege\InstamojoRequest;
 use App\Models\Privilege\InstamojoPayment;
@@ -26,34 +24,31 @@ use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
 use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\PushNotification;
-use App\Models\Privilege\ExpPurchases;
 
-class UserController extends Controller {
-	
-	
+class UserController extends Controller
+{
+	use CouponTrait;
 
-	public function listAll(Request $request){
-		
+	public function listAll(Request $request)
+	{
 		$query = User::select('user.id', 'user.name', 'user.email', 'user.phone', 'user.gender', 'user.preference', 'user.city_id', 'dob', 'saving', 'is_verified','user.is_disabled', 'user.created_at')->where('user.is_disabled', '0')->with('subscription')->with('city');
 		
-		if(isset($_GET['search'])){
+		if (isset($_GET['search'])) {
 			$searchText = urldecode($_GET['search']);
 			$query->where('user.name', 'like', '%'.$searchText.'%');
 		}
 		
-		if(isset($_GET['status']) and $_GET['status'] == 'paid'){
-			$query->join('subscription', 'user.id', '=','subscription.user_id' );
+		if (isset($_GET['status']) and $_GET['status'] == 'paid') {
+			$query->join('subscription', 'user.id', '=', 'subscription.user_id' );
 		}
-			
-// 		echo $query->toSql();
-		
-		$result = $query->paginate ( $this->pageSize );
-		return $this->sendResponse ( $result, self::SUCCESS_OK );
-		
+
+		$result = $query->paginate($this->pageSize);
+
+		return $this->sendResponse($result, self::SUCCESS_OK);
 	}
 	
-	
-	public function unreviewed(Request $request) {
+	public function unreviewed(Request $request)
+	{
 		
 		$offers = OfferRedeemed::select('outlet.name', 'offer_redeemed.id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
 		->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
@@ -79,22 +74,22 @@ class UserController extends Controller {
 		return $this->sendResponse ( $result , self::SUCCESS_OK_NO_CONTENT);
 		
 	}
+	
 
+	public function get(Request $request, $id){
+		
+		$result = User::find($id);
+		
+		if ($result) {
+			$result ->subscription;
+			$result ->city;
 
-    public function get(Request $request, $id){
-
-        $result = User::find($id);
-
-        if ($result) {
-            $result ->subscription;
-            $result ->city;
-
-            $result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
-                ->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
-                ->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
-                ->where('user_id' , $id)
-                ->orderBy('offer_redeemed.created_at', 'desc')
-                ->get();
+			$result['redemption'] = OfferRedeemed::select('offer_redeemed.id as redemption_id',  'outlet.name as outlet_name', 'offer_redeemed.outlet_id',  'offer.title', 'offer_redeemed.offer_id', 'offer_redeemed.offers_redeemed', 'offer_redeemed.created_at')
+				->join('outlet', 'outlet.id', '=','offer_redeemed.outlet_id' )
+				->join('offer', 'offer.id', '=','offer_redeemed.offer_id' )
+				->where('user_id' , $id)
+				->orderBy('offer_redeemed.created_at', 'desc')
+				->get();
 
             $sql = 'SELECT "subscription" as title, paytm_order_id as order_id, txn_amount, paytm_order_status.created_at
 				FROM `paytm_order_status`
@@ -107,11 +102,11 @@ class UserController extends Controller {
 				INNER JOIN experiences on exp_purchases_order.exp_id = experiences.id  
 				WHERE exp_purchases.payment_status = "TXN_SUCCESS"  and exp_purchases_order.user_id="'.$id.'"';
 
-            $result['subscriptionsAndEvents'] = DB::connection('ft_privilege')->select( DB::raw($sql) );
-        }
+			$result['subscriptionsAndEvents'] = DB::connection('ft_privilege')->select( DB::raw($sql) );
+		}
 // 		$result->offerRedeemed->outlet();
-        return $this->sendResponse ( $result);
-    }
+		return $this->sendResponse ( $result);
+	}
 	
 
 	public function paytm(Request $request){
@@ -425,55 +420,82 @@ class UserController extends Controller {
 
 	}
 	
-	public function subscriptionOrder(Request $request) {
-		
+	public function subscriptionOrder(Request $request)
+	{
 		$arr =	$request->getRawPost();
-		
+
 		$type = SubscriptionType::where('id', '=',$arr->subscription_type_id)->first();
 		
-		if(!$type){
+		if (! $type) {
 			return $this->sendResponse ( 'ERROR! : Invalid / subscription type',  self::NOT_ACCEPTABLE, 'ERROR! : Invalid / subscription type');
 		}
 		$user = User::find($_SESSION['user_id']);
 
-		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))->where(array('user_id'=>$_SESSION['user_id'], 'subscription_type_id'=>$arr->subscription_type_id ))->first();
+		$subscription = Subscription::where('expiry', '>', DB::raw('now()'))
+			->where([
+				'user_id' => $_SESSION['user_id'],
+				'subscription_type_id' => $arr->subscription_type_id
+			])
+			->first();
 
-		if($subscription){
- 			return $this->sendResponse ( 'ERROR! : already subscribed',  self::NOT_ACCEPTABLE, 'ERROR! : similar subscription is already active!');
+		if ($subscription) {
+ 			return $this->sendResponse( 'ERROR! : already subscribed',  self::NOT_ACCEPTABLE, 'ERROR! : similar subscription is already active!');
+		}
+
+		$coupon = $this->getCoupon((array) 	$arr);
+
+        if ($coupon instanceof JsonResponse) {
+            return $coupon;
+        }
+        $amount = $type->price;
+        if ($coupon) {
+        	$amount = $type->price - $coupon->amount;
 		}
 
 		$result['MID'] = PAYTM_MERCHANT_MID;
 		$result['CUST_ID'] = $_SESSION['user_id'];
 		$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
-		$result['TXN_AMOUNT'] = $type->price;
+		$result['TXN_AMOUNT'] = $amount;
 		$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
-		
-		if(isset($arr->source) and 'web' == strtolower($arr->source)){
+
+		if (isset($arr->source) and 'web' == strtolower($arr->source)) {
 			$result['CHANNEL_ID'] = 'WEB';
 			$result['CALLBACK_URL'] = "http://api.foodtalk.in/paytm";
-		}else{
+		} else {
 			$result['CHANNEL_ID'] = 'WAP';
 			$result['CALLBACK_URL'] = PAYTM_CALLBACK_URL;
-// 			"http://api.foodtalk.in/paytm";
 		}
-
-// 		date("Ymd H:i:s").$result['CHANNEL_ID'].$_SESSION['user_id'].'-'.$arr->subscription_type_id.'-'.$type->price
 		$ORDER_ID = sha1($_SESSION['user_id'].'-'.microtime());
 		$result['ORDER_ID'] = $ORDER_ID;
 			
-		$paytm_order = PaytmOrder::firstOrCreate(['id'=>$ORDER_ID, 'subscription_type_id'=>$arr->subscription_type_id, 'user_id'=>$_SESSION['user_id'], 'channel'=>$result['CHANNEL_ID'], 'txn_amount' => $result['TXN_AMOUNT']]);
+		PaytmOrder::firstOrCreate([
+			'id' => $ORDER_ID,
+			'subscription_type_id' => $arr->subscription_type_id,
+			'user_id' => $_SESSION['user_id'],
+			'channel' => $result['CHANNEL_ID'],
+			'txn_amount' => $result['TXN_AMOUNT'],
+			'ori_amount' => $type->price,
+			'coupon_id' => $coupon ? $coupon->getKey() : null,
+			'coupon_amount' => $coupon ? $coupon->amount : 0,
+		]);
+
+        // when user apply coupon code for create order we decrement qty of coupon code
+        // for prevent multiple
+        if ($coupon) {
+            $coupon->decrement('qty');
+        }
 
 		require_once  __DIR__.'/../../../../public/encdec_paytm.php';
-// 		require '/var/www/html/lumen/app/public/encdec_paytm.php';
-		$result['CHECKSUMHASH']= getChecksumFromArray($result ,PAYTM_MERCHANT_KEY);
+
+		$result['CHECKSUMHASH'] = getChecksumFromArray($result ,PAYTM_MERCHANT_KEY);
 		
-		return $this->sendResponse ( $result );
+		return $this->sendResponse($result);
 	}
 	
-	public function subscribe(Request $request) {
-		
+	public function subscribe(Request $request)
+	{
 		$arr =	$request->getRawPost();
-		
+
 		$paytm_order = PaytmOrder::find( $arr->order_id );
 		
 		if(!$paytm_order){
@@ -513,9 +535,16 @@ class UserController extends Controller {
 				$PaytmOrderStatus->save();
 				
 			}else{
-				
+
 				$PaytmOrderStatus->save();
-				return $this->sendResponse ($txn_order , self::PAYMENT_REQUIRED, 'ERROR! : failed transaction');
+                if ($paytm_order->coupon_id) {
+                    // if transaction are failed and user applied coupon code
+                    // we increment qty of coupon code for another transaction use.
+                    $coupon = Coupon::find($paytm_order->coupon_id);
+                    $coupon->increment('qty');
+                }
+
+                return $this->sendResponse ($txn_order , self::PAYMENT_REQUIRED, 'ERROR! : failed transaction');
 			}
 		
 		}

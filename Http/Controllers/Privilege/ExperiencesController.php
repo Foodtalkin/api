@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Privilege;
 
+use App\Models\Privilege\Coupon;
 use DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpData;
@@ -13,8 +15,10 @@ use App\Models\Privilege\ExperiencesSeats;
 use App\Models\Privilege\Sendgrid;
 use App\Models\Privilege\ParsePush;
 use App\Models\Privilege\ExpRefund;
-class ExperiencesController extends Controller {
-	
+
+class ExperiencesController extends Controller
+{
+	use CouponTrait;
 	
 	public function testPush($user_id, $id = null){
 		
@@ -158,9 +162,14 @@ class ExperiencesController extends Controller {
 			else
 				return $this->sendResponse ( 'ERROR! : Sold Out!',  self::NOT_ACCEPTABLE, 'OOPS! Sold Out.');
 		}
-			
+
+        $coupon = $this->getCoupon($attributes);
+
+        if ($coupon instanceof JsonResponse) {
+            return $coupon;
+        }
 		
-		$txn = $exp->estimateCost($attributes['total_tickets']);
+		$txn = $exp->estimateCost($attributes['total_tickets'], $coupon);
 		
 		return $this->sendResponse ( $txn );
 	}
@@ -179,10 +188,16 @@ class ExperiencesController extends Controller {
 			else
 				return $this->sendResponse ( 'ERROR! : Sold Out!',  self::NOT_ACCEPTABLE, 'OOPS! Sold Out.');
 		}
+
+        $coupon = $this->getCoupon($attributes);
+
+        if ($coupon instanceof JsonResponse) {
+            return $coupon;
+        }
 		
-		$txn = $exp->estimateCost($attributes['total_tickets']);
+		$txn = $exp->estimateCost($attributes['total_tickets'], $coupon);
 		
-		if($exp){
+		if ($exp) {
 			$result['MID'] = PAYTM_MERCHANT_MID;
 			$result['CUST_ID'] = $_SESSION['user_id'];
 			$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
@@ -203,21 +218,29 @@ class ExperiencesController extends Controller {
 			
 			$ORDER_ID = sha1($_SESSION['user_id'].'-'.microtime());
 			$result['ORDER_ID'] = $ORDER_ID;
+
+			$purchasesData = array_merge([
+			    'id' => $ORDER_ID,
+                'exp_id' => $exp->id,
+                'user_id' => $_SESSION['user_id'],
+                'total_tickets' => array_get($attributes, 'total_tickets'),
+                'txn_amount' => $txn->amount,
+                'taxes' => $txn->taxes,
+                'convenience_fee' => $txn->convenience_fee,
+                'channel' => array_get($result, 'CHANNEL_ID'),
+                'coupon_id' => $txn->coupon_id,
+                'ori_amount' => $txn->ori_amount,
+                'coupon_amount' => $txn->coupon_amount,
+                'non_veg' => array_get($attributes, 'non_veg') ? array_get($attributes, 'non_veg') : 0
+            ]);
 			
-			$purchases_data['id']= $ORDER_ID;
-			$purchases_data['exp_id'] = $exp->id;
-			$purchases_data['user_id'] = $_SESSION['user_id'];
-			$purchases_data['total_tickets'] = $attributes['total_tickets'];
-			
-			if(isset($attributes['non_veg']))
-				$purchases_data['non_veg'] = $attributes['non_veg'];
-			
-			$purchases_data['txn_amount'] = $txn->amount;
-			$purchases_data['taxes'] = $txn->taxes;
-			$purchases_data['convenience_fee'] = $txn->convenience_fee;
-			$purchases_data['channel'] = $result['CHANNEL_ID'];
-			
-			$purchases_order = ExpPurchasesOrder ::create($purchases_data);
+			ExpPurchasesOrder::create($purchasesData);
+
+			// when user apply coupon code for create order we decrement qty of coupon code
+            // for prevent multiple
+			if ($coupon) {
+			    $coupon->decrement('qty');
+            }
 			
 			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
 			// 		require '/var/www/html/lumen/app/public/encdec_paytm.php';
@@ -228,7 +251,7 @@ class ExperiencesController extends Controller {
 // 			$blockArr['user_id'] = $_SESSION['user_id'];
 			$blockArr['exp_id'] = $exp->id;
 			$blockArr['order_id'] = $ORDER_ID;
-			$blockArr['blocked_seats'] = $purchases_data['total_tickets'];
+			$blockArr['blocked_seats'] = array_get($purchasesData, 'total_tickets');
 			
 			$blockSeats = ExperiencesSeats::updateOrCreate( ['user_id'=>$_SESSION['user_id']], $blockArr);
 			
@@ -266,8 +289,8 @@ class ExperiencesController extends Controller {
 			$exp_purchases->metadata = $paytm_txn_order;
 			$exp_purchases->save();
 			
-			if($txn_order->STATUS == 'TXN_SUCCESS'){
-				
+			if ($txn_order->STATUS == 'TXN_SUCCESS') {
+
 				$message = 'You booked '.$purchases_order->total_tickets.' ticket(s) for '.$purchases_order->experiences->title.'. Your TRN ID: '.$txn_order->TXNID;
 				self::msg91Sendsms( $purchases_order->user->phone, $message);
 				
@@ -295,9 +318,13 @@ class ExperiencesController extends Controller {
 				$pushData['data']['title'] = 'Booking Confirmation';
 				$pushData['data']['badge'] = 'Increment';
 				ParsePush::send($pushData);
-				
-			}
-			
+			} elseif ($exp_purchases->coupon_id) {
+			    // if transaction are failed and user applied coupon code
+                // we increment qty of coupon code for another transaction use.
+                $coupon = Coupon::find($exp_purchases->coupon_id);
+                $coupon->increment('qty');
+            }
+
 			$blockedSeats = ExperiencesSeats::where('order_id', $id)->first();
 			if($blockedSeats)
 				$blockedSeats->delete();
