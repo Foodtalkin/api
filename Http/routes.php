@@ -97,6 +97,7 @@ $app->get('/', function() use ($app) {
 		$app->get('cuisine', [ 'uses' =>'RestaurantController@cuisine']);
 
 		$app->post('validate-coupon', ['uses' => 'CouponController@validateCode']);
+        $app->get('all-coupons', ['uses' => 'CouponController@getAll']);
 
 		$app->get('profile', [ 
 // 				'middleware' => 'athuprivilage', 
