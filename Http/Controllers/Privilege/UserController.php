@@ -4,26 +4,26 @@ namespace App\Http\Controllers\Privilege;
 
 // use DB;
 
-use App\Models\Privilege\Coupon;
-use App\Models\Privilege\User;
-use App\Models\Privilege\Otp;
-use App\Models\Privilege\Session;
-use App\Models\Privilege\Subscription;
-use App\Models\Privilege\SubscriptionType;
-use DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
-use App\Models\Privilege\InstamojoRequest;
-use App\Models\Privilege\InstamojoPayment;
+use App\Models\Privilege\Coupon;
 use App\Models\Privilege\InstamojoLog;
-use App\Models\Privilege\UserEvent;
+use App\Models\Privilege\InstamojoPayment;
+use App\Models\Privilege\InstamojoRequest;
+use App\Models\Privilege\OfferRedeemed;
+use App\Models\Privilege\Otp;
 use App\Models\Privilege\Paytmlog;
 use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
-use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\PushNotification;
+use App\Models\Privilege\Session;
+use App\Models\Privilege\Subscription;
+use App\Models\Privilege\SubscriptionType;
+use App\Models\Privilege\User;
+use App\Models\Privilege\UserEvent;
+use DB;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -449,7 +449,7 @@ class UserController extends Controller
         }
         $amount = $type->price;
         if ($coupon) {
-        	$amount = $type->price - $coupon->amount;
+        	$amount = ($type->price - $coupon->amount) < 1 ? 0 : $type->price - $coupon->amount ;
 		}
 
 		$result['MID'] = PAYTM_MERCHANT_MID;
@@ -502,9 +502,37 @@ class UserController extends Controller
 			return $this->sendResponse ( 'ERROR! : Invalid order_id',  self::NO_ENTITY, 'ERROR! : Invalid order_id');
 		}
 		
-		$PaytmOrderStatus = PaytmOrderStatus::where('paytm_order_id', '=', $arr->order_id)->first();
+		$paytmOrderStatus = PaytmOrderStatus::where('paytm_order_id', '=', $arr->order_id)->first();
 
-		if(!$PaytmOrderStatus or $PaytmOrderStatus->payment_status!='TXN_SUCCESS'){
+		// when user apply coupon and no txn amount we create event booking directly
+		if ($paytm_order->txn_amount == 0 && ! $paytmOrderStatus) {
+            $txnId = date('Ymdhis').rand(100000, 999999);
+
+            $subType = SubscriptionType::find($paytm_order->subscription_type_id);
+
+            $newDate = Date('y-m-d 23:59:59', strtotime("+".$subType->expiry_in_days - 1 ." days"));
+            $subscription = Subscription::create([
+                'user_id' => $paytm_order->user_id,
+            	'subscription_type_id' => $paytm_order->subscription_type_id,
+            	'city_id' => $subType->city_id,
+            	'expiry' => $newDate,
+			]);
+
+            PaytmOrderStatus::create([
+                'paytm_order_id' => $arr->order_id,
+                'payment_status' => 'TXN_SUCCESS',
+                'txn_id' => $txnId,
+                'metadata' => null,
+				'subscription_id' => $subscription->getKey(),
+            ]);
+
+            $result['amount'] = $paytm_order->txn_amount;
+            $result['subscription'][] = $subscription;
+
+            return $this->sendResponse ( $result );
+		}
+
+		if(!$paytmOrderStatus or $paytmOrderStatus->payment_status!='TXN_SUCCESS'){
 		
 			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
 			$queryParam=array();
@@ -515,11 +543,11 @@ class UserController extends Controller
 			$paytm_txn_order = file_get_contents(PAYTM_STATUS_QUERY_NEW_URL.'?JsonData='.urlencode(json_encode($queryParam)));
 			
 			$txn_order = json_decode($paytm_txn_order);
-			
-			$PaytmOrderStatus = PaytmOrderStatus::firstOrCreate(['paytm_order_id' =>$arr->order_id]);
-			$PaytmOrderStatus->payment_status = $txn_order->STATUS;
-			$PaytmOrderStatus->txn_id = $txn_order->TXNID;
-			$PaytmOrderStatus->metadata = $paytm_txn_order;
+
+            $paytmOrderStatus = PaytmOrderStatus::firstOrCreate(['paytm_order_id' =>$arr->order_id]);
+            $paytmOrderStatus->payment_status = $txn_order->STATUS;
+            $paytmOrderStatus->txn_id = $txn_order->TXNID;
+            $paytmOrderStatus->metadata = $paytm_txn_order;
 			
 			if($txn_order->STATUS =='TXN_SUCCESS' and $txn_order->RESPCODE == '01'){
 				
@@ -530,13 +558,13 @@ class UserController extends Controller
 				$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
 				$subscription->expiry = $NewDate;
 				$subscription->save();
-				
-				$PaytmOrderStatus->subscription_id = $subscription->id;
+
+                $paytmOrderStatus->subscription_id = $subscription->id;
 				$PaytmOrderStatus->save();
 				
 			}else{
 
-				$PaytmOrderStatus->save();
+                $paytmOrderStatus->save();
                 if ($paytm_order->coupon_id) {
                     // if transaction are failed and user applied coupon code
                     // we increment qty of coupon code for another transaction use.
@@ -549,7 +577,7 @@ class UserController extends Controller
 		
 		}
 		
-		$subscription= Subscription::find($PaytmOrderStatus->subscription_id);
+		$subscription= Subscription::find($paytmOrderStatus->subscription_id);
 		
 		$result['amount'] = $paytm_order->txn_amount;
 		$result['subscription'][] = $subscription;

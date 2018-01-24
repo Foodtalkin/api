@@ -266,10 +266,25 @@ class ExperiencesController extends Controller
 		if(!$purchases_order){
 			return $this->sendResponse ( 'ERROR! : Invalid order_id',  self::NO_ENTITY, 'ERROR! : Invalid order_id');
 		}
-		
-		$exp_purchases = ExpPurchases::where('order_id', '=', $id)->first();
-		
-		if(!$exp_purchases or $exp_purchases->payment_status!='TXN_SUCCESS'){
+        $exp_purchases = ExpPurchases::where('order_id', '=', $id)->first();
+
+		// when user apply coupon and no txn amount we create event booking directly
+		if ($purchases_order->txn_amount == 0 && ! $exp_purchases) {
+		    $txnId = date('Ymdhis').rand(100000, 999999);
+            $exp_purchases = ExpPurchases::create([
+                'order_id' => $id,
+                'user_id' => $purchases_order->user_id,
+                'exp_id' => $purchases_order->exp_id,
+                'payment_status' => 'TXN_SUCCESS',
+                'txn_id' => $txnId,
+                'metadata' => null
+            ]);
+            $this->eventPurchaseSuccess($purchases_order, $txnId);
+
+            return $this->sendResponse($exp_purchases);
+        }
+
+		if (! $exp_purchases or $exp_purchases->payment_status!='TXN_SUCCESS') {
 			
 			require_once  __DIR__.'/../../../../public/encdec_paytm.php';
 			$queryParam=array();
@@ -291,33 +306,7 @@ class ExperiencesController extends Controller
 			
 			if ($txn_order->STATUS == 'TXN_SUCCESS') {
 
-				$message = 'You booked '.$purchases_order->total_tickets.' ticket(s) for '.$purchases_order->experiences->title.'. Your TRN ID: '.$txn_order->TXNID;
-				self::msg91Sendsms( $purchases_order->user->phone, $message);
-				
-				$option['title'] = $purchases_order->experiences->title;
-				$option['address'] = $purchases_order->experiences->address;
-				
-				if(date("m.d.y",strtotime($purchases_order->experiences->start_time) ) == date("m.d.y", strtotime($purchases_order->experiences->end_time) ))
-					$option['exp_date'] =  date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("g:i a", strtotime($purchases_order->experiences->end_time) );
-				else
-					$option['exp_date'] =  date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("jS F Y, g:i a", strtotime($purchases_order->experiences->end_time) );
-				
-				$option['total_tickets'] = $purchases_order->total_tickets;
-				$option['txn_id'] = $txn_order->TXNID;
-				
-				$option['start_date'] = date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) );
-				
-				$body = Sendgrid::expPurchase_tpl($option);
-				
-				Sendgrid::sendMail($purchases_order->user->email, 'Booking Confirmation', $body);
-				
-// 				{"where":{"userId":"248"},"data":{"alert":"Your 7 day free trial has started! Where is your first meal going to be?","badge":"Increment"} }
-				
-				$pushData['where']['userId'] =  $purchases_order->user_id;
-				$pushData['data']['alert'] = $message;
-				$pushData['data']['title'] = 'Booking Confirmation';
-				$pushData['data']['badge'] = 'Increment';
-				ParsePush::send($pushData);
+				$this->eventPurchaseSuccess($purchases_order, $txn_order->TXNID);
 			} elseif ($exp_purchases->coupon_id) {
 			    // if transaction are failed and user applied coupon code
                 // we increment qty of coupon code for another transaction use.
@@ -332,6 +321,40 @@ class ExperiencesController extends Controller
 		}
 		return $this->sendResponse ( $exp_purchases );
 	}
+
+    /**
+     * @param ExpPurchasesOrder $purchases_order
+     * @param $txtId
+     */
+	protected function eventPurchaseSuccess(ExpPurchasesOrder $purchases_order, $txtId)
+    {
+        $message = 'You booked '.$purchases_order->total_tickets.' ticket(s) for '.$purchases_order->experiences->title.'. Your TRN ID: '.$txtId;
+        self::msg91Sendsms( $purchases_order->user->phone, $message);
+
+        $option['title'] = $purchases_order->experiences->title;
+        $option['address'] = $purchases_order->experiences->address;
+
+        if (date("m.d.y",strtotime($purchases_order->experiences->start_time) ) == date("m.d.y", strtotime($purchases_order->experiences->end_time) )) {
+            $option['exp_date'] = date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time)).' - '.date("g:i a", strtotime($purchases_order->experiences->end_time));
+        } else {
+            $option['exp_date'] =  date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) ).' - '.date("jS F Y, g:i a", strtotime($purchases_order->experiences->end_time) );
+        }
+
+        $option['total_tickets'] = $purchases_order->total_tickets;
+        $option['txn_id'] = $txtId;
+
+        $option['start_date'] = date("jS F Y, g:i a", strtotime($purchases_order->experiences->start_time) );
+
+        $body = Sendgrid::expPurchase_tpl($option);
+
+        Sendgrid::sendMail($purchases_order->user->email, 'Booking Confirmation', $body);
+
+        $pushData['where']['userId'] =  $purchases_order->user_id;
+        $pushData['data']['alert'] = $message;
+        $pushData['data']['title'] = 'Booking Confirmation';
+        $pushData['data']['badge'] = 'Increment';
+        ParsePush::send($pushData);
+    }
 	
 	public function review(Request $request, $id) {
 		

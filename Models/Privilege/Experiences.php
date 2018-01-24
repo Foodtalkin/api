@@ -51,8 +51,9 @@ class Experiences extends BaseModel
         $result->ori_amount = $result->cost + $result->convenience_fee + $result->taxes;
         $result->coupon_amount = $coupon ? $coupon->amount : 0;
 		if ($coupon) {
+		    $amount = ($result->cost + $result->convenience_fee + $result->taxes) - $coupon->amount;
 		    $result->coupon_id = $coupon->getKey();
-            $result->amount = ($result->cost + $result->convenience_fee + $result->taxes) - $coupon->amount;
+            $result->amount = $amount < 1 ? 0 : $amount;
         } else {
             $result->amount = $result->cost + $result->convenience_fee + $result->taxes;
             $result->coupon_id = null;
