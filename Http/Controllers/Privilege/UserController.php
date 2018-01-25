@@ -477,12 +477,18 @@ class UserController extends Controller
         if ($coupon instanceof JsonResponse) {
             return $coupon;
         }
-        $estimation = $coupon->estimateSubscription($type);
+        $amount = $type->price;
+        $estimation = null;
+        if ($coupon) {
+            $estimation = $coupon->estimateSubscription($type);
+            $amount = $estimation->txt_amount;
+		}
+
 
 		$result['MID'] = PAYTM_MERCHANT_MID;
 		$result['CUST_ID'] = $_SESSION['user_id'];
 		$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
-		$result['TXN_AMOUNT'] = $estimation->txt_amount;
+		$result['TXN_AMOUNT'] = $amount;
 		$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
 
 		if (isset($arr->source) and 'web' == strtolower($arr->source)) {
@@ -494,7 +500,7 @@ class UserController extends Controller
 		}
 		$ORDER_ID = sha1($_SESSION['user_id'].'-'.microtime());
 		$result['ORDER_ID'] = $ORDER_ID;
-			
+
 		PaytmOrder::firstOrCreate([
 			'id' => $ORDER_ID,
 			'subscription_type_id' => $arr->subscription_type_id,
@@ -503,7 +509,7 @@ class UserController extends Controller
 			'txn_amount' => $result['TXN_AMOUNT'],
 			'ori_amount' => $type->price,
 			'coupon_id' => $coupon ? $coupon->getKey() : null,
-			'coupon_amount' => $coupon ? $coupon->amount : 0,
+			'coupon_amount' => $coupon ? $estimation->coupon_amount : 0,
 		]);
 
         // when user apply coupon code for create order we decrement qty of coupon code

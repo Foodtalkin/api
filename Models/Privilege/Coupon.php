@@ -23,6 +23,7 @@ class Coupon extends BaseModel
         $couponAmt = floor(($type->price * $this->discount) / 100);
 
         return (object) array_merge($this->toArray(), [
+            'coupon_amount' => $couponAmt,
             'txt_amount' => $type->price - $couponAmt
         ]);
     }
