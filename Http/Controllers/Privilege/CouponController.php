@@ -27,7 +27,8 @@ class CouponController extends Controller
     {
         $this->validate($request, [
             'code' => 'required|string|unique:ft_privilege.coupons,code',
-            'amount' => 'required|integer',
+            'discount' => 'required|integer',
+            'duration' => 'required|integer',
             'qty' => 'required|integer',
             'created_by' => 'required|integer',
             'expire_at' => 'required|date',
@@ -35,7 +36,8 @@ class CouponController extends Controller
 
         $coupon = Coupon::create([
             'code' => $request->get('code'),
-            'amount' => $request->get('amount'),
+            'discount' => $request->get('discount'),
+            'duration' => $request->get('duration'),
             'qty' => $request->get('qty'),
             'created_by' => $request->get('created_by'),
             'expire_at' => date('Y-m-d', strtotime($request->get('expire_at'))),
@@ -53,7 +55,8 @@ class CouponController extends Controller
     {
         $this->validate($request, [
             'code' => 'required|string|unique:ft_privilege.coupons,code,'.$id,
-            'amount' => 'required|integer',
+            'discount' => 'required|integer',
+            'duration' => 'required|integer',
             'qty' => 'required|integer',
             'created_by' => 'required|integer',
             'expire_at' => 'required|date',
@@ -62,7 +65,8 @@ class CouponController extends Controller
         $coupon = Coupon::findOrFail($id);
         $coupon->update([
             'code' => $request->get('code'),
-            'amount' => $request->get('amount'),
+            'discount' => $request->get('discount'),
+            'duration' => $request->get('duration'),
             'qty' => $request->get('qty'),
             'created_by' => $request->get('created_by'),
             'expire_at' => date('Y-m-d', strtotime($request->get('expire_at'))),
@@ -101,7 +105,6 @@ class CouponController extends Controller
             ->where('qty', '>', 0)
             ->where('is_active', true)
             ->where('is_disabled', false)
-            ->where('qty', '>', 0)
             ->where('expire_at', '>=', Carbon::now()->format('Y-m-d'))
             ->first();
 

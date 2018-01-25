@@ -14,7 +14,6 @@ trait CouponTrait
                 ->where('qty', '>', 0)
                 ->where('is_active', true)
                 ->where('is_disabled', false)
-                ->where('qty', '>', 0)
                 ->where('expire_at', '>=', Carbon::now()->format('Y-m-d'))
                 ->first();
 

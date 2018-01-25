@@ -20,6 +20,7 @@ use App\Models\Privilege\Subscription;
 use App\Models\Privilege\SubscriptionType;
 use App\Models\Privilege\User;
 use App\Models\Privilege\UserEvent;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -419,7 +420,36 @@ class UserController extends Controller
 		return $this->sendResponse ( $result );
 
 	}
-	
+
+    /**
+     * @param Request $request
+     * @return null|\Symfony\Component\HttpFoundation\Response
+     */
+	public function estimationSubscription(Request $request)
+	{
+		$this->validate($request, [
+			'coupon_code' => 'required|string',
+			'subscription_type_id' => 'required|integer'
+		]);
+        $coupon = $this->getCoupon($request->all());
+
+        if ($coupon instanceof JsonResponse) {
+            return $coupon;
+        }
+        $type = SubscriptionType::where('id', $request->get('subscription_type_id'))
+			->first();
+
+        if (! $type) {
+            return $this->sendResponse ( 'ERROR! : Invalid / subscription type',  self::NOT_ACCEPTABLE, 'ERROR! : Invalid / subscription type');
+        }
+
+        return $this->sendResponse($coupon->estimateSubscription($type));
+	}
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
 	public function subscriptionOrder(Request $request)
 	{
 		$arr =	$request->getRawPost();
@@ -447,15 +477,12 @@ class UserController extends Controller
         if ($coupon instanceof JsonResponse) {
             return $coupon;
         }
-        $amount = $type->price;
-        if ($coupon) {
-        	$amount = ($type->price - $coupon->amount) < 1 ? 0 : $type->price - $coupon->amount ;
-		}
+        $estimation = $coupon->estimateSubscription($type);
 
 		$result['MID'] = PAYTM_MERCHANT_MID;
 		$result['CUST_ID'] = $_SESSION['user_id'];
 		$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
-		$result['TXN_AMOUNT'] = $amount;
+		$result['TXN_AMOUNT'] = $estimation->txt_amount;
 		$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
 
 		if (isset($arr->source) and 'web' == strtolower($arr->source)) {
@@ -504,13 +531,25 @@ class UserController extends Controller
 		
 		$paytmOrderStatus = PaytmOrderStatus::where('paytm_order_id', '=', $arr->order_id)->first();
 
+		$coupon = null;
+		if ($paytm_order->coupon_id) {
+            $coupon = Coupon::find($paytm_order->coupon_id);
+        }
+
 		// when user apply coupon and no txn amount we create event booking directly
 		if ($paytm_order->txn_amount == 0 && ! $paytmOrderStatus) {
             $txnId = date('Ymdhis').rand(100000, 999999);
 
             $subType = SubscriptionType::find($paytm_order->subscription_type_id);
 
-            $newDate = Date('y-m-d 23:59:59', strtotime("+".$subType->expiry_in_days - 1 ." days"));
+            $newDate = Carbon::now()->addYear(1)->subDay(1)
+				->format('Y-m-d 23:59:59');
+            if ($coupon) {
+            	$newDate = Carbon::now()->addMonth($coupon->duration)
+					->subDay(1)
+					->format('Y-m-d 23:59:59');
+			}
+
             $subscription = Subscription::create([
                 'user_id' => $paytm_order->user_id,
             	'subscription_type_id' => $paytm_order->subscription_type_id,
@@ -555,12 +594,18 @@ class UserController extends Controller
 				$subscription->user_id = $paytm_order->user_id;
 				$subscription->subscription_type_id = $paytm_order->subscription_type_id;
 				$subscription->city_id = $subscription->subscriptionType->city_id;
-				$NewDate = Date('y-m-d 23:59:59', strtotime("+".$subscription->subscriptionType->expiry_in_days - 1 ." days"));
-				$subscription->expiry = $NewDate;
+                $newDate = Carbon::now()->addYear(1)->subDay(1)
+                    ->format('Y-m-d 23:59:59');
+                if ($coupon) {
+                    $newDate = Carbon::now()->addMonth($coupon->duration)
+                        ->subDay(1)
+                        ->format('Y-m-d 23:59:59');
+                }
+				$subscription->expiry = $newDate;
 				$subscription->save();
 
                 $paytmOrderStatus->subscription_id = $subscription->id;
-				$PaytmOrderStatus->save();
+                $paytmOrderStatus->save();
 				
 			}else{
 
@@ -568,7 +613,6 @@ class UserController extends Controller
                 if ($paytm_order->coupon_id) {
                     // if transaction are failed and user applied coupon code
                     // we increment qty of coupon code for another transaction use.
-                    $coupon = Coupon::find($paytm_order->coupon_id);
                     $coupon->increment('qty');
                 }
 
