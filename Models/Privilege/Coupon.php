@@ -12,7 +12,7 @@ class Coupon extends BaseModel
     /**
      * @var array
      */
-	protected $fillable = ['code', 'discount', 'duration', 'qty', 'created_by', 'expire_at', 'is_active', 'is_disabled'];
+	protected $fillable = ['code', 'description', 'discount', 'duration', 'qty', 'created_by', 'expire_at', 'is_active', 'is_disabled'];
 
     /**
      * @param SubscriptionType $type

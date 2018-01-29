@@ -27,6 +27,7 @@ class CouponController extends Controller
     {
         $this->validate($request, [
             'code' => 'required|string|unique:ft_privilege.coupons,code',
+            'description' => 'required|string',
             'discount' => 'required|integer',
             'duration' => 'required|integer',
             'qty' => 'required|integer',
@@ -36,6 +37,7 @@ class CouponController extends Controller
 
         $coupon = Coupon::create([
             'code' => $request->get('code'),
+            'description' => $request->get('description'),
             'discount' => $request->get('discount'),
             'duration' => $request->get('duration'),
             'qty' => $request->get('qty'),
@@ -55,6 +57,7 @@ class CouponController extends Controller
     {
         $this->validate($request, [
             'code' => 'required|string|unique:ft_privilege.coupons,code,'.$id,
+            'description' => 'required|string',
             'discount' => 'required|integer',
             'duration' => 'required|integer',
             'qty' => 'required|integer',
@@ -65,6 +68,7 @@ class CouponController extends Controller
         $coupon = Coupon::findOrFail($id);
         $coupon->update([
             'code' => $request->get('code'),
+            'description' => $request->get('description'),
             'discount' => $request->get('discount'),
             'duration' => $request->get('duration'),
             'qty' => $request->get('qty'),
