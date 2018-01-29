@@ -17,32 +17,31 @@ class CouponController extends Controller
         $coupons = Coupon::paginate(Coupon::PAGE_SIZE);
 
         return $this->sendResponse($coupons);
-	}
+    }
 
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-	public function create(Request $request)
+    public function create(Request $request)
     {
+        $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $this->validate($request, [
             'code' => 'required|string|unique:ft_privilege.coupons,code',
             'description' => 'required|string',
             'discount' => 'required|integer',
             'duration' => 'required|integer',
             'qty' => 'required|integer',
-            'created_by' => 'required|integer',
             'expire_at' => 'required|date',
         ]);
 
         $coupon = Coupon::create([
-            'code' => $request->get('code'),
-            'description' => $request->get('description'),
-            'discount' => $request->get('discount'),
-            'duration' => $request->get('duration'),
-            'qty' => $request->get('qty'),
-            'created_by' => $request->get('created_by'),
-            'expire_at' => date('Y-m-d', strtotime($request->get('expire_at'))),
+            'code' => $request->code,
+            'description' => $request->description,
+            'discount' => $request->discount,
+            'duration' => $request->duration,
+            'qty' => $request->qty,
+            'expire_at' => Carbon::parse($request->expire_at)->format('Y-m-d'),
         ]);
 
         return $this->sendResponse($coupon);
@@ -55,6 +54,7 @@ class CouponController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $this->validate($request, [
             'code' => 'required|string|unique:ft_privilege.coupons,code,'.$id,
             'description' => 'required|string',
@@ -113,7 +113,11 @@ class CouponController extends Controller
             ->first();
 
         if ($coupon) {
-            return $this->sendResponse($coupon);
+            // @todo type must be dynamic
+            $type = SubscriptionType::where('id', '=',1)->first();
+            $estimation = $coupon->estimateSubscription($type);
+
+            return $this->sendResponse($estimation);
         }
 
         return $this->sendResponse(null, self::NOT_ACCEPTABLE, 'Coupon code not found or expire');
