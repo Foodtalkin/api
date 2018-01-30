@@ -488,7 +488,7 @@ class UserController extends Controller
 		$result['MID'] = PAYTM_MERCHANT_MID;
 		$result['CUST_ID'] = $_SESSION['user_id'];
 		$result['INDUSTRY_TYPE_ID'] = PAYTM_INDUSTRY_TYPE_ID;
-		$result['TXN_AMOUNT'] = $amount;
+        $result['TXN_AMOUNT'] = (string) $amount;
 		$result['WEBSITE'] = PAYTM_MERCHANT_WEBSITE;
 
 		if (isset($arr->source) and 'web' == strtolower($arr->source)) {
