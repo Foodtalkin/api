@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Privilege;
 
 use App\Http\Controllers\Controller;
 use App\Models\Privilege\Coupon;
-use App\Models\Privilege\SubscriptionType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -18,13 +17,24 @@ class CouponController extends Controller
         $coupons = Coupon::paginate(Coupon::PAGE_SIZE);
 
         return $this->sendResponse($coupons);
+	}
+
+    /**
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+	public function show($id)
+    {
+        $result = Coupon::find($id);
+
+        return $this->sendResponse ( $result);
     }
 
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function create(Request $request)
+	public function create(Request $request)
     {
         $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $this->validate($request, [
@@ -62,19 +72,17 @@ class CouponController extends Controller
             'discount' => 'required|integer',
             'duration' => 'required|integer',
             'qty' => 'required|integer',
-            'created_by' => 'required|integer',
             'expire_at' => 'required|date',
         ]);
 
         $coupon = Coupon::findOrFail($id);
         $coupon->update([
-            'code' => $request->get('code'),
-            'description' => $request->get('description'),
-            'discount' => $request->get('discount'),
-            'duration' => $request->get('duration'),
-            'qty' => $request->get('qty'),
-            'created_by' => $request->get('created_by'),
-            'expire_at' => date('Y-m-d', strtotime($request->get('expire_at'))),
+            'code' => $request->code,
+            'description' => $request->description,
+            'discount' => $request->discount,
+            'duration' => $request->duration,
+            'qty' => $request->qty,
+            'expire_at' => Carbon::parse($request->expire_at)->format('Y-m-d'),
         ]);
 
         return $this->sendResponse($coupon);

@@ -232,6 +232,7 @@ $app->get('/', function() use ($app) {
 		$app->delete('outlet-offer/{id}', [ 'uses' =>'OutletOfferController@disable']);
 
         $app->get('coupons', ['uses' => 'CouponController@getAll']);
+        $app->get('coupons/{id}', ['uses' => 'CouponController@show']);
         $app->post('coupons', ['uses' => 'CouponController@create']);
         $app->put('coupons/{id}', ['uses' => 'CouponController@update']);
         $app->delete('coupons/{id}', [ 'uses' =>'CouponController@delete']);

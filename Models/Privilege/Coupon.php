@@ -1,6 +1,7 @@
 <?php namespace App\Models\Privilege;
   
 use App\Models\Privilege\Base\BaseModel;
+use Carbon\Carbon;
 
 class Coupon extends BaseModel
 {
@@ -13,6 +14,15 @@ class Coupon extends BaseModel
      * @var array
      */
 	protected $fillable = ['code', 'description', 'discount', 'duration', 'qty', 'created_by', 'expire_at', 'is_active', 'is_disabled'];
+
+    /**
+     * @return string
+     */
+	public function getExpireAtAttribute()
+    {
+        return $this->attributes['expire_at'] ?
+            Carbon::parse($this->attributes['expire_at'])->format('Y-m-d') : '';
+    }
 
     /**
      * @param SubscriptionType $type
