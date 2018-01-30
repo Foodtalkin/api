@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Privilege;
 
 use App\Http\Controllers\Controller;
 use App\Models\Privilege\Coupon;
+use App\Models\Privilege\SubscriptionType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
