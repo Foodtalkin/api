@@ -18,7 +18,7 @@ trait CouponTrait
                 ->first();
 
             if (! $coupon) {
-                return $this->sendResponse( 'ERROR! : Coupon Code invalid!',  self::NOT_ACCEPTABLE, 'OOPS! Coupon code invalid.');
+                return $this->sendResponse( 'ERROR! : Coupon code is invalid or expired!',  self::NOT_ACCEPTABLE, 'OOPS! Coupon code is invalid or expired.');
             }
         }
 

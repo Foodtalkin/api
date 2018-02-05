@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Privilege;
 
 use App\Http\Controllers\Controller;
 use App\Models\Privilege\Coupon;
-use App\Models\Privilege\SubscriptionType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -130,6 +129,6 @@ class CouponController extends Controller
             return $this->sendResponse($estimation);
         }
 
-        return $this->sendResponse(null, self::NOT_ACCEPTABLE, 'Coupon code not found or expire');
+        return $this->sendResponse(null, self::NOT_ACCEPTABLE, 'Coupon code is invalid or expired');
     }
 }
