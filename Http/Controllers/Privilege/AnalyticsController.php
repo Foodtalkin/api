@@ -462,5 +462,26 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			'data' => $events
 		]);
 	}
+
+	public function valuableUsers()
+	{
+		$users = User::selectRaw('SUM(subscription_type.price)+IFNULL(SUM(exp_purchases_order.txn_amount), 0) as total, user.id as user_id, user.name')
+			->leftJoin('subscription', 'subscription.user_id', '=', 'user.id')
+			->leftJoin('subscription_type', 'subscription_type.id', '=', 'subscription.subscription_type_id')
+			->leftJoin('exp_purchases_order', 'exp_purchases_order.user_id', '=', 'user.id')
+			->leftJoin('exp_purchases', function ($join) {
+				$join->on('exp_purchases.order_id', '=', 'exp_purchases_order.id')
+					->where('exp_purchases.payment_status', '=', 'TXN_SUCCESS');
+			})
+			->groupBy('user.id')
+			->orderBy('total', 'DESC')
+			->take(10)
+			->get();
+
+		return response()->json([
+			'success' => true,
+			'data' => $users
+		]);
+	}
 }
 ?>
