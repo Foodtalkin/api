@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Privilege;
 use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpPurchasesOrder;
 use App\Models\Privilege\PaytmOrder;
+use App\Models\Privilege\PaytmOrderStatus;
 use App\Models\Privilege\Subscription;
 use DB;
 use App\Http\Controllers\Controller;
