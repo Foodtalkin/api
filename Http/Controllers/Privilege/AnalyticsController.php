@@ -182,7 +182,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
     {
         $query = PaytmOrderStatus::select('user.id', 'user.name', 'user.phone', 'user.email', 'gender', DB::raw('IF(expiry is null ,"unpaid", "paid") as status'), DB::raw('IF(coupons.code is null, "NULL", coupons.code) as coupon'), 'subscription.created_at as purchased_on')
             ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
-            ->leftJoin('coupons', 'coupons.id', '=', 'coupon_id')
+            ->leftJoin('coupons', 'coupons.id', '=', 'paytm_order.coupon_id')
             ->join('user', 'user.id', '=', 'paytm_order.user_id')
             ->join('subscription', 'user.id', '=','subscription.user_id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
