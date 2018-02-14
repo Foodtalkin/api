@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Privilege;
 
 use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpPurchasesOrder;
+use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\Subscription;
 use DB;
 use App\Http\Controllers\Controller;
@@ -481,6 +482,31 @@ ORDER BY `count`  DESC LIMIT '.$top));
 		return response()->json([
 			'success' => true,
 			'data' => $users
+		]);
+	}
+
+	public function onboardedUsersCount()
+	{
+		$usersWithoutCode = PaytmOrder::select('paytm_order.user_id', 'paytm_order.subscription_type_id')
+			->join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
+			->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+			->where('paytm_order.coupon_id', null)
+			->groupBy('paytm_order.user_id')
+			->orderBy('paytm_order.created_at', 'DESC')
+			->get();
+
+		$usersWithCode = PaytmOrder::select('paytm_order.user_id', 'paytm_order.subscription_type_id')
+			->join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
+			->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+			->where('paytm_order.coupon_id', '!=', '')
+			->groupBy('paytm_order.user_id')
+			->orderBy('paytm_order.created_at', 'DESC')
+			->get();
+
+		return response()->json([
+			'success' => true,
+			'without_coupon_code' => count($usersWithoutCode),
+			'with_coupon_code' => count($usersWithCode)
 		]);
 	}
 }

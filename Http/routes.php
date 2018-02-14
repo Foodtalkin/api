@@ -188,6 +188,7 @@ $app->get('/', function() use ($app) {
 
 		$app->get('analytics/sales-revenue', [ 'uses' =>'AnalyticsController@salesRevenue']);
 		$app->get('analytics/valuable-users', [ 'uses' =>'AnalyticsController@valuableUsers']);
+		$app->get('analytics/onboarded-users-count', [ 'uses' =>'AnalyticsController@onboardedUsersCount']);
 
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
 		$app->get('log/{entity}','DBLogController@get');
