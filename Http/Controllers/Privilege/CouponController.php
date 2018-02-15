@@ -18,24 +18,32 @@ class CouponController extends Controller
         $coupons = Coupon::paginate(Coupon::PAGE_SIZE);
 
         return $this->sendResponse($coupons);
-	}
+    }
 
     /**
      * @param $id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-	public function show($id)
+    public function show($id)
     {
         $result = Coupon::find($id);
 
-        return $this->sendResponse ( $result);
+        $result['users'] = Coupon::select('user.name', 'user.phone', 'paytm_order_status.created_at')
+            ->join('paytm_order', 'coupons.id', '=', 'paytm_order.coupon_id')
+            ->join('paytm_order_status', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
+            ->join('user', 'paytm_order.user_id', '=', 'user.id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('coupons.id', $id)
+            ->get();
+
+        return $this->sendResponse($result);
     }
 
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-	public function create(Request $request)
+    public function create(Request $request)
     {
         $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $this->validate($request, [
