@@ -259,7 +259,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             }
         }
 
-        $subscriptions = PaytmOrderStatus::selectRaw('DATE(paytm_order_status.created_at) as date', 'SUM(paytm_order.txn_amount) as sales')
+        $subscriptions = PaytmOrderStatus::selectRaw('DATE(paytm_order_status.created_at) as date, SUM(paytm_order.txn_amount) as sales')
             ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
             ->where('paytm_order_status.created_at', '>=', $firstDate)
@@ -342,7 +342,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             }
         }
 
-        $subscriptions = PaytmOrderStatus::selectRaw('SUM(paytm_order.txn_amount) as total', paytm_order_status.created_at, 'WEEKOFYEAR(paytm_order_status.created_at) as week')
+        $subscriptions = PaytmOrderStatus::selectRaw('SUM(paytm_order.txn_amount) as total, paytm_order_status.created_at, WEEKOFYEAR(paytm_order_status.created_at) as week')
             ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
             ->where('paytm_order_status.created_at', '>=', $startDate)
@@ -429,7 +429,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             }
         }
 
-        $subscriptions = PaytmOrderStatus::selectRaw('SUM(paytm_order.txn_amount) as total', paytm_order_status.created_at, 'MONTH(paytm_order_status.created_at) as month')
+        $subscriptions = PaytmOrderStatus::selectRaw('SUM(paytm_order.txn_amount) as total, paytm_order_status.created_at, MONTH(paytm_order_status.created_at) as month')
             ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
             ->where('paytm_order_status.created_at', '>=', $startDate)
