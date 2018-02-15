@@ -259,7 +259,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             }
         }
 
-        $subscriptions = PaytmOrderStatus::select(DB::raw('DATE(paytm_order_status.created_at) as date'), DB::raw('SUM(paytm_order.txn_amount) as sales'))
+        $subscriptions = PaytmOrderStatus::selectRaw('DATE(paytm_order_status.created_at) as date', 'SUM(paytm_order.txn_amount) as sales')
             ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
             ->where('paytm_order_status.created_at', '>=', $firstDate)
@@ -341,14 +341,24 @@ ORDER BY `count`  DESC LIMIT '.$top));
                 $endDate = $date->endOfWeek()->toDateString() . ' 23:59:59';
             }
         }
-        $subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, WEEKOFYEAR(subscription.created_at) as week')
-            ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
-            ->where('subscription.created_at', '>=', $startDate)
-            ->where('subscription.created_at', '<=', $endDate)
-            ->where('subscription.subscription_type_id', '=', 1)
+
+        $subscriptions = PaytmOrderStatus::selectRaw('SUM(paytm_order.txn_amount) as total', paytm_order_status.created_at, 'WEEKOFYEAR(paytm_order_status.created_at) as week')
+            ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('paytm_order_status.created_at', '>=', $startDate)
+            ->where('paytm_order_status.created_at', '<=', $endDate)
             ->groupBy('week')
             ->take(4)
             ->get();
+
+        /**$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, WEEKOFYEAR(subscription.created_at) as week')
+        ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
+        ->where('subscription.created_at', '>=', $startDate)
+        ->where('subscription.created_at', '<=', $endDate)
+        ->where('subscription.subscription_type_id', '=', 1)
+        ->groupBy('week')
+        ->take(4)
+        ->get();*/
 
         $subscriptions->each(function ($subscription) use (&$dates) {
             $key = array_search($subscription->week, array_column($dates, 'week'));
@@ -419,14 +429,23 @@ ORDER BY `count`  DESC LIMIT '.$top));
             }
         }
 
-        $subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, MONTH(subscription.created_at) as month')
+        $subscriptions = PaytmOrderStatus::selectRaw('SUM(paytm_order.txn_amount) as total', paytm_order_status.created_at, 'MONTH(paytm_order_status.created_at) as month')
+            ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('paytm_order_status.created_at', '>=', $startDate)
+            ->where('paytm_order_status.created_at', '<=', $endDate)
+            ->groupBy('month')
+            ->take(4)
+            ->get();
+
+        /*$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, MONTH(subscription.created_at) as month')
             ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
             ->where('subscription.created_at', '>=', $startDate)
             ->where('subscription.created_at', '<=', $endDate)
             ->where('subscription.subscription_type_id', '=', 1)
             ->groupBy('month')
             ->take(4)
-            ->get();
+            ->get();*/
         $subscriptions->map(function ($subscription) use (&$dates) {
             $key = array_search($subscription->month, array_column($dates, 'month'));
             $dates[$key]['y'] = (int)$subscription->total;
