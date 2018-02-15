@@ -259,15 +259,22 @@ ORDER BY `count`  DESC LIMIT '.$top));
 			}
 		}
 
-		$subscriptions = Subscription::where('subscription.created_at', '>=', $firstDate)
-			->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
-			->groupBy('date')
-			->orderBy('date')
-			->where('subscription.subscription_type_id', '=', 1)
-			->get([
-				DB::raw('DATE(subscription.created_at) as date'),
-				DB::raw('SUM(subscription_type.price) as sales')
-			]);
+        $subscriptions = PaytmOrderStatus::select(DB::raw('DATE(paytm_order_status.created_at) as date'), DB::raw('SUM(paytm_order.txn_amount) as sales'))
+            ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('paytm_order_status.created_at', '>=', $firstDate)
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        /*$subscriptions = Subscription::where('subscription.created_at', '>=', $firstDate)
+            ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->where('subscription.subscription_type_id', '=', 1)
+            ->get([
+                DB::raw('DATE(subscription.created_at) as date'),
+                DB::raw('SUM(subscription_type.price) as sales')
+            ]);*/
 		$subscriptions->map(function ($subscription) use (&$dates) {
 			$key = array_search($subscription->date, array_column($dates, 'x'));
 			$dates[$key]['y'] = (int)$subscription->sales;
