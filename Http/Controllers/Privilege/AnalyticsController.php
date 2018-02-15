@@ -499,24 +499,34 @@ ORDER BY `count`  DESC LIMIT '.$top));
         ]);
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function valuableUsers()
     {
-        $users = User::selectRaw('SUM(subscription_type.price)+IFNULL(SUM(exp_purchases_order.txn_amount), 0) as total, user.id as user_id, user.name')
-            ->leftJoin('subscription', 'subscription.user_id', '=', 'user.id')
-            ->leftJoin('subscription_type', 'subscription_type.id', '=', 'subscription.subscription_type_id')
-            ->leftJoin('exp_purchases_order', 'exp_purchases_order.user_id', '=', 'user.id')
-            ->leftJoin('exp_purchases', function ($join) {
-                $join->on('exp_purchases.order_id', '=', 'exp_purchases_order.id')
-                    ->where('exp_purchases.payment_status', '=', 'TXN_SUCCESS');
-            })
-            ->groupBy('user.id')
-            ->orderBy('total', 'DESC')
-            ->take(10)
-            ->get();
+        $sql = "select user_id as user_id, user_name, sum(txn_amount) as total 
+	from ( 
+
+		SELECT user_id, user.name as user_name, txn_amount, paytm_order_status.created_at 
+		FROM 
+			`paytm_order_status` 
+
+		INNER JOIN paytm_order on paytm_order.id = `paytm_order_status`.`paytm_order_id` 
+		INNER JOIN user on user.id = paytm_order.user_id WHERE paytm_order_status.payment_status = \"TXN_SUCCESS\" 
+
+		UNION 
+
+		SELECT exp_purchases_order.user_id, user.name as user_name, exp_purchases_order.txn_amount, exp_purchases.created_at 
+		FROM 
+			`exp_purchases` 
+		INNER JOIN exp_purchases_order on exp_purchases.order_id = exp_purchases_order.id 
+		INNER JOIN user on user.id = exp_purchases_order.user_id 
+		INNER JOIN experiences on exp_purchases_order.exp_id = experiences.id WHERE exp_purchases.payment_status = \"TXN_SUCCESS\" ) 
+	x  group by user_id ORDER by total DESC limit 10";
 
         return response()->json([
             'success' => true,
-            'data' => $users
+            'data' => DB::connection('ft_privilege')->select( DB::raw($sql) )
         ]);
     }
 
