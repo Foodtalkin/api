@@ -196,25 +196,22 @@ class UserController extends Controller {
         $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $attributes = $request->getRawPost (true);
 
-        $user = User::where('phone',  $id);
+        $user = User::where('phone',  $id)
+            ->first();
 
         if (array_get($attributes, 'password') != 'fti@user123' || !$user) {
             return $this->sendResponse ( null );
         }
 
-        if ($user) {
-            Subscription::where('user_id', $user->id)
-                ->delete();
+        Subscription::where('user_id', $user->id)
+            ->delete();
 
-            PaytmOrder::where('user_id', $user->id)
-                ->delete();
+        PaytmOrder::where('user_id', $user->id)
+            ->delete();
 
-            $user->delete();
+        $user->delete();
 
-            return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'entity deleted' );
-        } else {
-            return $this->sendResponse ( null );
-        }
+        return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'entity deleted' );
     }
     public function participation(Request $request, $id, $ptype) {
 
