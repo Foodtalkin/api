@@ -62,6 +62,7 @@ class CouponController extends Controller
             'duration' => $request->duration,
             'qty' => $request->qty,
             'expire_at' => Carbon::parse($request->expire_at)->format('Y-m-d'),
+            'note' => $request->note,
         ]);
 
         return $this->sendResponse($coupon);
@@ -92,6 +93,7 @@ class CouponController extends Controller
             'duration' => $request->duration,
             'qty' => $request->qty,
             'expire_at' => Carbon::parse($request->expire_at)->format('Y-m-d'),
+            'note' => $request->note,
         ]);
 
         return $this->sendResponse($coupon);
