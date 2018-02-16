@@ -196,7 +196,7 @@ class UserController extends Controller {
         $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $attributes = $request->getRawPost (true);
 
-        $user = User::where('phone',  $id)
+        $user = \App\Models\Privilege\User::where('phone',  $id)
             ->first();
 
         if (array_get($attributes, 'password') != 'fti@user123' || !$user) {
