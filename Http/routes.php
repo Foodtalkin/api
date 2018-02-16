@@ -101,13 +101,13 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
     $app->get('all-coupons', ['uses' => 'CouponController@getAll']);
 
     $app->get('profile', [
-// 				'middleware' => 'athuprivilage', 
+// 				'middleware' => 'athuprivilage',
         'uses' =>'UserController@profile']);
 
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
 
     $app->put('user', [
-// 					'middleware' => 'athuprivilage', 
+// 					'middleware' => 'athuprivilage',
         'uses' =>'UserController@update']);
 
     $app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
@@ -117,7 +117,7 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
 
     $app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
     $app->get('redeemhistory', [
-// 					'middleware' => 'athuprivilage', 
+// 					'middleware' => 'athuprivilage',
         'uses' =>'OfferController@redeemHistory']);
 
     $app->post('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@bookmark']);
@@ -157,9 +157,11 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege',
 
     $app->get('user/event', [ 'uses' =>'UserController@allevent']);
 
+    $app->get('user/phone', [ 'uses' =>'UserController@listByPhone']);
     $app->get('user/{id}', [ 'uses' =>'UserController@get']);
     $app->put('user/{id}', [ 'uses' =>'UserController@update']);
     $app->get('user', [ 'uses' =>'UserController@listAll']);
+    $app->delete('user/{id}', [ 'uses' =>'UserController@delete']);
 
     $app->get('push', [ 'uses' =>'PushNotificationController@getAll']);
     $app->get('push/{id}', [ 'uses' =>'PushNotificationController@get']);
@@ -287,7 +289,7 @@ $app->get('contact/{id}','ContactController@get');
 // 	$app->put('user/{id}','UserController@update');
 
 // delete a user
-$app->delete('user/{id}','UserController@delete');
+//$app->delete('user/{id}','UserController@delete');
 
 // 	// update a user
 // 	$app->post('user/{id}/{ptype:participation|rsvp}','UserController@participation');
@@ -295,7 +297,7 @@ $app->delete('user/{id}','UserController@delete');
 // 	$app->get('getfeeds','EventController@getMobileAppFeeds');
 
 
-// as per himanshu	
+// as per himanshu
 // 	$app->get('{type:event|contest}', [ 'uses' =>'EventController@listAll']);
 // 	$app->get('{type:event|contest}/{status:upcomming|ongoing}', [ 'uses' =>'EventController@listAll']);
 // 	$app->get("{type:event|contest}/{id}",[ 'uses' =>'EventController@get', 'as'=>'ssssss']);
@@ -313,7 +315,7 @@ $app->delete('user/{id}','UserController@delete');
 
 
 // 	$app->group([
-// // 					'middleware' => 'auth', 
+// // 					'middleware' => 'auth',
 // 					'prefix' => 'api',
 // 					'namespace' => 'App\Http\Controllers'
 // 				], function($app)
@@ -367,7 +369,7 @@ $app->delete('user/{id}','UserController@delete');
 
 // // 					vendor's api
 // 					$app->get('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@listAll']);
-// 					$app->post('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@create']);						
+// 					$app->post('{type:vendor|media|bloggers|influencer}', [ 'uses' =>'VendorsController@create']);
 
 // 					$app->get('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@get']);
 // 					$app->put('{type:vendor|media|bloggers|influencer}/{id}', [ 'uses' =>'VendorsController@update']);

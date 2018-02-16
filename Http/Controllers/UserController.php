@@ -192,26 +192,15 @@ class UserController extends Controller {
 
         return $this->sendResponse ( $user );
     }
-    public function delete(Request $request, $id) {
-        $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
-        $attributes = $request->getRawPost (true);
+    public function delete($id) {
+        $user = User::find ( $id );
 
-        $user = \App\Models\Privilege\User::where('phone',  $id)
-            ->first();
-
-        if (array_get($attributes, 'password') != 'fti@user123' || !$user) {
+        if ($user) {
+            $user->delete ();
+            return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'entity deleted' );
+        } else {
             return $this->sendResponse ( null );
         }
-
-        Subscription::where('user_id', $user->id)
-            ->delete();
-
-        PaytmOrder::where('user_id', $user->id)
-            ->delete();
-
-        $user->delete();
-
-        return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'entity deleted' );
     }
     public function participation(Request $request, $id, $ptype) {
 
