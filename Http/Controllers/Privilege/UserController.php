@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Privilege;
 // use DB;
 
 use App\Http\Controllers\Controller;
+use App\Models\Privilege\Bookmark;
 use App\Models\Privilege\Coupon;
 use App\Models\Privilege\InstamojoLog;
 use App\Models\Privilege\InstamojoPayment;
@@ -1018,6 +1019,9 @@ class UserController extends Controller
         $user = User::find($id);
 
         if ($user) {
+            Bookmark::where('user_id', $user->id)
+                ->delete();
+
             Subscription::where('user_id', $user->id)
                 ->delete();
 
