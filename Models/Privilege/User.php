@@ -37,11 +37,12 @@ class User extends BaseModel
     }
 
     /**
+     * @param $subscription
      * @return bool
      */
     public function isSubscriptionExpired($subscription)
     {
-        if ($subscription && $subscription->subscription_type_id == 3) {
+        if ($subscription->first() && $subscription->first()->subscription_type_id == 3) {
             return ! Carbon::parse($subscription->expiry) >= Carbon::today();
         }
 
