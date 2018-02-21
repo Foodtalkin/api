@@ -203,6 +203,7 @@ class UserController extends Controller
         $user = User::find($_SESSION['user_id']);
         $user->city;
         $user->subscription;
+        $user->is_expired_subscription = $user->isSubscriptionExpired($user->subscription->first());
         return $this->sendResponse ( $user );
     }
 
