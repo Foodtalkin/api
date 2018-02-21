@@ -268,7 +268,7 @@ class UserController extends Controller
 
         $user->subscription;
         $user->session;
-        $user->is_expired_subscription = (int) $user->isSubscriptionExpired($user->subscription);
+        $user->is_expired_subscription = (int) $user->isSubscriptionExpired($user->subscription->first());
 
         if(!$otpMatched){
             return $this->sendResponse ( 'ERROR! : Invalid / Expired OTP',  self::NOT_ACCEPTABLE, 'Invalid / Expired OTP!');
