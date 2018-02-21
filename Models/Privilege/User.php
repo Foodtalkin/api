@@ -41,7 +41,7 @@ class User extends BaseModel
      */
     public function isSubscriptionExpired($subscription)
     {
-        if ($subscription && $subscription->subscription_type_id == 3) {
+        if ($subscription && $subscription->subscription_type_id == 1) {
             return Carbon::now()->gte(Carbon::parse($subscription->expiry));
         }
 
