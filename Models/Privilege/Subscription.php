@@ -33,7 +33,7 @@ class Subscription extends BaseModel
     public function getIsExpiredSubscriptionAttribute()
     {
         if ($this->getAttribute('subscription_type_id') == 1) {
-            return Carbon::now()->gte(Carbon::parse($this->getAttribute('expiry')));
+            return (int) Carbon::now()->gte(Carbon::parse($this->getAttribute('expiry')));
         }
 
         return false;
