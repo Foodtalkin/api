@@ -36,8 +36,6 @@ class Subscription extends BaseModel
             return (int) Carbon::now()->gte(Carbon::parse($this->getAttribute('expiry')));
         }
 
-        return false;
+        return 0;
     }
-
-
 }
