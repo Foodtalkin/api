@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Privilege;
 
+use App\Http\Controllers\Controller;
+use App\Models\Privilege\DBLog;
 use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpPurchasesOrder;
-use App\Models\Privilege\PaytmOrder;
-use App\Models\Privilege\PaytmOrderStatus;
-use App\Models\Privilege\Subscription;
-use DB;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Privilege\DBLog;
-use App\Models\Privilege\User;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\OfferRedeemed;
-// use Illuminate\Http\JsonResponse;
+use App\Models\Privilege\PaytmOrder;
+use App\Models\Privilege\PaytmOrderStatus;
+use App\Models\Privilege\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+
+// use Illuminate\Http\JsonResponse;
 
 class AnalyticsController extends Controller {
 
@@ -238,7 +238,8 @@ ORDER BY `count`  DESC LIMIT '.$top));
         // DAILY
         $dates = $expSaleDates = $total = [];
         foreach (range(-6, 0) AS $i) {
-            $date = Carbon::now()->addDays($i)->format('Y-m-d');
+            $date = Carbon::now()->addDays($i)
+                ->format('Y-m-d');
             $dates[] = [
                 'x' => $date,
                 'y' => 0,
@@ -266,15 +267,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             ->groupBy('date')
             ->orderBy('date')
             ->get();
-        /*$subscriptions = Subscription::where('subscription.created_at', '>=', $firstDate)
-            ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->where('subscription.subscription_type_id', '=', 1)
-            ->get([
-                DB::raw('DATE(subscription.created_at) as date'),
-                DB::raw('SUM(subscription_type.price) as sales')
-            ]);*/
+
         $subscriptions->map(function ($subscription) use (&$dates) {
             $key = array_search($subscription->date, array_column($dates, 'x'));
             $dates[$key]['y'] = (int)$subscription->sales;
@@ -350,15 +343,6 @@ ORDER BY `count`  DESC LIMIT '.$top));
             ->groupBy('week')
             ->take(4)
             ->get();
-
-        /**$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, WEEKOFYEAR(subscription.created_at) as week')
-        ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
-        ->where('subscription.created_at', '>=', $startDate)
-        ->where('subscription.created_at', '<=', $endDate)
-        ->where('subscription.subscription_type_id', '=', 1)
-        ->groupBy('week')
-        ->take(4)
-        ->get();*/
 
         $subscriptions->each(function ($subscription) use (&$dates) {
             $key = array_search($subscription->week, array_column($dates, 'week'));
@@ -438,14 +422,6 @@ ORDER BY `count`  DESC LIMIT '.$top));
             ->take(4)
             ->get();
 
-        /*$subscriptions = Subscription::selectRaw('SUM(subscription_type.price) as total, subscription.created_at, MONTH(subscription.created_at) as month')
-            ->join('subscription_type', 'subscription.subscription_type_id', '=', 'subscription_type.id')
-            ->where('subscription.created_at', '>=', $startDate)
-            ->where('subscription.created_at', '<=', $endDate)
-            ->where('subscription.subscription_type_id', '=', 1)
-            ->groupBy('month')
-            ->take(4)
-            ->get();*/
         $subscriptions->map(function ($subscription) use (&$dates) {
             $key = array_search($subscription->month, array_column($dates, 'month'));
             $dates[$key]['y'] = (int)$subscription->total;
