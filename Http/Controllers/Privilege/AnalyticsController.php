@@ -508,7 +508,8 @@ ORDER BY `count`  DESC LIMIT '.$top));
 
     public function onboardedUsersCount()
     {
-        $usersWithoutCode = PaytmOrder::join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
+        $usersWithoutCode = PaytmOrder::selectRaw('DISTINCT paytm_order.user_id')
+            ->join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
             ->where('paytm_order.coupon_id', null)
             ->orderBy('paytm_order.created_at', 'DESC')
@@ -516,11 +517,12 @@ ORDER BY `count`  DESC LIMIT '.$top));
             ->count();
 
 
-        $usersWithCode = PaytmOrder::join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
+        $usersWithCode = PaytmOrder::selectRaw('DISTINCT paytm_order.user_id')
+            ->join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
             ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
             ->where('paytm_order.coupon_id', '!=', '')
             ->orderBy('paytm_order.created_at', 'DESC')
-            ->distinct('paytm_order.user_id')
+            //->distinct('paytm_order.user_id')
             ->count();
 
         return response()->json([
