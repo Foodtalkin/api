@@ -528,5 +528,32 @@ ORDER BY `count`  DESC LIMIT '.$top));
             'with_coupon_code' => $usersWithCode? $usersWithCode->total : 0
         ]);
     }
+
+    /**
+     * @return array
+     */
+    public function couponOnBoardPieChart()
+    {
+        $total = PaytmOrder::selectRaw('count(DISTINCT paytm_order.user_id) as total')
+            ->join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('paytm_order.coupon_id', '!=', '')
+            ->first()
+            ->total;
+
+        $couponSubscriptions = PaytmOrder::select([DB::raw('count(paytm_order.id) as total'), 'coupons.id', 'coupons.code'])
+            ->join('paytm_order_status', 'paytm_order_status.paytm_order_id', '=', 'paytm_order.id')
+            ->join('coupons', 'coupons.id', '=', 'paytm_order.coupon_id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('paytm_order.coupon_id', '!=', '')
+            ->orderBy('total', 'DESC')
+            ->groupBy('paytm_order.coupon_id')
+            ->get();
+
+        return [
+            'total' => $total,
+            'users' => $couponSubscriptions,
+        ];
+    }
 }
 ?>

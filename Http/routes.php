@@ -191,6 +191,7 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege',
     $app->get('analytics/sales-revenue', [ 'uses' =>'AnalyticsController@salesRevenue']);
     $app->get('analytics/valuable-users', [ 'uses' =>'AnalyticsController@valuableUsers']);
     $app->get('analytics/onboarded-users-count', [ 'uses' =>'AnalyticsController@onboardedUsersCount']);
+    $app->get('analytics/coupon-boarded-pie-chart', [ 'uses' =>'AnalyticsController@couponOnBoardPieChart']);
 
     $app->get('log/{entity}/id/{id}','DBLogController@get');
     $app->get('log/{entity}','DBLogController@get');
