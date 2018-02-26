@@ -1021,6 +1021,9 @@ class UserController extends Controller
         $user = User::find($id);
 
         if ($user) {
+            OfferRedeemed::where('user_id', $user->id)
+                ->delete();
+
             Bookmark::where('user_id', $user->id)
                 ->delete();
 
