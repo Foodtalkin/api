@@ -86,7 +86,32 @@ class AnalyticsController extends Controller {
                 'count' => (string) $cnt
             )
         );
-        $result = array(
+
+		$couponData = [];
+		foreach (range($days - ($days*2-1), 0) AS $i) {
+			$date = Carbon::now()->addDays($i)->format('Y-m-d');
+			$couponData[] = [
+				'date' => $date,
+				'count' => 0
+			];
+			if ($i == -6) {
+				$firstDate = $date;
+			}
+		}
+		$couponCount = PaytmOrderStatus::selectRaw('DATE(paytm_order_status.created_at) as date, COUNT(*) as totalPerDay')
+			->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
+			->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+			->where('paytm_order_status.created_at', '>=', $firstDate)
+			->where('paytm_order.coupon_id', '!=', '')
+			->groupBy('date')
+			->orderBy('date')
+			->get();
+		$couponCount->map(function ($coupon) use (&$couponData) {
+			$key = array_search($coupon->date, array_column($couponData, 'date'));
+			$couponData[$key]['count'] = (int)$coupon->totalPerDay;
+		});
+
+		$result = array(
             'overall'=>$overall,
 // 				'latest' => $lastdays,
             'datewise'=>array(
@@ -94,6 +119,7 @@ class AnalyticsController extends Controller {
                 'paid'=>$paid,
                 'trial'=>$trial,
                 'unpaid'=>$unpaid,
+				'couponUsed'=>$couponData
             )
         );
         return $this->sendResponse ( $result );
