@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Privilege;
 use App\Http\Controllers\Controller;
 use App\Models\Privilege\Bookmark;
 use App\Models\Privilege\Coupon;
+use App\Models\Privilege\ExperiencesSeats;
 use App\Models\Privilege\InstamojoLog;
 use App\Models\Privilege\InstamojoPayment;
 use App\Models\Privilege\InstamojoRequest;
@@ -1023,7 +1024,8 @@ class UserController extends Controller
         if ($user) {
             OfferRedeemed::where('user_id', $user->id)
                 ->delete();
-
+            ExperiencesSeats::where('user_id', $user->id)
+                ->delete();
             Bookmark::where('user_id', $user->id)
                 ->delete();
 
