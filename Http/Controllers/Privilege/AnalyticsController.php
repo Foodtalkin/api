@@ -87,31 +87,31 @@ class AnalyticsController extends Controller {
             )
         );
 
-		$couponData = [];
-		foreach (range($days - ($days*2-1), 0) AS $i) {
-			$date = Carbon::now()->addDays($i)->format('Y-m-d');
-			$couponData[] = [
-				'date' => $date,
-				'count' => 0
-			];
-			if ($i == -6) {
-				$firstDate = $date;
-			}
-		}
-		$couponCount = PaytmOrderStatus::selectRaw('DATE(paytm_order_status.created_at) as date, COUNT(*) as totalPerDay')
-			->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
-			->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
-			->where('paytm_order_status.created_at', '>=', $firstDate)
-			->where('paytm_order.coupon_id', '!=', '')
-			->groupBy('date')
-			->orderBy('date')
-			->get();
-		$couponCount->map(function ($coupon) use (&$couponData) {
-			$key = array_search($coupon->date, array_column($couponData, 'date'));
-			$couponData[$key]['count'] = (int)$coupon->totalPerDay;
-		});
+        $couponData = [];
+        foreach (range($days - ($days*2-1), 0) AS $i) {
+            $date = Carbon::now()->addDays($i)->format('Y-m-d');
+            $couponData[] = [
+                'date' => $date,
+                'count' => 0
+            ];
+            if ($i == -6) {
+                $firstDate = $date;
+            }
+        }
+        $couponCount = PaytmOrderStatus::selectRaw('DATE(paytm_order_status.created_at) as date, COUNT(*) as totalPerDay')
+            ->join('paytm_order', 'paytm_order.id', '=', 'paytm_order_status.paytm_order_id')
+            ->where('paytm_order_status.payment_status', 'TXN_SUCCESS')
+            ->where('paytm_order_status.created_at', '>=', $firstDate)
+            ->where('paytm_order.coupon_id', '!=', '')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        $couponCount->map(function ($coupon) use (&$couponData) {
+            $key = array_search($coupon->date, array_column($couponData, 'date'));
+            $couponData[$key]['count'] = (int)$coupon->totalPerDay;
+        });
 
-		$result = array(
+        $result = array(
             'overall'=>$overall,
 // 				'latest' => $lastdays,
             'datewise'=>array(
@@ -119,7 +119,7 @@ class AnalyticsController extends Controller {
                 'paid'=>$paid,
                 'trial'=>$trial,
                 'unpaid'=>$unpaid,
-				'couponUsed'=>$couponData
+                'couponUsed'=>$couponData
             )
         );
         return $this->sendResponse ( $result );
@@ -152,10 +152,10 @@ class AnalyticsController extends Controller {
 
         $result['outlet'] = DB::connection('ft_privilege')->select( DB::raw('SELECT COUNT(1) as count FROM `outlet` , restaurant WHERE restaurant.id = outlet.resturant_id and restaurant.is_disabled = 0 AND outlet.is_disabled=0'));
 
-        $result['top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , outlet.id, outlet.name FROM `outlet` , offer_redeemed WHERE outlet.id = offer_redeemed.outlet_id GROUP BY outlet.id  
+        $result['top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , outlet.id, outlet.name, outlet.area FROM `outlet` , offer_redeemed WHERE outlet.id = offer_redeemed.outlet_id GROUP BY outlet.id  
 ORDER BY `count`  DESC LIMIT '.$top));
 
-        $result['latest_top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , outlet.id, outlet.name FROM `outlet` , offer_redeemed WHERE outlet.id = offer_redeemed.outlet_id AND offer_redeemed.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP BY outlet.id ORDER BY `count`  DESC LIMIT '.$top));
+        $result['latest_top'] = DB::connection('ft_privilege')->select( DB::raw('SELECT count(1) count , outlet.id, outlet.name, outlet.area FROM `outlet` , offer_redeemed WHERE outlet.id = offer_redeemed.outlet_id AND offer_redeemed.created_at >= DATE(NOW()) - INTERVAL '.$days.' DAY GROUP BY outlet.id ORDER BY `count`  DESC LIMIT '.$top));
 
         return $this->sendResponse ( $result );
     }
