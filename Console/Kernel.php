@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
     		'App\Console\Commands\UploadEmailsToMailerList',
     		'App\Console\Commands\UploadOffersToElastic',
+    		'App\Console\Commands\FixPushNotification',
     		'App\Console\Commands\SendPushNotification',
     		'App\Console\Commands\RestaurantsMonthlyReportMail'
     		

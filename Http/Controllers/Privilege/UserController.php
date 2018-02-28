@@ -591,6 +591,7 @@ class UserController extends Controller
 
             $result['amount'] = $paytm_order->txn_amount;
             $result['subscription'][] = $subscription;
+            $this->cancelPushNotificationForTrail($paytm_order->user_id);
 
             return $this->sendResponse ( $result );
         }
@@ -630,6 +631,7 @@ class UserController extends Controller
 
                 $paytmOrderStatus->subscription_id = $subscription->id;
                 $paytmOrderStatus->save();
+                $this->cancelPushNotificationForTrail($paytm_order->user_id);
 
             }else{
 
@@ -650,6 +652,22 @@ class UserController extends Controller
         $result['amount'] = $paytm_order->txn_amount;
         $result['subscription'][] = $subscription;
         return $this->sendResponse ( $result );
+    }
+
+    protected function cancelPushNotificationForTrail($userId)
+    {
+        $notifications = PushNotification::where([
+            'user_id' => $userId,
+            'is_disabled' => '0',
+            'status' => '0'
+        ])->get();
+
+        if (! empty($notifications)) {
+            foreach ($notifications as $push){
+                $push->status = 1;
+                $push->save();
+            }
+        }
     }
 
 
