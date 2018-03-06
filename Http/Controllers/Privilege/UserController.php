@@ -39,6 +39,7 @@ class UserController extends Controller
         if (isset($_GET['search'])) {
             $searchText = urldecode($_GET['search']);
             $query->where('user.name', 'like', '%'.$searchText.'%');
+            $query->orWhere('user.id', 'like', '%'.$searchText.'%');
         }
 
         if (isset($_GET['status']) and $_GET['status'] == 'paid') {
