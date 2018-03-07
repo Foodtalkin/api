@@ -12,40 +12,57 @@ use App\Models\Privilege\ParsePush;
 
 class FixPushNotification extends Command
 {
-	/**
-	 * The name and signature of the console command.
-	 *
-	 * @var string
-	 */
-	protected $signature = 'fix:push:send';
-	
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'add user id field in push notification table';
-	
-	
-	/**
-	 * Create a new command instance.
-	 *
-	 * @param  DripEmailer  $drip
-	 * @return void
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function handle()
-	{
-		PushNotification::chunk(50, function ($notifications) {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'fix:push:send';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'add user id field in push notification table';
+
+
+    /**
+     * Create a new command instance.
+     *
+     * @param  DripEmailer  $drip
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $notificationId = '';
+        $userId = '';
+        $push = PushNotification::find($notificationId);
+        $data = json_decode($push->push, true);
+
+        $data['where'] = [
+            'userId' => $userId
+        ];
+        if ($push->title) {
+
+            $data['data']['alert'] = [
+                'title' => $push->title,
+                'body' => array_get($data, 'data.alert')
+            ];
+        }
+        $response = ParsePush::send($data);
+        print_r($response);
+        /*PushNotification::chunk(50, function ($notifications) {
             foreach ($notifications as $notification) {
                 $data = json_decode($notification->push, true);
                 if (array_get($data, 'where.userId')) {
@@ -58,7 +75,7 @@ class FixPushNotification extends Command
             }
         });
 
-		Subscription::where('created_at', '>', Carbon::today()->subDay(11))
+        Subscription::where('created_at', '>', Carbon::today()->subDay(11))
             ->where('subscription_type_id', 1)
             ->chunk(50, function ($subscriptions) {
                 foreach ($subscriptions as $subscription) {
@@ -68,6 +85,6 @@ class FixPushNotification extends Command
                         'status' => '0'
                     ])->update(['status' => 1]);
                 }
-            });
-	}
+            });*/
+    }
 }

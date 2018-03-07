@@ -7,7 +7,7 @@ class PushNotification extends BaseModel
 {
 	protected $table = 'push_notification';
 	// 	protected $primaryKey = 'id';
-	protected $fillable = ['user_id', 'push_time', 'push', 'metadata', 'status', 'is_disabled', 'created_by'];
+	protected $fillable = ['user_id', 'push_time', 'title', 'push', 'metadata', 'status', 'is_disabled', 'created_by'];
 	// 	protected $dates = ['start_date'];
 	
 	

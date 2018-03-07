@@ -12,8 +12,10 @@ use App\Models\Privilege\PushNotification;
 class PushNotificationController extends Controller {
 
 	public function getAll(Request $request) {
-		$result = PushNotification::all();
-		return $this->sendResponse ( $result);
+		$result = PushNotification::latest()
+            ->paginate($this->pageSize);
+
+        return $this->sendResponse($result, self::SUCCESS_OK);
 	}
 	
 	public function get(Request $request, $id) {
@@ -27,7 +29,6 @@ class PushNotificationController extends Controller {
 		
 		if(isset($attributes['status']))
 			unset($attributes['status']);
-		
 		$result = PushNotification::create ( $attributes );
 		return $this->sendResponse ( $result);
 	}
