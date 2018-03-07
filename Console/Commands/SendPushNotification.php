@@ -49,17 +49,61 @@ class SendPushNotification extends Command
                 $data = json_decode($push->push, true);
 
                 if ($push->title) {
-                    $data['data']['alert'] = [
-                        'title' => $push->title,
-                        'body' => array_get($data, 'data.alert')
+                    $iosPush = $data;
+                    $androidPush = $data;
+                    $title = $push->title;
+
+                    /**
+                     * send ios notification
+                     */
+                    $iosPush['data']['alert'] = [
+                        'title' => $title,
+                        'body' => array_get($iosPush, 'data.alert')
                     ];
+                    $iosPush = $this->getWhereForDevice($iosPush, 'ios');
+                    ParsePush::send($iosPush);
+                    $this->info('ios send');
+
+                    /**
+                     * send android notification
+                     */
+                    $androidPush['data'] = array_merge($androidPush['data'], [
+                        'title' => $title,
+                    ]);
+
+                    $androidPush = $this->getWhereForDevice($androidPush, 'android');
+
+                    ParsePush::send($androidPush);
+                    $this->info('android send');
+                } else {
+                    $response = ParsePush::send($data);
                 }
-// 				$response = $this->sendpush($data);
-				$response = ParsePush::send($data);
+
 				$push->status = '1';
 				$push->save();
 			}
 		}
 	}
-	
+
+    /**
+     * @param $data
+     * @param $device
+     * @return mixed
+     */
+    protected function getWhereForDevice($data, $device)
+    {
+        if (array_get($data, 'where')) {
+            $data['where']['deviceType'] = [
+                '$in' => [$device]
+            ];
+        } else {
+            $data['where'] = [
+                'deviceType'  => [
+                    '$in' => [$device]
+                ]
+            ];
+        }
+
+        return $data;
+    }
 }

@@ -45,23 +45,46 @@ class FixPushNotification extends Command
      */
     public function handle()
     {
-        $notificationId = '';
-        $userId = '';
+        $notificationId = 6479;
+        $userId = "3646";
         $push = PushNotification::find($notificationId);
         $data = json_decode($push->push, true);
 
         $data['where'] = [
-            'userId' => $userId
+            'userId' => $userId,
+            "deviceType" => [
+                '$in' => [ "ios", "android"]
+            ],
         ];
         if ($push->title) {
+            $iosPush = $data;
+            $androidPush = $data;
+            $title = $push->title;
 
-            $data['data']['alert'] = [
-                'title' => $push->title,
-                'body' => array_get($data, 'data.alert')
+            /**
+             * send ios notification
+             */
+            $iosPush['data']['alert'] = [
+                'title' => $title,
+                'body' => array_get($iosPush, 'data.alert')
             ];
+            $iosPush = $this->getWhereForDevice($iosPush, 'ios');
+            ParsePush::send($iosPush);
+            $this->info('ios send');
+
+            $androidPush['data'] = array_merge($androidPush['data'], [
+                'title' => $title,
+            ]);
+
+            $androidPush = $this->getWhereForDevice($androidPush, 'android');
+
+            ParsePush::send($androidPush);
+            $this->info('android send');
+        } else {
+            $response = ParsePush::send($data);
+            print_r($response);exit;
         }
-        $response = ParsePush::send($data);
-        print_r($response);
+
         /*PushNotification::chunk(50, function ($notifications) {
             foreach ($notifications as $notification) {
                 $data = json_decode($notification->push, true);
@@ -86,5 +109,27 @@ class FixPushNotification extends Command
                     ])->update(['status' => 1]);
                 }
             });*/
+    }
+
+    /**
+     * @param $data
+     * @param $device
+     * @return mixed
+     */
+    protected function getWhereForDevice($data, $device)
+    {
+        if (array_get($data, 'where')) {
+            $data['where']['deviceType'] = [
+                '$in' => [$device]
+            ];
+        } else {
+            $data['where'] = [
+                'deviceType'  => [
+                    '$in' => [$device]
+                ]
+            ];
+        }
+
+        return $data;
     }
 }
