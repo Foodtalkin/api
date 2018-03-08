@@ -581,5 +581,35 @@ ORDER BY `count`  DESC LIMIT '.$top));
             'users' => $couponSubscriptions,
         ];
     }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getRestaurantRating()
+    {
+        $ratings = OfferRedeemed::select(
+            'restaurant.id',
+            'restaurant.name',
+            DB::raw('count(outlet.id) as total_rating'),
+            DB::raw('sum(offer_redeemed.rating) as rating_sum'),
+            DB::raw('avg(offer_redeemed.rating) rating_avg')
+        )
+            ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
+            ->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')
+            ->where('offer_redeemed.rating', '>', -1)
+            ->groupBy('restaurant.id')
+            ->latest('total_rating')
+            ->get();
+
+        return $this->sendResponse($ratings->map(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'name' => $rating->name,
+                'total_rating' => $rating->total_rating,
+                'rating_sum' => $rating->rating_sum,
+                'rating_avg' => number_format($rating->rating_avg, 2),
+            ];
+        }));
+    }
 }
 ?>
