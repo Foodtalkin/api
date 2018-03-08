@@ -169,6 +169,8 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege',
     $app->put('push/{id}', [ 'uses' =>'PushNotificationController@update']);
     $app->delete('push/{id}', [ 'uses' =>'PushNotificationController@delete']);
 
+    $app->post('push/test-notification', [ 'uses' =>'PushNotificationController@sendTestNotification']);
+
 
     $app->get('feeds/redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
     $app->get('feeds/signups', [ 'uses' =>'AnalyticsController@signups']);
