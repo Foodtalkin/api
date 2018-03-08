@@ -588,16 +588,16 @@ ORDER BY `count`  DESC LIMIT '.$top));
     public function getRestaurantRating()
     {
         $ratings = OfferRedeemed::select(
-            'restaurant.id',
-            'restaurant.name',
+            'outlet.id',
+            'outlet.name',
+            'outlet.area',
             DB::raw('count(outlet.id) as total_rating'),
             DB::raw('sum(offer_redeemed.rating) as rating_sum'),
             DB::raw('avg(offer_redeemed.rating) rating_avg')
         )
             ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
-            ->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')
             ->where('offer_redeemed.rating', '>', -1)
-            ->groupBy('restaurant.id')
+            ->groupBy('outlet.id')
             ->latest('total_rating')
             ->get();
 
@@ -605,6 +605,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             return [
                 'id' => $rating->id,
                 'name' => $rating->name,
+                'area' => $rating->area,
                 'total_rating' => $rating->total_rating,
                 'rating_sum' => $rating->rating_sum,
                 'rating_avg' => number_format($rating->rating_avg, 2),
