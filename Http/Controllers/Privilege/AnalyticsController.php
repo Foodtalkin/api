@@ -615,6 +615,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
     }
 
     /**
+     * @deprecated
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function createReport()

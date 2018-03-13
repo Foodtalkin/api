@@ -130,8 +130,6 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
 
 });
 
-$app->get('csv/reports', [ 'uses' =>'Privilege\AnalyticsController@createReport']);
-
 $app->group(['namespace' => 'App\Http\Controllers\Privilege',
 // 			'middleware' => 'privilegeuser',
     'middleware' => 'auth',
