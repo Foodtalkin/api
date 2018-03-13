@@ -2,6 +2,7 @@
 namespace App\Console\Commands;
 
 
+use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\Subscription;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -45,45 +46,18 @@ class FixPushNotification extends Command
      */
     public function handle()
     {
-        $notificationId = 6479;
-        $userId = "3646";
-        $push = PushNotification::find($notificationId);
-        $data = json_decode($push->push, true);
+        OfferRedeemed::where('rating', '>', 5)
+            ->chunk(50, function ($ratings) {
+                foreach ($ratings as $rating) {
+                    $rate = (int) $rating->rating / 2;
 
-        $data['where'] = [
-            'userId' => $userId,
-            "deviceType" => [
-                '$in' => [ "ios", "android"]
-            ],
-        ];
-        if ($push->title) {
-            $iosPush = $data;
-            $androidPush = $data;
-            $title = $push->title;
+                    $rating->update([
+                        'rating' => $rate
+                    ]);
 
-            /**
-             * send ios notification
-             */
-            $iosPush['data']['alert'] = [
-                'title' => $title,
-                'body' => array_get($iosPush, 'data.alert')
-            ];
-            $iosPush = $this->getWhereForDevice($iosPush, 'ios');
-            ParsePush::send($iosPush);
-            $this->info('ios send');
-
-            $androidPush['data'] = array_merge($androidPush['data'], [
-                'title' => $title,
-            ]);
-
-            $androidPush = $this->getWhereForDevice($androidPush, 'android');
-
-            ParsePush::send($androidPush);
-            $this->info('android send');
-        } else {
-            $response = ParsePush::send($data);
-            print_r($response);exit;
-        }
+                    $this->info('rating '.$rate);
+                }
+            });
 
         /*PushNotification::chunk(50, function ($notifications) {
             foreach ($notifications as $notification) {
