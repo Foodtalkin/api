@@ -609,6 +609,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
                 'area' => $rating->area,
                 'total_rating' => $rating->total_rating,
                 'rating_sum' => $rating->rating_sum,
+                'rating_star' => round($rating->rating_avg),
                 'rating_avg' => number_format($rating->rating_avg, 2),
             ];
         }));
