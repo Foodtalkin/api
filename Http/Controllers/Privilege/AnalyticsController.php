@@ -10,6 +10,7 @@ use App\Models\Privilege\Offer;
 use App\Models\Privilege\OfferRedeemed;
 use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
+use App\Models\Privilege\Restaurant;
 use App\Models\Privilege\User;
 use Carbon\Carbon;
 use DB;
@@ -611,6 +612,45 @@ ORDER BY `count`  DESC LIMIT '.$top));
                 'rating_avg' => number_format($rating->rating_avg, 2),
             ];
         }));
+    }
+
+    /**
+     * @param int $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function createReport($id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+
+        $result = OfferRedeemed::selectRaw('offer.title as offer, offer_redeemed.id as offer_redeemed_id, offer_redeemed.saving as redeemed_saving, offer_redeemed.created_at as redeemed_at, user.id as user_id, user.name as user, user.phone as user_phone, restaurant.id as restaurant_id, restaurant.name as restaurant_name, outlet.id as outlet_id, outlet.name as outlet_name, outlet.address as outlet_address')
+            ->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
+            ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
+            ->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')
+            ->leftJoin('user', 'user.id', '=', 'offer_redeemed.user_id')
+            ->where('restaurant.id', $id)
+            ->where('offer_redeemed.created_at', '>', '2017-12-31 23:59:59')
+            ->get();
+
+        @unlink(storage_path('file.csv'));
+
+        $allRecords = array_merge([
+            [
+                'Offer Name', 'offer_redeemed_id', 'redeemed_saving', 'redeemed_at', 'user_id', 'user name',
+                'user phone', 'restaurant_id', 'restaurant name', 'outlat id', 'outlet name', 'restaurant address',
+            ], [
+                '', '', '', '', '', '', '', '', '', '', '', '',
+            ]
+        ], $result->toArray());
+
+        $fp = fopen(storage_path('file.csv'), 'w');
+        foreach ($allRecords as $fields) {
+            fputcsv($fp, $fields);
+        }
+        fclose($fp);
+
+        return response()->download(storage_path('file.csv'), $restaurant->name.'.csv', [
+            'Content-Type' => 'text/csv'
+        ]);
     }
 }
 ?>
