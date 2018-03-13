@@ -7,7 +7,7 @@ class OfferRedeemed extends BaseModel
 {
 	protected $table = 'offer_redeemed';
 // 	protected $primaryKey = 'id';
-	protected $fillable = ['offer_id','outlet_id','user_id','redeemed_by', 'offers_redeemed', 'saving', 'metadata',  'is_disabled', 'created_by'];
+	protected $fillable = ['offer_id','outlet_id', 'rating', 'user_id','redeemed_by', 'offers_redeemed', 'saving', 'metadata',  'is_disabled', 'created_by'];
 // 	protected $dates = ['start_date'];
 
 	
