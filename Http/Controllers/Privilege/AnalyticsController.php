@@ -615,31 +615,22 @@ ORDER BY `count`  DESC LIMIT '.$top));
     }
 
     /**
-     * @param int $id
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function createReport($id)
+    public function createReport()
     {
-        $restaurant = Restaurant::findOrFail($id);
-
-        $result = OfferRedeemed::selectRaw('offer.title as offer, offer_redeemed.id as offer_redeemed_id, offer_redeemed.saving as redeemed_saving, offer_redeemed.created_at as redeemed_at, user.id as user_id, user.name as user, user.phone as user_phone, restaurant.id as restaurant_id, restaurant.name as restaurant_name, outlet.id as outlet_id, outlet.name as outlet_name, outlet.address as outlet_address')
+        $result = OfferRedeemed::selectRaw('user.name as user, offer_redeemed.id, outlet.name, outlet.address, offer.title, offer_redeemed.offers_redeemed, offer_redeemed.created_at')
             ->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
             ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
-            ->join('restaurant', 'restaurant.id', '=', 'outlet.resturant_id')
             ->leftJoin('user', 'user.id', '=', 'offer_redeemed.user_id')
-            ->where('restaurant.id', $id)
             ->where('offer_redeemed.created_at', '>', '2017-12-31 23:59:59')
+            ->oldest('offer_redeemed.created_at')
             ->get();
 
         @unlink(storage_path('file.csv'));
 
         $allRecords = array_merge([
-            [
-                'Offer Name', 'offer_redeemed_id', 'redeemed_saving', 'redeemed_at', 'user_id', 'user name',
-                'user phone', 'restaurant_id', 'restaurant name', 'outlat id', 'outlet name', 'restaurant address',
-            ], [
-                '', '', '', '', '', '', '', '', '', '', '', '',
-            ]
+            ['User Name', 'redemption_id', 'outlet name', 'area', 'Offer Title', 'offers_redeemed', 'redemption_time'], []
         ], $result->toArray());
 
         $fp = fopen(storage_path('file.csv'), 'w');
@@ -648,7 +639,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
         }
         fclose($fp);
 
-        return response()->download(storage_path('file.csv'), $restaurant->name.'.csv', [
+        return response()->download(storage_path('file.csv'), 'Offer Redeemed Report 01-01-2018 to 12-03-2018.csv', [
             'Content-Type' => 'text/csv'
         ]);
     }
