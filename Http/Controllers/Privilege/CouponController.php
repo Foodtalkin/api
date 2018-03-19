@@ -19,13 +19,13 @@ class CouponController extends Controller
             ->paginate($this->pageSize);
 
         return $this->sendResponse($coupons);
-    }
+	}
 
     /**
      * @param $id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function show($id)
+	public function show($id)
     {
         $result = Coupon::find($id);
 
@@ -44,7 +44,7 @@ class CouponController extends Controller
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function create(Request $request)
+	public function create(Request $request)
     {
         $request->headers->add(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
         $this->validate($request, [

@@ -13,65 +13,65 @@ use App\Models\Privilege\PushNotification;
 
 class PushNotificationController extends Controller {
 
-    public function getAll(Request $request) {
-        $result = PushNotification::latest()
+	public function getAll(Request $request) {
+		$result = PushNotification::latest()
             ->paginate($this->pageSize);
 
         return $this->sendResponse($result, self::SUCCESS_OK);
-    }
-
-    public function get(Request $request, $id) {
-        $result = PushNotification::find ( $id );
-        return $this->sendResponse ( $result);
-    }
-
-    public function create(Request $request) {
-        $attributes = $request->getRawPost(true);
-        $attributes['push'] = json_encode($attributes['push']);
-
-        if(isset($attributes['status']))
-            unset($attributes['status']);
-        $result = PushNotification::create ( $attributes );
-        return $this->sendResponse ( $result);
-    }
-
-    public function update(Request $request, $id) {
-
-        $attributes = $request->getRawPost(true);
-        $result= PushNotification::find ( $id );
-        $attributes['push'] = json_encode($attributes['push']);
-
-        if(isset($attributes['status']))
-            unset($attributes['status']);
-
-        $result->update ( $attributes );
-        return $this->sendResponse ( $result);
-    }
-
-
-
-    public function delete($id) {
-
-
-        $result= PushNotification::where('push_time', '>', DB::raw('now()'))
-            ->where ( 'id', $id)
-            ->first();
+	}
+	
+	public function get(Request $request, $id) {
+		$result = PushNotification::find ( $id );
+		return $this->sendResponse ( $result);
+	}
+	
+	public function create(Request $request) {
+		$attributes = $request->getRawPost(true);
+		$attributes['push'] = json_encode($attributes['push']);
+		
+		if(isset($attributes['status']))
+			unset($attributes['status']);
+		$result = PushNotification::create ( $attributes );
+		return $this->sendResponse ( $result);
+	}
+	
+	public function update(Request $request, $id) {
+		
+		$attributes = $request->getRawPost(true);
+		$result= PushNotification::find ( $id );
+		$attributes['push'] = json_encode($attributes['push']);
+		
+		if(isset($attributes['status']))
+			unset($attributes['status']);
+			
+		$result->update ( $attributes );
+		return $this->sendResponse ( $result);			
+	}
+	
+	
+	
+	public function delete($id) {
+		
+		
+		$result= PushNotification::where('push_time', '>', DB::raw('now()'))
+		->where ( 'id', $id)
+		->first();
 // 		find ( $id );
-
-        if ($result) {
-            $result->is_disabled = 1;
-            $result->save();
-            return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Notification Disabled' );
-        } else {
-            return $this->sendResponse ( false, self::NOT_ACCEPTABLE, 'Invalid or expired notification' );
-        }
-    }
+		
+		if ($result) {
+			$result->is_disabled = 1;
+			$result->save();
+			return $this->sendResponse ( true, self::REQUEST_ACCEPTED, 'Notification Disabled' );
+		} else {
+			return $this->sendResponse ( false, self::NOT_ACCEPTABLE, 'Invalid or expired notification' );
+		}
+	}
 
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function sendTestNotification(Request $request)
+	public function sendTestNotification(Request $request)
     {
         $attributes = $request->getRawPost(true);
 

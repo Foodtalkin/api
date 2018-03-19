@@ -19,8 +19,9 @@ class Kernel extends ConsoleKernel
     		'App\Console\Commands\UploadOffersToElastic',
     		'App\Console\Commands\FixPushNotification',
     		'App\Console\Commands\SendPushNotification',
-    		'App\Console\Commands\RestaurantsMonthlyReportMail'
-    		
+    		'App\Console\Commands\RestaurantsMonthlyReportMail',
+    		'App\Console\Commands\UserStatistics',
+
         //
     ];
 

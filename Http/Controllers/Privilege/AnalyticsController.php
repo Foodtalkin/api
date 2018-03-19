@@ -12,6 +12,7 @@ use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
 use App\Models\Privilege\Restaurant;
 use App\Models\Privilege\User;
+use App\Models\Privilege\UserStatistic;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -589,13 +590,13 @@ ORDER BY `count`  DESC LIMIT '.$top));
     public function getRestaurantRating()
     {
         $ratings = OfferRedeemed::select(
-            'outlet.id',
-            'outlet.name',
-            'outlet.area',
-            DB::raw('count(outlet.id) as total_rating'),
-            DB::raw('sum(offer_redeemed.rating) as rating_sum'),
-            DB::raw('avg(offer_redeemed.rating) rating_avg')
-        )
+                'outlet.id',
+                'outlet.name',
+                'outlet.area',
+                DB::raw('count(outlet.id) as total_rating'),
+                DB::raw('sum(offer_redeemed.rating) as rating_sum'),
+                DB::raw('avg(offer_redeemed.rating) rating_avg')
+            )
             ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
             ->where('offer_redeemed.rating', '>', -1)
             ->groupBy('outlet.id')
@@ -644,6 +645,14 @@ ORDER BY `count`  DESC LIMIT '.$top));
         return response()->download(storage_path('file.csv'), 'Offer Redeemed Report 01-01-2018 to 12-03-2018.csv', [
             'Content-Type' => 'text/csv'
         ]);
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getUserState()
+    {
+        return $this->sendResponse(UserStatistic::first());
     }
 }
 ?>
