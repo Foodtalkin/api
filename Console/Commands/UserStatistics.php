@@ -75,14 +75,26 @@ class UserStatistics extends Command
                 ->latest();
         })->count();
 
-        UserStatistic::updateOrCreate([
-            'totalUser' => $totalUser,
-            'userNotSubscribeCount' => $userNotSubscribeCount,
-            'paidUserCount' => $paidUserCount,
-            'trailUserCount' => $trailUserCount,
-            'trailExpiredUserCount' => $trailExpiredUserCount,
-            'expiredSubscriptionCount' => $expiredSubscriptionCount,
-        ]);
+        $state = UserStatistic::first();
 
+        if ($state) {
+            $state->fill([
+                'totalUser' => $totalUser,
+                'userNotSubscribeCount' => $userNotSubscribeCount,
+                'paidUserCount' => $paidUserCount,
+                'trailUserCount' => $trailUserCount,
+                'trailExpiredUserCount' => $trailExpiredUserCount,
+                'expiredSubscriptionCount' => $expiredSubscriptionCount,
+            ])->save();
+        } else {
+            UserStatistic::create([
+                'totalUser' => $totalUser,
+                'userNotSubscribeCount' => $userNotSubscribeCount,
+                'paidUserCount' => $paidUserCount,
+                'trailUserCount' => $trailUserCount,
+                'trailExpiredUserCount' => $trailExpiredUserCount,
+                'expiredSubscriptionCount' => $expiredSubscriptionCount,
+            ]);
+        }
 	}
 }
