@@ -75,7 +75,7 @@ class UserStatistics extends Command
                 ->latest();
         })->count();
 
-        UserStatistic::firstOrCreate([
+        UserStatistic::updateOrCreate([
             'totalUser' => $totalUser,
             'userNotSubscribeCount' => $userNotSubscribeCount,
             'paidUserCount' => $paidUserCount,
