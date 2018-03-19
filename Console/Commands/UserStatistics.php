@@ -85,6 +85,7 @@ class UserStatistics extends Command
                 'trailUserCount' => $trailUserCount,
                 'trailExpiredUserCount' => $trailExpiredUserCount,
                 'expiredSubscriptionCount' => $expiredSubscriptionCount,
+                'count' => rand(0, 99999),
             ])->save();
         } else {
             UserStatistic::create([
@@ -94,6 +95,7 @@ class UserStatistics extends Command
                 'trailUserCount' => $trailUserCount,
                 'trailExpiredUserCount' => $trailExpiredUserCount,
                 'expiredSubscriptionCount' => $expiredSubscriptionCount,
+                'count' => 1,
             ]);
         }
 	}

@@ -18,6 +18,7 @@ class UserStatistic extends BaseModel
         'paidUserCount',
         'trailUserCount',
         'trailExpiredUserCount',
-        'expiredSubscriptionCount'
+        'expiredSubscriptionCount',
+        'count'
     ];
 }
