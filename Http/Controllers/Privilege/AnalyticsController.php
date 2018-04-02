@@ -590,13 +590,13 @@ ORDER BY `count`  DESC LIMIT '.$top));
     public function getRestaurantRating()
     {
         $ratings = OfferRedeemed::select(
-                'outlet.id',
-                'outlet.name',
-                'outlet.area',
-                DB::raw('count(outlet.id) as total_rating'),
-                DB::raw('sum(offer_redeemed.rating) as rating_sum'),
-                DB::raw('avg(offer_redeemed.rating) rating_avg')
-            )
+            'outlet.id',
+            'outlet.name',
+            'outlet.area',
+            DB::raw('count(outlet.id) as total_rating'),
+            DB::raw('sum(offer_redeemed.rating) as rating_sum'),
+            DB::raw('avg(offer_redeemed.rating) rating_avg')
+        )
             ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
             ->where('offer_redeemed.rating', '>', -1)
             ->groupBy('outlet.id')
@@ -626,7 +626,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
             ->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
             ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
             ->leftJoin('user', 'user.id', '=', 'offer_redeemed.user_id')
-            ->where('offer_redeemed.created_at', '>', '2017-12-31 23:59:59')
+            ->where('outlet.id', '=', 4)
             ->oldest('offer_redeemed.created_at')
             ->get();
 
@@ -642,7 +642,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
         }
         fclose($fp);
 
-        return response()->download(storage_path('file.csv'), 'Offer Redeemed Report 01-01-2018 to 12-03-2018.csv', [
+        return response()->download(storage_path('file.csv'), 'ARRIBA- MEXICAN GRILL & TEQUILERIA, ASIAD VILLAGE Redeemed.csv', [
             'Content-Type' => 'text/csv'
         ]);
     }
