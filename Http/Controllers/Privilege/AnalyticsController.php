@@ -8,6 +8,7 @@ use App\Models\Privilege\Experiences;
 use App\Models\Privilege\ExpPurchasesOrder;
 use App\Models\Privilege\Offer;
 use App\Models\Privilege\OfferRedeemed;
+use App\Models\Privilege\Outlet;
 use App\Models\Privilege\PaytmOrder;
 use App\Models\Privilege\PaytmOrderStatus;
 use App\Models\Privilege\Restaurant;
@@ -618,15 +619,21 @@ ORDER BY `count`  DESC LIMIT '.$top));
 
     /**
      * @deprecated
+     * @param $id
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function createReport()
+    public function createReport($id)
     {
+        $outlet = Outlet::with('resturant')
+                ->find($id);
+
         $result = OfferRedeemed::selectRaw('user.name as user, offer_redeemed.id, outlet.name, outlet.address, offer.title, offer_redeemed.offers_redeemed, offer_redeemed.created_at')
             ->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
             ->join('outlet', 'outlet.id', '=', 'offer_redeemed.outlet_id')
             ->leftJoin('user', 'user.id', '=', 'offer_redeemed.user_id')
-            ->where('outlet.id', '=', 4)
+            ->where('offer_redeemed.created_at', '>', '2018-02-28')
+            ->where('offer_redeemed.created_at', '<', '2018-04-01')
+            ->where('outlet.id', '=', $id)
             ->oldest('offer_redeemed.created_at')
             ->get();
 
@@ -642,7 +649,7 @@ ORDER BY `count`  DESC LIMIT '.$top));
         }
         fclose($fp);
 
-        return response()->download(storage_path('file.csv'), 'ARRIBA- MEXICAN GRILL & TEQUILERIA, ASIAD VILLAGE Redeemed.csv', [
+        return response()->download(storage_path('file.csv'), $outlet->resturant->name . ' March Redeemed report.csv', [
             'Content-Type' => 'text/csv'
         ]);
     }
