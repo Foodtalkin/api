@@ -129,7 +129,6 @@ $app->get('/', function() use ($app) {
 // 		});
 
 	});
-    $app->get('analytics/createReport', [ 'uses' =>'Privilege\AnalyticsController@getUserState']);
 
 	$app->group(['namespace' => 'App\Http\Controllers\Privilege',
 // 			'middleware' => 'privilegeuser',
