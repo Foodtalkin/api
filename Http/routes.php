@@ -231,6 +231,7 @@ $app->get('/', function() use ($app) {
 		$app->get('outlet/{id}/image', [ 'uses' =>'OutletController@getAllImages']);
 		$app->post('outlet/{id}/image', [ 'uses' =>'OutletController@addImages']);
 		$app->delete('outlet/{id}/image/{imageId}', [ 'uses' =>'OutletController@deleteImage']);
+        $app->get('outlet/redeemed-report/{outletId}', ['uses' => 'OutletController@getRedeemedRecord']);
 
 
 
