@@ -168,7 +168,7 @@ class OutletController extends Controller {
      */
     public function getRedeemedRecord($outletId)
     {
-        $result = OfferRedeemed::selectRaw('user.name as user, offer_redeemed.id, offer.title, offer_redeemed.offers_redeemed, offer_redeemed.created_at')
+        $result = OfferRedeemed::selectRaw('user.name as user, user.phone, user.email, offer_redeemed.id, offer.title, offer_redeemed.offers_redeemed, offer_redeemed.created_at')
             ->join('offer', 'offer.id', '=', 'offer_redeemed.offer_id')
             ->leftJoin('user', 'user.id', '=', 'offer_redeemed.user_id')
             ->where('offer_redeemed.outlet_id', '=', $outletId)
