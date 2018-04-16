@@ -170,6 +170,7 @@ $app->get('/', function() use ($app) {
 		$app->delete('push/{id}', [ 'uses' =>'PushNotificationController@delete']);
 
         $app->post('push/test-notification', [ 'uses' =>'PushNotificationController@sendTestNotification']);
+        $app->post('push/search', [ 'uses' =>'PushNotificationController@search']);
 
 
 		$app->get('feeds/redeemptions', [ 'uses' =>'AnalyticsController@redeemptions']);
