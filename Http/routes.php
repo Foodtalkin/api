@@ -197,6 +197,7 @@ $app->get('/', function() use ($app) {
         $app->get('analytics/coupon-boarded-pie-chart', [ 'uses' =>'AnalyticsController@couponOnBoardPieChart']);
         $app->get('analytics/restaurant-rating', [ 'uses' =>'AnalyticsController@getRestaurantRating']);
         $app->get('analytics/user-state', [ 'uses' =>'AnalyticsController@getUserState']);
+        $app->get('analytics/user-csv', [ 'uses' =>'AnalyticsController@downloadUsersCsv']);
 
 
 		$app->get('log/{entity}/id/{id}','DBLogController@get');
