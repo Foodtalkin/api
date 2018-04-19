@@ -17,6 +17,7 @@ use App\Models\Privilege\UserStatistic;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 // use Illuminate\Http\JsonResponse;
 
@@ -670,69 +671,20 @@ ORDER BY `count`  DESC LIMIT '.$top));
      */
     public function downloadUsersCsv(Request $request)
     {
-        $baseQuery = User::select('user.id', 'user.name', 'email', 'phone', 'gender', DB::raw('city.name as city'), 'dob', 'saving')
-            ->join('city', 'city.id', '=', 'user.city_id');
-
-        if ($request->get('type') == 'paid_user') {
-            $users = $baseQuery->whereHas('subscription', function ($query) {
-                $query->where('subscription.subscription_type_id', 1);
-            })
-                ->get();
-
-            return $this->generateUserCsv($users, 'paid_user.csv', 'Paid User.csv');
-        } else if ($request->get('type') == 'active_trials') {
-            $users = $baseQuery->whereHas('subscription', function ($query) {
-                $query->where('subscription.subscription_type_id', '!=', 1)
-                    ->where('expiry', '>=', Carbon::today());
-            })
-                ->doesnthave('subscription', 'and', function ($query) {
-                    $query->where('subscription.subscription_type_id', 1);
-                })
-                ->get();
-
-            return $this->generateUserCsv($users, 'active_trials.csv', 'Active Trails User.csv');
-        } else if ($request->get('type') == 'only_signed_up') {
-            $users = $baseQuery->doesntHave('subscription')
-                ->get();
-
-            return $this->generateUserCsv($users, 'only_signed_up.csv', 'Only Signed up User.csv');
-        } else if ($request->get('type') == 'trail_expired') {
-            $users = $baseQuery->whereHas('subscription', function ($query) {
-                $query->where('subscription.subscription_type_id', '!=', 1)
-                    ->where('expiry', '<', Carbon::today());
-            })
-                ->doesnthave('subscription', 'and', function ($query) {
-                    $query->where('subscription.subscription_type_id', 1);
-                })
-                ->get();
-
-            return $this->generateUserCsv($users, 'trail_expired.csv', 'Trail Expired User.csv');
+        $type = $request->get('type');
+        if (in_array($type, [
+            'all_user',
+            'paid_user',
+            'active_trials',
+            'only_signed_up',
+            'trail_expired',
+        ])) {
+            return response()->download(
+                storage_path($type.'.csv'),
+                Str::title(str_replace('_', ' ', $type)).'.csv',
+                ['Content-Type' => 'text/csv']
+            );
         }
-    }
-
-    /**
-     * @param $result
-     * @param $fileName
-     * @param $fileTitle
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    protected function generateUserCsv($result, $fileName, $fileTitle)
-    {
-        @unlink(storage_path($fileName));
-
-        $allRecords = array_merge([
-            ['id', 'Name', 'Email', 'Phone', 'Gender', 'City', 'DOB', 'Saving'], [],
-        ], $result->toArray());
-
-        $fp = fopen(storage_path($fileName), 'w');
-        foreach ($allRecords as $fields) {
-            fputcsv($fp, $fields);
-        }
-        fclose($fp);
-
-        return response()->download(storage_path($fileName), $fileTitle, [
-            'Content-Type' => 'text/csv',
-        ]);
     }
 
     /**
