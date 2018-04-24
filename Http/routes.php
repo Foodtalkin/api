@@ -101,13 +101,13 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
     $app->get('all-coupons', ['uses' => 'CouponController@getAll']);
 
     $app->get('profile', [
-// 				'middleware' => 'athuprivilage', 
+// 				'middleware' => 'athuprivilage',
         'uses' =>'UserController@profile']);
 
 // 		$app->group(['namespace' => 'App\Http\Controllers\Privilege'],function($app){
 
     $app->put('user', [
-// 					'middleware' => 'athuprivilage', 
+// 					'middleware' => 'athuprivilage',
         'uses' =>'UserController@update']);
 
     $app->post('subscription', [ 'middleware' => 'athuprivilage', 'uses' =>'UserController@subscription']);
@@ -117,7 +117,7 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
 
     $app->post('redeem', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@redeem']);
     $app->get('redeemhistory', [
-// 					'middleware' => 'athuprivilage', 
+// 					'middleware' => 'athuprivilage',
         'uses' =>'OfferController@redeemHistory']);
 
     $app->post('bookmark/{id}', [ 'middleware' => 'athuprivilage', 'uses' =>'OfferController@bookmark']);
@@ -408,6 +408,18 @@ $app->get('contact/{id}','ContactController@get');
 // 	$app->get('/hello', function () use ($app) {
 // 		return $app->welcome();
 // 	});
+
+$app->group([
+    'namespace' => 'App\Http\Controllers\Partners',
+    'prefix' => 'partners'
+], function($app) {
+    $app->post('login', 'AuthController@login');
+
+
+    $app->delete('logout', [ 'middleware' => 'partner', 'uses' => 'AuthController@logout']);
+
+});
+
 
 // this route for room26. so please keep it is.
 $app->post('msg91', function (\Illuminate\Http\Request $request) {
