@@ -409,15 +409,17 @@ $app->get('contact/{id}','ContactController@get');
 // 		return $app->welcome();
 // 	});
 
+$app->post('partners/login', 'Partners\AuthController@login');
+
 $app->group([
     'namespace' => 'App\Http\Controllers\Partners',
+    'middleware' => 'partner',
     'prefix' => 'partners'
 ], function($app) {
-    $app->post('login', 'AuthController@login');
+    $app->delete('logout', [ 'uses' => 'AuthController@logout']);
+    $app->get('restaurant', ['uses' => 'RestaurantController@index']);
 
-
-    $app->delete('logout', [ 'middleware' => 'partner', 'uses' => 'AuthController@logout']);
-
+    $app->get('outlet/{id}', ['uses' => 'OutletController@show']);
 });
 
 
