@@ -420,6 +420,8 @@ $app->group([
     $app->get('restaurant', ['uses' => 'RestaurantController@index']);
 
     $app->get('outlet/{id}', ['uses' => 'OutletController@show']);
+
+    $app->post('redemption/{id}', [ 'uses' =>'AnalyticsController@offers']);
 });
 
 
