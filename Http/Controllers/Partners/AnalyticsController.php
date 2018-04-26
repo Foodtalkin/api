@@ -52,7 +52,7 @@ class AnalyticsController extends Controller
                 ->get();
 
             $diff = $startDay->diff($endDay);
-            for ($i = 0; $i< $diff->days; $i++) {
+            for ($i = 0; $i < $diff->days; $i++) {
                 $temp = clone $startDay;
                 $newDate = $temp->addDay($i);
                 $first = $records->first(function ($key, $redeem) use($newDate) {
@@ -79,5 +79,3 @@ class AnalyticsController extends Controller
         return $this->sendResponse($result);
     }
 }
-
-?>
