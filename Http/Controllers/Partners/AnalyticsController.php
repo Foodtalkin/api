@@ -30,8 +30,6 @@ class AnalyticsController extends Controller
             $endDay = Carbon::today();
         }
 
-        //$overall = DB::connection('ft_privilege')->select(DB::raw('SELECT count(offer_id) count, offer.title ,offer.id FROM offer left JOIN `offer_redeemed` on offer.id = offer_id group by offer.id'));
-
         $result = [
             'overall' => [],
             'users' => OfferRedeemed::selectRaw('user.name as user, user.phone, user.email, offer_redeemed.id, offer.title, offer_redeemed.offers_redeemed, offer_redeemed.created_at')
@@ -55,7 +53,8 @@ class AnalyticsController extends Controller
 
             $diff = $startDay->diff($endDay);
             for ($i = 0; $i< $diff->days; $i++) {
-                $newDate = (clone $startDay)->addDay($i);
+                $temp = clone $startDay;
+                $newDate = $temp->addDay($i);
                 $first = $records->first(function ($key, $redeem) use($newDate) {
                     return $redeem->date == $newDate->format('Y-m-d');
                 });
