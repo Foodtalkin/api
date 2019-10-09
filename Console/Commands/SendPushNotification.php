@@ -43,7 +43,7 @@ class SendPushNotification extends Command
 	 */
 	public function handle()
 	{
-		$result = PushNotification::where(array('is_disabled'=>'0', 'status'=>'0'))->where('push_time', '<', DB::raw('now()'))->get();
+		$result = collect(); //PushNotification::where(array('is_disabled'=>'0', 'status'=>'0'))->where('push_time', '<', DB::raw('now()'))->get();
 		if(!empty($result)){
 			foreach ($result as $push){
                 $data = json_decode($push->push, true);

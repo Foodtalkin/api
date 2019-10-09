@@ -244,6 +244,7 @@ class UserController extends Controller
 
     // gets a user with id
     public function login(Request $request) {
+        return $this->noAccess();
 
         $otpMatched = false;
         $arr =	$request->getRawPost();
@@ -471,6 +472,9 @@ class UserController extends Controller
      */
     public function subscriptionOrder(Request $request)
     {
+        return $this->noAccess();
+
+
         $arr =	$request->getRawPost();
 
         $type = SubscriptionType::where('id', '=',$arr->subscription_type_id)->first();
@@ -546,6 +550,8 @@ class UserController extends Controller
 
     public function subscribe(Request $request)
     {
+        return $this->noAccess();
+
         $arr =	$request->getRawPost();
 
         $paytm_order = PaytmOrder::find( $arr->order_id );
@@ -750,6 +756,7 @@ class UserController extends Controller
 
 
     public function refreshSession(Request $request) {
+        return $this->noAccess();
 
         $arr =	$request->getRawPost();
         $session = Session::where( 'refresh_token','like',$arr->refresh_token)->first();
@@ -780,6 +787,7 @@ class UserController extends Controller
     }
 
     public function resendOTP(Request $request, $phone) {
+        return $this->noAccess();
 
         $result = Otp::find($phone);
         if($result){
@@ -794,6 +802,8 @@ class UserController extends Controller
     }
 
     public function getOTP(Request $request) {
+
+        return $this->noAccess();
 
         $arr =	$request->getRawPost();
 
@@ -1131,6 +1141,11 @@ class UserController extends Controller
             $result['transaction_id'] = $transaction_id;
 
         return $this->sendResponse ( $result );
+    }
+    //disable as app integration closed
+    public function noAccess()
+    {
+        return Controller::sendResponse ( null, Controller::UN_AUTHORIZED , 'Invalid/Expired Session.');
     }
 }
 ?>
