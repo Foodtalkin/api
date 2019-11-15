@@ -131,7 +131,7 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
 });
 
 $app->group([
-    'middleware' => 'auth',
+    'middleware' => 'privilegeuser',
 ], function ($app) {
     $app->get('contact','ContactController@listAll');
     $app->get('contact/{id}','ContactController@get');
