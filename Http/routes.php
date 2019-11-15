@@ -248,6 +248,9 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege',
     $app->post('coupons', ['uses' => 'CouponController@create']);
     $app->put('coupons/{id}', ['uses' => 'CouponController@update']);
     $app->delete('coupons/{id}', [ 'uses' =>'CouponController@delete']);
+
+    $app->get('contact','ContactController@listAll');
+    $app->get('contact/{id}','ContactController@get');
 });
 
 
@@ -273,8 +276,7 @@ $app->group(['prefix' => '/' ,'namespace' => 'App\Http\Controllers'], function($
 
 $app->post('contact','ContactController@create');
 $app->put('contact/{id}','ContactController@update');
-$app->get('contact','ContactController@listAll');
-$app->get('contact/{id}','ContactController@get');
+
 
 
 // 	$app->post('contact','ContactController@create');
