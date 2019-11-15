@@ -130,6 +130,13 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege', 'middleware' => 'p
 
 });
 
+$app->group([
+    'middleware' => 'auth',
+], function ($app) {
+    $app->get('contact','ContactController@listAll');
+    $app->get('contact/{id}','ContactController@get');
+});
+
 $app->group(['namespace' => 'App\Http\Controllers\Privilege',
 // 			'middleware' => 'privilegeuser',
     'middleware' => 'auth',
@@ -248,9 +255,6 @@ $app->group(['namespace' => 'App\Http\Controllers\Privilege',
     $app->post('coupons', ['uses' => 'CouponController@create']);
     $app->put('coupons/{id}', ['uses' => 'CouponController@update']);
     $app->delete('coupons/{id}', [ 'uses' =>'CouponController@delete']);
-
-    $app->get('contact','ContactController@listAll');
-    $app->get('contact/{id}','ContactController@get');
 });
 
 
