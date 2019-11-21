@@ -282,6 +282,8 @@ $app->group(['prefix' => '/' ,'namespace' => 'App\Http\Controllers'], function($
 $app->post('contact','ContactController@create');
 $app->put('contact/{id}','ContactController@update');
 
+$app->post('instagram/count', 'InstagramController@store');
+
 
 
 // 	$app->post('contact','ContactController@create');
